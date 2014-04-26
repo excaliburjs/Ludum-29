@@ -2,6 +2,8 @@
 
 class Kraken extends ex.Actor {
     private _health: number = Config.defaultKrakenHealth;
+    private _travelVector: ex.Vector = new ex.Vector(0,0);
+    private _isMousePressed = false;
 
     constructor(x?: number, y?: number, color?: ex.Color, health?: number) {
         super(x, y, Config.defaultKrakenWidth, Config.defaultKrakenHeight, color);
@@ -14,18 +16,41 @@ class Kraken extends ex.Actor {
         anim.setScaleY(2);
 
         this.addDrawing("default", anim);
+    }
 
-        this.on("right", function () {
-            this.dx = 100;
+    public onInitialize(game: ex.Engine) {
+
+        game.on('mousedown', (ev: ex.MouseDown) => {
+            console.log("(" + ev.x + ", " + ev.y + ")");
+            this._isMousePressed = true;
+            var target = new ex.Vector(ev.x, ev.y);
+            var travelVector = target.minus(this.getCenter());
+            travelVector.normalize().scale(20);
+            this._travelVector = travelVector;
+            this.move(travelVector.x, travelVector.y);
         });
 
-        this.on("left", function () {
-            this.dx = -100;
+        game.on('mousemove', (ev: ex.MouseMove) => {
+            if (this._isMousePressed) {
+                var target = new ex.Vector(ev.x, ev.y);
+                var travelVector = target.minus(this.getCenter());
+                travelVector.normalize().scale(20);
+                this._travelVector = travelVector;
+                this.move(travelVector.x, travelVector.y);
+            }
         });
 
-        this.on("keyup", function () {
-            this.dx = 0;
+        game.on('mouseup', (ev: ex.MouseUp) => {
+            //TODO rapidly decellerate rather than immediate stop?
+            this._isMousePressed = false;
+            this.dx -= this._travelVector.x;
+            this.dy -= this._travelVector.y;
         });
+    }
+
+    public move(x: number, y: number) {
+        this.dx = x;
+        this.dy = y;
     }
 
 
