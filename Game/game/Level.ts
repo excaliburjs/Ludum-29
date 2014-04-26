@@ -11,26 +11,65 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
    public onInitialize(engine: ex.Engine) {
 
-      var tileset = this.data.tilesets[0];
+      var terrainTileSet: any;
+      var playerSpawn: ex.Point;
 
-      var columns = tileset.imagewidth / tileset.tilewidth;
-      var rows = tileset.imageheight / tileset.tileheight;
+      // find terrain tileset
+      this.data.tilesets.forEach(tileset => {
 
-      var spriteSheet = new ex.SpriteSheet(Config.terrainTexture, columns, rows, tileset.tilewidth, tileset.tileheight);
+         if (tileset.name === "Terrain") {
+            terrainTileSet = tileset;
+         }
+
+      });
+
+      // No terrain? Bad map.
+      if (!terrainTileSet) { return; }
+
+      var columns = terrainTileSet.imagewidth / terrainTileSet.tilewidth;
+      var rows = terrainTileSet.imageheight / terrainTileSet.tileheight;
+
+      var terrainSheet = new ex.SpriteSheet(Config.terrainTexture, columns, rows, terrainTileSet.tilewidth, terrainTileSet.tileheight);
 
       // build the collision map
-      this.collisionMap = new ex.CollisionMap(0, 0, this.data.tilewidth, this.data.tileheight, this.data.width, this.data.height, spriteSheet);
-      for (var i = 0; i < this.data.layers.length; i++) {
-         for (var j = 0; j < this.data.layers[i].data.length; j++) {
-            var gid = this.data.layers[i].data[j];
-            if (gid !== 0) {
-               this.collisionMap.data[j].spriteId = gid - 1;
-               this.collisionMap.data[j].solid = this.isTileSolidTerrain(gid, tileset);
+      this.collisionMap = new ex.CollisionMap(0, 0, this.data.tilewidth, this.data.tileheight, this.data.width, this.data.height, terrainSheet);
+
+      var i, j, gid, layer;
+      for (i = 0; i < this.data.layers.length; i++) {
+
+         layer = this.data.layers[i];
+
+         // terrain layer?
+         if (layer.name === "Terrain") {
+            for (j = 0; j < layer.data.length; j++) {
+               gid = layer.data[j];
+               if (gid !== 0) {
+                  this.collisionMap.data[j].spriteId = gid - 1;
+                  this.collisionMap.data[j].solid = this.isTileSolidTerrain(gid, terrainTileSet);
+               }
             }
+         }
+
+         // object layer
+         if (layer.type === "objectgroup") {
+
+            layer.objects.forEach(obj => {
+
+               if (obj.type === "PlayerSpawn") {
+                  playerSpawn = new ex.Point(obj.x, obj.y);
+               }
+
+            });
+
          }
       }
 
       this.addCollisionMap(this.collisionMap);
+
+      // place player at spawn point
+      if (playerSpawn) {
+         ex.Logger.getInstance().info("Player spawns at", playerSpawn);
+      }
    }
 
    private isTileSolidTerrain(gid: number, tileset: any): boolean {
