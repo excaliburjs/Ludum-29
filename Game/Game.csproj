@@ -24,7 +24,9 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="game\Config.ts" />
     <TypeScriptCompile Include="game\game.ts" />
+    <TypeScriptCompile Include="game\Level.ts" />
     <TypeScriptCompile Include="scripts\Excalibur.d.ts" />
   </ItemGroup>
   <ItemGroup>
