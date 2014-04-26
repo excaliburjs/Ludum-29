@@ -864,6 +864,7 @@ var ex;
     * The CollisionMap object provides a lightweight way to do large complex scenes with collision
     * without the overhead of actors.
     * @class CollisionMap
+    * @constructor
     * @param x {number} The x coordinate to anchor the collision map's upper left corner (should not be changed once set)
     * @param y {number} The y coordinate to anchor the collision map's upper left corner (should not be changed once set)
     * @param cellWidth {number} The individual width of each cell (in pixels) (should not be changed once set)
@@ -2339,7 +2340,7 @@ var ex;
                         }
                         side = this.getSideFromIntersect(intersectMap);
                         eventDispatcher.publish('collision', new ex.CollisionEvent(this, null, side, intersectMap));
-                        if ((this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
+                        if (this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) {
                             //var intersectMap = map.getOverlap(this);
                             if (Math.abs(intersectMap.y) < Math.abs(intersectMap.x)) {
                                 this.y += intersectMap.y;

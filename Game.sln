@@ -4,8 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.30324.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{D59A333F-7E78-4A0F-A0CA-16AC73C85673}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1DF7CFCA-A048-417C-84E7-4D1CC6A3FD77} = {1DF7CFCA-A048-417C-84E7-4D1CC6A3FD77}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Core", "..\Excalibur\src\engine\Excalibur.Core.csproj", "{1DF7CFCA-A048-417C-84E7-4D1CC6A3FD77}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Core", "Excalibur\src\engine\Excalibur.Core.csproj", "{1DF7CFCA-A048-417C-84E7-4D1CC6A3FD77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
