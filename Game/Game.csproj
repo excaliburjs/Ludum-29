@@ -30,6 +30,7 @@
   <ItemGroup>
     <Content Include="scripts\Excalibur.js.map" />
     <Content Include="app.js.map" />
+    <Content Include="maps\TestMap.json" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
