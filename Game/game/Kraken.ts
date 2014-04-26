@@ -1,4 +1,5 @@
 ﻿/// <reference path="Config.ts" />
+/// <reference path="Enemy.ts" />
 
 class Kraken extends ex.Actor {
     private _health: number = Config.defaultKrakenHealth;
@@ -53,5 +54,8 @@ class Kraken extends ex.Actor {
         this.dy = y;
     }
 
+    public attack() {
+
+    }
 
 }

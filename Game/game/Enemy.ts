@@ -8,17 +8,25 @@
          this._health = health || this._health;
      }
 
-     public patrol() {
+     public movePatrol(start: ex.Point, end: ex.Point) {
+        this.moveTo(end.x, end.y, Config.defaultEnemySpeed).moveTo(start.x, start.y, Config.defaultEnemySpeed).repeatForever;
+     }
+
+     public moveCircle() {
+        
+     }
+
+     public moveMeander() {
 
      }
 
      public attack() {
-
+        // if the ship can still see the kraken (or the kraken is in the ship's attack proximity), attack the kraken
      }
 
      public assistShip(shipInTrouble: Enemy) {
          this.clearActions();
-         this.follow(shipInTrouble);
+         this.follow(shipInTrouble, 50);
      }
  }
 
@@ -26,4 +34,4 @@ export enum alertStatus {
     Calm, 
     Warn,
     Attack
-}
+ }
