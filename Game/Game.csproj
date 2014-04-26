@@ -17,6 +17,7 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="app.js" />
     <Content Include="css\app.css" />
     <Content Include="index.html" />
     <Content Include="scripts\Excalibur.js" />
@@ -28,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="scripts\Excalibur.js.map" />
+    <Content Include="app.js.map" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
