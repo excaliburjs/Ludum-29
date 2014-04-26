@@ -19,6 +19,21 @@ for (var resource in Resources) {
 }
 
 game.start(loader).then(() => {
-   game.addScene("level0", Resources.Level0);
-   game.goToScene("level0");
+
+   var splash = new ex.Actor(0, 0, game.width, game.height);
+   splash.addDrawing("bg", new ex.Sprite(Resources.SplashTexture, 0, 0, game.width, game.height));
+
+   game.addChild(splash);
+
+   game.on("keyup", (ev: ex.KeyUp) => {
+
+      if (ev.key !== ex.InputKey.Space) return;
+
+      if (game.currentScene !== Resources.Level0) {
+         game.addScene("level0", Resources.Level0);
+         game.goToScene("level0");
+      }
+   });
+
+
 });

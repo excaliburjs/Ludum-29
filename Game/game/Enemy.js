@@ -13,15 +13,23 @@ define(["require", "exports"], function(require, exports) {
             this._alertStatus = 0 /* Calm */;
             this._health = health || this._health;
         }
-        Enemy.prototype.patrol = function () {
+        Enemy.prototype.movePatrol = function (start, end) {
+            this.moveTo(end.x, end.y, Config.defaultEnemySpeed).moveTo(start.x, start.y, Config.defaultEnemySpeed).repeatForever;
+        };
+
+        Enemy.prototype.moveCircle = function () {
+        };
+
+        Enemy.prototype.moveMeander = function () {
         };
 
         Enemy.prototype.attack = function () {
+            // if the ship can still see the kraken (or the kraken is in the ship's attack proximity), attack the kraken
         };
 
         Enemy.prototype.assistShip = function (shipInTrouble) {
             this.clearActions();
-            this.follow(shipInTrouble);
+            this.follow(shipInTrouble, 50);
         };
         return Enemy;
     })(ex.Actor);
