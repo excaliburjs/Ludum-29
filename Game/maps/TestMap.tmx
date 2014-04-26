@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="80" height="80" tilewidth="48" tileheight="48">
  <tileset firstgid="1" name="World" tilewidth="48" tileheight="48">
-  <image source="../../../../Assets/oryx_16-bit_fantasy_1.1/Maps/world_48x48/oryx_16bit_fantasy_world_trans.png" width="2732" height="2014"/>
+  <image source="../images/tilesets/world-48x48.png" width="2732" height="2014"/>
  </tileset>
  <layer name="Tile Layer 1" width="80" height="80">
   <data encoding="base64" compression="zlib">

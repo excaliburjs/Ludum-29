@@ -20,7 +20,7 @@
  "tilesets":[
         {
          "firstgid":1,
-         "image":"..\/..\/..\/..\/Assets\/oryx_16-bit_fantasy_1.1\/Maps\/world_48x48\/oryx_16bit_fantasy_world_trans.png",
+         "image":"..\/images\/tilesets\/world-48x48.png",
          "imageheight":2014,
          "imagewidth":2732,
          "margin":0,
