@@ -29,7 +29,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       var columns = terrainTileSet.imagewidth / terrainTileSet.tilewidth;
       var rows = terrainTileSet.imageheight / terrainTileSet.tileheight;
 
-      var terrainSheet = new ex.SpriteSheet(Config.terrainTexture, columns, rows, terrainTileSet.tilewidth, terrainTileSet.tileheight);
+      var terrainSheet = new ex.SpriteSheet(Resources.TerrainTexture, columns, rows, terrainTileSet.tilewidth, terrainTileSet.tileheight);
 
       // build the collision map
       this.collisionMap = new ex.CollisionMap(0, 0, this.data.tilewidth, this.data.tileheight, this.data.width, this.data.height, terrainSheet);
@@ -55,8 +55,10 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
             layer.objects.forEach(obj => {
 
-               if (obj.type === "PlayerSpawn") {
-                  playerSpawn = new ex.Point(obj.x, obj.y);
+               if (obj.type && this._objectFactories[obj.type]) {
+
+                  this._objectFactories[obj.type](obj.x, obj.y);
+
                }
 
             });
@@ -65,11 +67,23 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       }
 
       this.addCollisionMap(this.collisionMap);
+   }
 
-      // place player at spawn point
-      if (playerSpawn) {
-         ex.Logger.getInstance().info("Player spawns at", playerSpawn);
+   private _objectFactories: {[key: string]: (x: number, y: number) => void } = {
+      
+      PlayerSpawn: (x: number, y: number) => {
+
+         ex.Logger.getInstance().info("Spawned the Kraken", x, y);
+
+         var kraken = new Kraken(x, y);
+
+         // add to level
+         this.addChild(kraken);
+
+         // follow the kraken
+         game.camera.setActorToFollow(kraken);
       }
+
    }
 
    private isTileSolidTerrain(gid: number, tileset: any): boolean {

@@ -1,4 +1,5 @@
 ﻿/// <reference path="../scripts/Excalibur.d.ts" />
+/// <reference path="Resources.ts" />
 /// <reference path="Level.ts" />
 /// <reference path="Kraken.ts" />
 /// <reference path="Enemy.ts" />
@@ -10,17 +11,14 @@ game.camera = new ex.TopCamera(game);
 
 var loader = new ex.Loader();
 
-var level = new BaseLevel("/maps/Level-0.json");
-loader.addResource(level);
-loader.addResource(Config.terrainTexture);
-
-var kraken = new Kraken(200, 200, ex.Color.Red);
-
-game.camera.setActorToFollow(kraken);
-
-level.addChild(kraken);
+// Load all resources
+for (var resource in Resources) {
+   if (Resources.hasOwnProperty(resource)) {
+      loader.addResource(Resources[resource]);
+   }
+}
 
 game.start(loader).then(() => {
-    game.addScene("test-level", level);
-    game.goToScene("test-level");
+   game.addScene("level0", Resources.Level0);
+   game.goToScene("level0");
 });

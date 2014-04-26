@@ -7,10 +7,7 @@ class Kraken extends ex.Actor {
         super(x, y, Config.defaultKrakenWidth, Config.defaultKrakenHeight, color);
         this._health = health || this._health;
 
-        var krakenTexture = new ex.Texture("images/kraken/KrakenSpriteSheet.png");
-        loader.addResource(krakenTexture);
-
-        var krakenSheet = new ex.SpriteSheet(krakenTexture, 4, 3, 120, 60);
+        var krakenSheet = new ex.SpriteSheet(Resources.KrakenTexture, 4, 3, 120, 60);
         var anim = krakenSheet.getAnimationByIndices(game, [0, 1, 2], 200);
         anim.loop = true;
         anim.setScaleX(2);
