@@ -18,7 +18,7 @@ export class BaseLevel extends ex.Scene implements ex.ILoadable {
     public load(): ex.Promise<any> {
         var complete = new ex.Promise<any>();
         var request = new XMLHttpRequest();
-        request.open("GET", this.path, true);
+        request.open("GET", this.jsonPath, true);
         request.responseType = "json";
         request.onload = (e) => {
             complete.resolve(request.response);
