@@ -19,6 +19,9 @@
   <ItemGroup>
     <Content Include="app.js" />
     <Content Include="css\app.css" />
+    <Content Include="images\kraken\Kraken.png" />
+    <Content Include="images\kraken\KrakenSpriteSheet.png" />
+    <Content Include="images\tilesets\world-48x48.png" />
     <Content Include="index.html" />
     <Content Include="scripts\Excalibur.js" />
     <Content Include="web.config" />
