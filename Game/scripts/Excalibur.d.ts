@@ -11,6 +11,33 @@ declare module ex {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
+        /**
+        * X Coordinate of the point
+        * @property x {number}
+        */
+        /**
+        * Y Coordinate of the point
+        * @property y {number}
+        */
+        /**
+        * Convert this point to a vector
+        * @method toVector
+        * @returns Vector
+        */
+        public toVector(): Vector;
+        /**
+        * Rotates the current point around another by a certain number of
+        * degrees in radians
+        * @method rotate
+        * @returns Point
+        */
+        public rotate(angle: number, anchor?: Point): Point;
+        /**
+        * Translates the current point by a vector
+        * @method add
+        * @returns Point
+        */
+        public add(vector: Vector): Point;
     }
     /**
     * A 2D vector on a plane.
@@ -23,6 +50,14 @@ declare module ex {
     class Vector extends Point {
         public x: number;
         public y: number;
+        /**
+        * Returns a vector of unit length in the direction of the specified angle.
+        * @method fromAngle
+        * @static
+        * @param angle {number} The angle to generate the vector
+        * @returns Vector
+        */
+        static fromAngle(angle: number): Vector;
         constructor(x: number, y: number);
         /**
         * The distance to another vector
@@ -72,6 +107,94 @@ declare module ex {
         * @returns number
         */
         public cross(v: Vector): number;
+        /**
+        * Returns the perpendicular vector to this one
+        * @method perpendicular
+        * @return Vector
+        */
+        public perpendicular(): Vector;
+        /**
+        * Returns the normal vector to this one
+        * @method normal
+        * @return Vector
+        */
+        public normal(): Vector;
+        /**
+        * Returns the angle of this vector.
+        * @method toAngle
+        * @returns number
+        */
+        public toAngle(): number;
+        /**
+        * Returns the point represention of this vector
+        * @method toPoint
+        * @returns Point
+        */
+        public toPoint(): Point;
+        /**
+        * Rotates the current vector around a point by a certain number of
+        * degrees in radians
+        * @method rotate
+        * @returns Vector
+        */
+        public rotate(angle: number, anchor: Point): Vector;
+    }
+    /**
+    * A 2D ray that can be cast into the scene to do collision detection
+    * @class Ray
+    * @constructor
+    * @param pos {Point} The starting position for the ray
+    * @param dir {Vector} The vector indicating the direction of the ray
+    */
+    class Ray {
+        public pos: Point;
+        public dir: Vector;
+        constructor(pos: Point, dir: Vector);
+        /**
+        * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+        * This number indicates the mathematical intersection time.
+        * @method intersect
+        * @param line {Line} The line to test
+        * @returns number
+        */
+        public intersect(line: Line): number;
+        /**
+        * Returns the point of intersection given the intersection time
+        * @method getPoint
+        * @returns Point
+        */
+        public getPoint(time: number): Point;
+    }
+    /**
+    * A 2D line segment
+    * @class Line
+    * @constructor
+    * @param begin {Point} The starting point of the line segment
+    * @param end {Point} The ending point of the line segment
+    */
+    class Line {
+        public begin: Point;
+        public end: Point;
+        constructor(begin: Point, end: Point);
+        /**
+        * Returns the slope of the line in the form of a vector
+        * @method getSlope
+        * @returns Vector
+        */
+        public getSlope(): Vector;
+        /**
+        * Returns the length of the line segment in pixels
+        * @method getLength
+        * @returns number
+        */
+        public getLength(): number;
+    }
+    class Projection {
+        public min: number;
+        public max: number;
+        constructor(min: number, max: number);
+        public overlaps(projection: Projection): boolean;
+        public getOverlap(projection: Projection): number;
     }
 }
 declare module ex {
@@ -563,6 +686,10 @@ declare module ex {
     }
 }
 declare module ex {
+    enum CollisionStrategy {
+        AxisAligned = 0,
+        SeparatingAxis = 1,
+    }
     /**
     * Interface all collidable objects must implement
     * @class ICollidable
@@ -584,6 +711,7 @@ declare module ex {
         * @returns boolean
         */
         contains(point: Point): boolean;
+        debugDraw(ctx: CanvasRenderingContext2D): void;
     }
     /**
     * Axis Aligned collision primitive for Excalibur.
@@ -628,6 +756,36 @@ declare module ex {
         * @returns Vector
         */
         public collides(collidable: ICollidable): Vector;
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
+    }
+    class SATBoundingBox implements ICollidable {
+        private _points;
+        constructor(points: Point[]);
+        public getSides(): Line[];
+        public getAxes(): Vector[];
+        public project(axis: Vector): Projection;
+        /**
+        * Returns the calculated width of the bounding box, by generating an axis aligned box around the current
+        * @method getWidth
+        * @returns number
+        */
+        public getWidth(): number;
+        /**
+        * Returns the calculated height of the bounding box, by generating an axis aligned box around the current
+        * @method getHeight
+        * @returns number
+        */
+        public getHeight(): number;
+        /**
+        * Tests wether a point is contained within the bounding box, using the PIP algorithm
+        * http://en.wikipedia.org/wiki/Point_in_polygon
+        * @method contains
+        * @param p {Point} The point to test
+        * @returns boolean
+        */
+        public contains(p: Point): boolean;
+        public collides(collidable: ICollidable): Vector;
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
     }
 }
 declare module ex {
@@ -950,6 +1108,12 @@ declare module ex {
         * @property collisionType {CollisionType}
         */
         public collisionType: CollisionType;
+        /**
+        * Gets or sets the current collision strategy used by this actor.
+        * By default all actors use the SeparatingAxis strategy.
+        * @property collisionStrategy: {CollisionStrategy}
+        */
+        public collisionStrategy: CollisionStrategy;
         public collisionGroups: string[];
         private _collisionHandlers;
         private _isInitialized;
@@ -1111,9 +1275,9 @@ declare module ex {
         /**
         * Returns the actor's bounding box calculated for this instant.
         * @method getBounds
-        * @returns BoundingBox
+        * @returns ICollidable
         */
-        public getBounds(): BoundingBox;
+        public getBounds(): ICollidable;
         /**
         * Tests whether the x/y specified are contained in the actor
         * @method contains

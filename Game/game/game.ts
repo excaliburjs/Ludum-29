@@ -7,6 +7,12 @@
 var game = new ex.Engine(920, 580, "game");
 game.backgroundColor = ex.Color.Azure;
 game.setAntialiasing(false);
+game.on('keydown', function(ev: ex.KeyDown) {
+    if (ev.key === ex.InputKey.D) {
+        game.isDebug = !game.isDebug;
+    }
+});
+
 game.camera = new ex.TopCamera(game);
 
 var loader = new ex.Loader();
