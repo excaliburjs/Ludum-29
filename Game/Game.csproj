@@ -21,6 +21,7 @@
     <Content Include="css\app.css" />
     <Content Include="images\kraken\Kraken.png" />
     <Content Include="images\kraken\KrakenSpriteSheet.png" />
+    <Content Include="images\tilesets\Terrain.png" />
     <Content Include="images\tilesets\world-48x48.png" />
     <Content Include="index.html" />
     <Content Include="scripts\Excalibur.js" />
@@ -36,6 +37,7 @@
     <Content Include="scripts\Excalibur.js.map" />
     <Content Include="app.js.map" />
     <Content Include="maps\TestMap.json" />
+    <Content Include="maps\Level-0.json" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
