@@ -1,7 +1,14 @@
 ﻿body {
     font-family: 'Segoe UI', sans-serif;
+    text-align: center;
+    background: #030d18;
+    color: #2b3f56;
 }
 
-span {
-    font-style: italic;
+a {
+    color: #2b3f56;
+}
+
+canvas {
+    margin: 0 auto;
 }

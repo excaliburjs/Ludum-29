@@ -1,10 +1,10 @@
 ﻿/// <reference path="../scripts/Excalibur.d.ts" />
-/// <reference path="Resources.ts" />
 /// <reference path="Level.ts" />
+/// <reference path="Resources.ts" />
 /// <reference path="Kraken.ts" />
 /// <reference path="Enemy.ts" />
 
-var game = new ex.Engine();
+var game = new ex.Engine(920, 580, "game");
 game.backgroundColor = ex.Color.Azure;
 game.setAntialiasing(false);
 game.camera = new ex.TopCamera(game);
