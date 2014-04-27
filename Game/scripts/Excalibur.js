@@ -2806,7 +2806,7 @@ var ex;
                     var map = engine.currentScene.collisionMaps[j];
                     var intersectMap;
                     var side = 0 /* None */;
-                    var max = 2;
+                    var max = 5;
                     var hasBounced = false;
 
                     while (intersectMap = map.collides(this)) {

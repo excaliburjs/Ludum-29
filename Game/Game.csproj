@@ -35,6 +35,7 @@
     <TypeScriptCompile Include="game\Kraken.ts" />
     <TypeScriptCompile Include="game\Level.ts" />
     <TypeScriptCompile Include="game\Resources.ts" />
+    <TypeScriptCompile Include="game\ShipEvents.ts" />
     <TypeScriptCompile Include="scripts\Excalibur.d.ts" />
   </ItemGroup>
   <ItemGroup>
