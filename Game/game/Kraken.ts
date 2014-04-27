@@ -10,15 +10,18 @@ class Kraken extends ex.Actor {
         super(x, y, Config.defaultKrakenWidth, Config.defaultKrakenHeight, color);
         this._health = health || this._health;
 
-        var krakenSheet = new ex.SpriteSheet(Resources.KrakenTexture, 4, 3, 120, 60);
+       var krakenSheet = new ex.SpriteSheet(Resources.KrakenTexture, 4, 3, 120, 60);
+
+       krakenSheet.sprites.forEach(s => s.addEffect(new Fx.Multiply(Palette.ColorNightTime)));
+
         var anim = krakenSheet.getAnimationByIndices(game, [0, 1, 2], 200);
         anim.loop = true;
         anim.setScaleX(2);
         anim.setScaleY(2);
-
+        this.setCenterDrawing(true);
         var centerVector = this.getCenter();
         //anim.transformAboutPoint(new ex.Point(centerVector.x, centerVector.y));
-        this.setCenterDrawing(true);
+
 
         this.addDrawing("default", anim);
 
@@ -28,6 +31,7 @@ class Kraken extends ex.Actor {
 
 
         game.on('mousedown', (ev: ex.MouseDown) => {
+            console.log("(" + ev.x + ", " + ev.y + ")");
             this._isMousePressed = true;
             var target = new ex.Vector(ev.x, ev.y);
             var travelVector = target.minus(this.getCenter());

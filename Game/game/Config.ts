@@ -1,7 +1,7 @@
 ﻿class Config {
 
     // Kraken
-    static defaultKrakenWidth: number = 50;
+    static defaultKrakenWidth: number = 150;
     static defaultKrakenHeight: number = 50;
 
     static defaultKrakenHealth: number = 100;

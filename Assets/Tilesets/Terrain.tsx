@@ -9,6 +9,8 @@
   </terrain>
   <terrain name="Grass" tile="63"/>
   <terrain name="Sand" tile="72"/>
+  <terrain name="Green Trees" tile="203"/>
+  <terrain name="Sand Trees" tile="206"/>
  </terraintypes>
  <tile id="0" terrain="0,0,0,0"/>
  <tile id="3" terrain="0,0,0,1"/>
@@ -99,4 +101,22 @@
  <tile id="144" terrain="1,0,0,0"/>
  <tile id="151" terrain="0,2,0,0"/>
  <tile id="152" terrain="2,0,0,0"/>
+ <tile id="182" terrain=",,,3"/>
+ <tile id="183" terrain=",,3,3"/>
+ <tile id="184" terrain=",,3,"/>
+ <tile id="185" terrain=",,,4"/>
+ <tile id="186" terrain=",,4,4"/>
+ <tile id="187" terrain=",,4,"/>
+ <tile id="202" terrain=",3,,3"/>
+ <tile id="203" terrain="3,3,3,3"/>
+ <tile id="204" terrain="3,,3,"/>
+ <tile id="205" terrain=",4,,4"/>
+ <tile id="206" terrain="4,4,4,4"/>
+ <tile id="207" terrain="4,,4,"/>
+ <tile id="222" terrain=",3,,"/>
+ <tile id="223" terrain="3,3,,"/>
+ <tile id="224" terrain="3,,,"/>
+ <tile id="225" terrain=",4,,"/>
+ <tile id="226" terrain="4,4,,"/>
+ <tile id="227" terrain="4,,,"/>
 </tileset>

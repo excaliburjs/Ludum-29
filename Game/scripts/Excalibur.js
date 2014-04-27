@@ -1008,8 +1008,18 @@ var ex;
     var Util = ex.Util;
 })(ex || (ex = {}));
 /// <reference path="Core.ts" />
+/// <reference path="Algebra.ts" />
 var ex;
 (function (ex) {
+    var TileSprite = (function () {
+        function TileSprite(spriteSheetKey, spriteId) {
+            this.spriteSheetKey = spriteSheetKey;
+            this.spriteId = spriteId;
+        }
+        return TileSprite;
+    })();
+    ex.TileSprite = TileSprite;
+
     /**
     * A light-weight object that occupies a space in a collision map. Generally
     * created by a CollisionMap.
@@ -1052,16 +1062,16 @@ var ex;
         * The index of the sprite to use from the CollisionMap SpriteSheet, if -1 is specified nothing is drawn.
         * @property number {number}
         */
-        spriteId) {
+        sprites) {
             if (typeof solid === "undefined") { solid = false; }
-            if (typeof spriteId === "undefined") { spriteId = -1; }
+            if (typeof sprites === "undefined") { sprites = []; }
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
             this.index = index;
             this.solid = solid;
-            this.spriteId = spriteId;
+            this.sprites = sprites;
             this._bounds = new ex.BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
         }
         /**
@@ -1071,6 +1081,14 @@ var ex;
         */
         Cell.prototype.getBounds = function () {
             return this._bounds;
+        };
+
+        Cell.prototype.getCenter = function () {
+            return new ex.Vector(this.x + this.width / 2, this.y + this.height / 2);
+        };
+
+        Cell.prototype.pushSprite = function (tileSprite) {
+            this.sprites.push(tileSprite);
         };
         return Cell;
     })();
@@ -1089,8 +1107,8 @@ var ex;
     * @param cols {number} The number of cols in the collision map (should not be changed once set)
     * @param spriteSheet {SpriteSheet} The spriteSheet to use for drawing
     */
-    var CollisionMap = (function () {
-        function CollisionMap(x, y, cellWidth, cellHeight, rows, cols, spriteSheet) {
+    var TileMap = (function () {
+        function TileMap(x, y, cellWidth, cellHeight, rows, cols) {
             var _this = this;
             this.x = x;
             this.y = y;
@@ -1098,13 +1116,14 @@ var ex;
             this.cellHeight = cellHeight;
             this.rows = rows;
             this.cols = cols;
-            this.spriteSheet = spriteSheet;
             this._collidingX = -1;
             this._collidingY = -1;
             this._onScreenXStart = 0;
             this._onScreenXEnd = 9999;
             this._onScreenYStart = 0;
             this._onScreenYEnd = 9999;
+            this._spriteSheets = {};
+            this.logger = ex.Logger.getInstance();
             this.data = [];
             this.data = new Array(rows * cols);
             for (var i = 0; i < cols; i++) {
@@ -1116,6 +1135,10 @@ var ex;
                 }
             }
         }
+        TileMap.prototype.registerSpriteSheet = function (key, spriteSheet) {
+            this._spriteSheets[key] = spriteSheet;
+        };
+
         /**
         * Returns the intesection vector that can be used to resolve collisions with actors. If there
         * is no collision null is returned.
@@ -1123,7 +1146,7 @@ var ex;
         * @param actor {Actor}
         * @returns Vector
         */
-        CollisionMap.prototype.collides = function (actor) {
+        TileMap.prototype.collides = function (actor) {
             var points = [];
             var width = actor.x + actor.getWidth();
             var height = actor.y + actor.getHeight();
@@ -1138,7 +1161,9 @@ var ex;
                     var yover = 0;
                     if (cell && cell.solid) {
                         var overlap = actorBounds.collides(cell.getBounds());
-                        if (overlap) {
+                        var dir = actor.getCenter().minus(cell.getCenter());
+
+                        if (overlap && overlap.dot(dir) > 0) {
                             overlaps.push(overlap);
                         }
                     }
@@ -1212,7 +1237,7 @@ var ex;
         * @param index {number}
         * @returns Cell
         */
-        CollisionMap.prototype.getCellByIndex = function (index) {
+        TileMap.prototype.getCellByIndex = function (index) {
             return this.data[index];
         };
 
@@ -1223,7 +1248,7 @@ var ex;
         * @param y {number}
         * @returns Cell
         */
-        CollisionMap.prototype.getCell = function (x, y) {
+        TileMap.prototype.getCell = function (x, y) {
             if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) {
                 return null;
             }
@@ -1239,7 +1264,7 @@ var ex;
         * @param y {number}
         * @returns Cell
         */
-        CollisionMap.prototype.getCellByPoint = function (x, y) {
+        TileMap.prototype.getCellByPoint = function (x, y) {
             var x = Math.floor((x - this.x) / this.cellWidth);
             var y = Math.floor((y - this.y) / this.cellHeight);
 
@@ -1251,14 +1276,14 @@ var ex;
             return null;
         };
 
-        CollisionMap.prototype.update = function (engine, delta) {
+        TileMap.prototype.update = function (engine, delta) {
             var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new ex.Point(0, 0));
             var worldCoordsLowerRight = engine.screenToWorldCoordinates(new ex.Point(engine.width, engine.height));
 
             this._onScreenXStart = Math.max(Math.floor(worldCoordsUpperLeft.x / this.cellWidth) - 2, 0);
-            this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight), 0);
-            this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth), 0);
-            this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 1, 0);
+            this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
+            this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth) + 2, 0);
+            this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
         };
 
         /**
@@ -1267,16 +1292,28 @@ var ex;
         * @param ctx {CanvasRenderingContext2D} The current rendering context
         * @param delta {number} The number of milliseconds since the last draw
         */
-        CollisionMap.prototype.draw = function (ctx, delta) {
+        TileMap.prototype.draw = function (ctx, delta) {
+            var _this = this;
             ctx.save();
             ctx.translate(this.x, this.y);
 
             for (var x = this._onScreenXStart; x < Math.min(this._onScreenXEnd, this.cols); x++) {
                 for (var y = this._onScreenYStart; y < Math.min(this._onScreenYEnd, this.rows); y++) {
-                    var spriteId = this.getCell(x, y).spriteId;
-                    if (spriteId > -1) {
-                        this.spriteSheet.getSprite(spriteId).draw(ctx, x * this.cellWidth, y * this.cellHeight);
-                    }
+                    this.getCell(x, y).sprites.filter(function (s) {
+                        return s.spriteId > -1;
+                    }).forEach(function (ts) {
+                        var ss = _this._spriteSheets[ts.spriteSheetKey];
+                        if (ss) {
+                            var sprite = ss.getSprite(ts.spriteId);
+                            if (sprite) {
+                                sprite.draw(ctx, x * _this.cellWidth, y * _this.cellHeight);
+                            } else {
+                                _this.logger.warn("Sprite does not exist for id", ts.spriteId, "in sprite sheet", ts.spriteSheetKey, sprite, ss);
+                            }
+                        } else {
+                            _this.logger.warn("Sprite sheet", ts.spriteSheetKey, "does not exist", ss);
+                        }
+                    });
                 }
             }
             ctx.restore();
@@ -1287,7 +1324,7 @@ var ex;
         * @method draw
         * @param ctx {CanvasRenderingContext2D} The current rendering context
         */
-        CollisionMap.prototype.debugDraw = function (ctx) {
+        TileMap.prototype.debugDraw = function (ctx) {
             var width = this.cols * this.cellWidth;
             var height = this.rows * this.cellHeight;
 
@@ -1306,7 +1343,7 @@ var ex;
                 ctx.lineTo(this.x + width, this.y + y * this.cellHeight);
                 ctx.stroke();
             }
-            var solid = ex.Color.Blue.clone();
+            var solid = ex.Color.Red.clone();
             solid.a = .3;
             this.data.filter(function (cell) {
                 return cell.solid;
@@ -1321,9 +1358,9 @@ var ex;
             }
             ctx.restore();
         };
-        return CollisionMap;
+        return TileMap;
     })();
-    ex.CollisionMap = CollisionMap;
+    ex.TileMap = TileMap;
 })(ex || (ex = {}));
 /// <reference path="Algebra.ts" />
 var ex;
@@ -1409,7 +1446,12 @@ var ex;
                     } else {
                         overlapY = other.top - this.bottom;
                     }
-                    return new ex.Vector(overlapX, overlapY);
+
+                    if (Math.abs(overlapX) < Math.abs(overlapY)) {
+                        return new ex.Vector(overlapX, 0);
+                    } else {
+                        return new ex.Vector(0, overlapY);
+                    }
                 } else {
                     return null;
                 }
@@ -1419,6 +1461,15 @@ var ex;
         };
 
         BoundingBox.prototype.debugDraw = function (ctx) {
+        };
+
+        BoundingBox.prototype.toSATBB = function () {
+            return new SATBoundingBox([
+                new ex.Point(this.left, this.top),
+                new ex.Point(this.right, this.top),
+                new ex.Point(this.right, this.bottom),
+                new ex.Point(this.left, this.bottom)
+            ]);
         };
         return BoundingBox;
     })();
@@ -1430,6 +1481,10 @@ var ex;
                 return p.toVector();
             });
         }
+        SATBoundingBox.prototype.toSATBB = function () {
+            return this;
+        };
+
         SATBoundingBox.prototype.getSides = function () {
             var lines = [];
             var len = this._points.length;
@@ -1572,7 +1627,7 @@ var ex;
 /// <reference path="Core.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
-/// <reference path="CollisionMap.ts" />
+/// <reference path="TileMap.ts" />
 /// <reference path="BoundingBox.ts" />
 var ex;
 (function (ex) {
@@ -1748,11 +1803,11 @@ var ex;
             actor.parent = this.actor;
         };
 
-        Scene.prototype.addCollisionMap = function (collisionMap) {
+        Scene.prototype.addTileMap = function (collisionMap) {
             this.collisionMaps.push(collisionMap);
         };
 
-        Scene.prototype.removeCollisionMap = function (collisionMap) {
+        Scene.prototype.removeTileMap = function (collisionMap) {
             var index = this.collisionMaps.indexOf(collisionMap);
             if (index > -1) {
                 this.collisionMaps.splice(index, 1);
@@ -2334,13 +2389,13 @@ var ex;
         */
         Actor.prototype.getSideFromIntersect = function (intersect) {
             if (intersect) {
-                if (Math.abs(intersect.x) < Math.abs(intersect.y)) {
-                    if (intersect.x < 0) {
+                if (Math.abs(intersect.x) > Math.abs(intersect.y)) {
+                    if (intersect.x > 0) {
                         return 4 /* Right */;
                     }
                     return 3 /* Left */;
                 } else {
-                    if (intersect.y < 0) {
+                    if (intersect.y > 0) {
                         return 2 /* Bottom */;
                     }
                     return 1 /* Top */;
@@ -2727,11 +2782,8 @@ var ex;
                                 this.x += intersectActor.x;
                                 this.y += intersectActor.y;
                             } else {
-                                if (Math.abs(intersectActor.y) < Math.abs(intersectActor.x)) {
-                                    this.y += intersectActor.y;
-                                } else {
-                                    this.x += intersectActor.x;
-                                }
+                                this.y += intersectActor.y;
+                                this.x += intersectActor.x;
                             }
 
                             // Naive elastic bounce
@@ -2759,6 +2811,7 @@ var ex;
 
                     while (intersectMap = map.collides(this)) {
                         //iters.push(intersectMap);
+                        console.log("CollisionMap", intersectMap);
                         if (max-- < 0) {
                             break;
                         }
@@ -2766,10 +2819,13 @@ var ex;
                         eventDispatcher.publish('collision', new ex.CollisionEvent(this, null, side, intersectMap));
                         if (this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) {
                             //var intersectMap = map.getOverlap(this);
-                            if (Math.abs(intersectMap.y) < Math.abs(intersectMap.x)) {
-                                this.y += intersectMap.y;
+                            this.y += intersectMap.y;
+                            this.x += intersectMap.x;
+
+                            if (Math.abs(intersectMap.y) > Math.abs(intersectMap.x)) {
+                                this.dy = 0;
                             } else {
-                                this.x += intersectMap.x;
+                                this.dx = 0;
                             }
 
                             // Naive elastic bounce
@@ -2873,8 +2929,6 @@ var ex;
 
             ctx.save();
             ctx.translate(this.x, this.y);
-            ctx.rotate(this.rotation);
-            ctx.scale(this.scaleX, this.scaleY);
 
             if (this.previousOpacity != this.opacity) {
                 for (var drawing in this.frames) {
@@ -2889,17 +2943,21 @@ var ex;
                     var xDiff = 0;
                     var yDiff = 0;
                     if (this.centerDrawingX) {
-                        xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.width) / 2;
+                        ctx.translate(this.getWidth() / 2, 0);
+
+                        xDiff = (this.currentDrawing.width / 2 * this.currentDrawing.getScaleX());
                     }
 
                     if (this.centerDrawingY) {
-                        yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.height) / 2;
+                        ctx.translate(0, this.getHeight() / 2);
+                        yDiff = (this.currentDrawing.height / 2 * this.currentDrawing.getScaleY());
                     }
 
-                    //var xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
-                    //var yDiff = (this.currentDrawing.height*this.currentDrawing.getScale() - this.height)/2;
+                    ctx.rotate(this.rotation);
                     this.currentDrawing.draw(ctx, -xDiff, -yDiff);
                 } else {
+                    ctx.rotate(this.rotation);
+                    ctx.scale(this.scaleX, this.scaleY);
                     if (this.color)
                         this.color.a = this.opacity;
                     ctx.fillStyle = this.color ? this.color.toString() : (new ex.Color(0, 0, 0)).toString();
@@ -3971,11 +4029,18 @@ var ex;
         * @param handler {GameEvent=>void} The handler callback to fire on this event
         */
         EventDispatcher.prototype.subscribe = function (eventName, handler) {
-            eventName = eventName.toLowerCase();
-            if (!this._handlers[eventName]) {
-                this._handlers[eventName] = [];
-            }
-            this._handlers[eventName].push(handler);
+            var _this = this;
+            var events = eventName.split(',').map(function (eventName) {
+                return eventName.toLowerCase().trim();
+            });
+
+            events.forEach(function (eventName) {
+                eventName = eventName.toLowerCase();
+                if (!_this._handlers[eventName]) {
+                    _this._handlers[eventName] = [];
+                }
+                _this._handlers[eventName].push(handler);
+            });
         };
 
         /**
@@ -5897,7 +5962,7 @@ var ex;
             this.engine = engine;
         }
         /**
-        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
         * @param actor {Actor} The actor to follow
         */
@@ -5910,7 +5975,8 @@ var ex;
         * @method getFocus
         * @returns Point
         */
-        BaseCamera.prototype.getFocus = function () {
+        BaseCamera.prototype.getFocus = function (fromScreen) {
+            if (typeof fromScreen === "undefined") { fromScreen = false; }
             // this should always be overridden
             if (this.follow) {
                 return new ex.Point(0, 0);
@@ -6082,10 +6148,11 @@ var ex;
         * @method getFocus
         * @returns point
         */
-        SideCamera.prototype.getFocus = function () {
+        SideCamera.prototype.getFocus = function (fromScreen) {
+            if (typeof fromScreen === "undefined") { fromScreen = false; }
             if (this.follow) {
                 // return new Point(-this.follow.x + this.engine.width / 2.0, 0);
-                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
+                return new ex.Point((-(this.follow.getCenter().x / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
             } else {
                 return this.focus;
             }
@@ -6111,9 +6178,12 @@ var ex;
         * @method getFocus
         * @returns Point
         */
-        TopCamera.prototype.getFocus = function () {
+        TopCamera.prototype.getFocus = function (fromScreen) {
+            if (typeof fromScreen === "undefined") { fromScreen = false; }
             if (this.follow) {
-                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, ((-this.follow.y - this.follow.getHeight() / 2) * this.getZoom()) + (this.engine.getHeight() * this.getZoom()) / 2.0);
+                var w = fromScreen ? this.engine.getWidth() : this.engine.canvas.width, h = fromScreen ? this.engine.getHeight() : this.engine.canvas.height;
+
+                return new ex.Point((-this.follow.getCenter().x * this.getZoom()) + (w * this.getZoom()) / 2.0, (-this.follow.getCenter().y * this.getZoom()) + (h * this.getZoom()) / 2.0);
             } else {
                 return this.focus;
             }
@@ -6348,7 +6418,7 @@ var ex;
 /// <reference path="Promises.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="Binding.ts" />
-/// <reference path="CollisionMap.ts" />
+/// <reference path="TileMap.ts" />
 var ex;
 (function (ex) {
     var Color = (function () {
@@ -6683,6 +6753,11 @@ var ex;
         * @Property Fixed {DisplayMode}
         */
         DisplayMode[DisplayMode["Fixed"] = 2] = "Fixed";
+
+        /**
+        * Canvas fills parent but maintains aspect ratio (no resolution change)
+        */
+        DisplayMode[DisplayMode["Fill"] = 3] = "Fill";
     })(ex.DisplayMode || (ex.DisplayMode = {}));
     var DisplayMode = ex.DisplayMode;
 
@@ -6830,8 +6905,11 @@ var ex;
             if (width && height) {
                 if (displayMode == undefined) {
                     this.displayMode = 2 /* Fixed */;
+                } else {
+                    this.displayMode = displayMode;
                 }
-                this.logger.debug("Engine viewport is size " + width + " x " + height);
+
+                this.logger.debug("Engine viewport is size " + width + " x " + height, "using DisplayMode", displayMode);
                 this.width = width;
                 this.canvas.width = width;
                 this.height = height;
@@ -6885,12 +6963,12 @@ var ex;
             this.currentScene.removeChild(actor);
         };
 
-        Engine.prototype.addCollisionMap = function (collisionMap) {
-            this.currentScene.addCollisionMap(collisionMap);
+        Engine.prototype.addTileMap = function (collisionMap) {
+            this.currentScene.addTileMap(collisionMap);
         };
 
-        Engine.prototype.removeCollisionMap = function (collisionMap) {
-            this.currentScene.removeCollisionMap(collisionMap);
+        Engine.prototype.removeTileMap = function (collisionMap) {
+            this.currentScene.removeTileMap(collisionMap);
         };
 
         /**
@@ -6986,7 +7064,7 @@ var ex;
             var newY = point.y;
 
             if (this.camera) {
-                var focus = this.camera.getFocus();
+                var focus = this.camera.getFocus(true);
                 newX -= focus.x;
                 newY -= focus.y;
             }
@@ -7038,6 +7116,21 @@ var ex;
                 this.width = this.canvas.width = parent.innerWidth;
                 this.height = this.canvas.height = parent.innerHeight;
             }
+
+            if (this.displayMode === 3 /* Fill */) {
+                // window
+                var ws = parent.innerWidth / this.canvas.width;
+                var hs = parent.innerHeight / this.canvas.height;
+
+                var s = Math.min(ws, hs);
+
+                // scale to aspect ratio
+                var w = Math.floor(this.canvas.width * s), h = Math.floor(this.canvas.height * s);
+                this.width = w;
+                this.height = h;
+                this.canvas.style.width = w.toString() + "px";
+                this.canvas.style.height = h.toString() + "px";
+            }
         };
 
         /**
@@ -7047,7 +7140,7 @@ var ex;
         */
         Engine.prototype.initialize = function () {
             var _this = this;
-            if (this.displayMode === 0 /* FullScreen */ || this.displayMode === 1 /* Container */) {
+            if (this.displayMode === 0 /* FullScreen */ || this.displayMode === 1 /* Container */ || this.displayMode === 3 /* Fill */) {
                 var parent = (this.displayMode === 1 /* Container */ ? (this.canvas.parentElement || document.body) : window);
 
                 this.setHeightByDisplayMode(parent);
@@ -8222,9 +8315,11 @@ var ex;
                 };
 
                 ActionQueue.prototype.clearActions = function () {
-                    this._actions.length = 0;
-                    this._completedActions.length = 0;
-                    this._currentAction.stop();
+                    if (this._actions.length) {
+                        this._actions.length = 0;
+                        this._completedActions.length = 0;
+                        this._currentAction.stop();
+                    }
                 };
 
                 ActionQueue.prototype.getActions = function () {

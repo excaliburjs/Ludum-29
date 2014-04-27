@@ -4,7 +4,8 @@
 /// <reference path="Kraken.ts" />
 /// <reference path="Enemy.ts" />
 
-var game = new ex.Engine(920, 580, "game");
+var game = new ex.Engine(920, 580, "game", ex.DisplayMode.Fill);
+//ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 game.backgroundColor = ex.Color.Azure;
 game.setAntialiasing(false);
 game.on('keydown', function(ev: ex.KeyDown) {

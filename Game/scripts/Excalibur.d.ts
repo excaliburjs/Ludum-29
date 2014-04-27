@@ -522,6 +522,11 @@ declare module ex.Util {
     }
 }
 declare module ex {
+    class TileSprite {
+        public spriteSheetKey: string;
+        public spriteId: number;
+        constructor(spriteSheetKey: string, spriteId: number);
+    }
     /**
     * A light-weight object that occupies a space in a collision map. Generally
     * created by a CollisionMap.
@@ -570,7 +575,7 @@ declare module ex {
         * The index of the sprite to use from the CollisionMap SpriteSheet, if -1 is specified nothing is drawn.
         * @property number {number}
         */
-        public spriteId: number;
+        public sprites: TileSprite[];
         private _bounds;
         constructor(/**
             * Gets or sets x coordinate of the cell in world coordinates
@@ -600,13 +605,15 @@ declare module ex {
             * The index of the sprite to use from the CollisionMap SpriteSheet, if -1 is specified nothing is drawn.
             * @property number {number}
             */
-            spriteId?: number);
+            sprites?: TileSprite[]);
         /**
         * Returns the bounding box for this cell
         * @method getBounds
         * @returns BoundingBox
         */
         public getBounds(): BoundingBox;
+        public getCenter(): Vector;
+        public pushSprite(tileSprite: TileSprite): void;
     }
     /**
     * The CollisionMap object provides a lightweight way to do large complex scenes with collision
@@ -621,22 +628,24 @@ declare module ex {
     * @param cols {number} The number of cols in the collision map (should not be changed once set)
     * @param spriteSheet {SpriteSheet} The spriteSheet to use for drawing
     */
-    class CollisionMap {
+    class TileMap {
         public x: number;
         public y: number;
         public cellWidth: number;
         public cellHeight: number;
         public rows: number;
         public cols: number;
-        public spriteSheet: SpriteSheet;
         private _collidingX;
         private _collidingY;
         private _onScreenXStart;
         private _onScreenXEnd;
         private _onScreenYStart;
         private _onScreenYEnd;
+        private _spriteSheets;
+        public logger: Logger;
         public data: Cell[];
-        constructor(x: number, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number, spriteSheet: SpriteSheet);
+        constructor(x: number, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number);
+        public registerSpriteSheet(key: string, spriteSheet: SpriteSheet): void;
         /**
         * Returns the intesection vector that can be used to resolve collisions with actors. If there
         * is no collision null is returned.
@@ -711,6 +720,7 @@ declare module ex {
         * @returns boolean
         */
         contains(point: Point): boolean;
+        toSATBB(): SATBoundingBox;
         debugDraw(ctx: CanvasRenderingContext2D): void;
     }
     /**
@@ -757,10 +767,12 @@ declare module ex {
         */
         public collides(collidable: ICollidable): Vector;
         public debugDraw(ctx: CanvasRenderingContext2D): void;
+        public toSATBB(): SATBoundingBox;
     }
     class SATBoundingBox implements ICollidable {
         private _points;
         constructor(points: Point[]);
+        public toSATBB(): SATBoundingBox;
         public getSides(): Line[];
         public getAxes(): Vector[];
         public project(axis: Vector): Projection;
@@ -808,7 +820,7 @@ declare module ex {
         * @property children {Actor[]}
         */
         public children: Actor[];
-        public collisionMaps: CollisionMap[];
+        public collisionMaps: TileMap[];
         public engine: Engine;
         private killQueue;
         private timers;
@@ -867,8 +879,8 @@ declare module ex {
         * @param actor {Actor} The actor to add
         */
         public addChild(actor: Actor): void;
-        public addCollisionMap(collisionMap: CollisionMap): void;
-        public removeCollisionMap(collisionMap: CollisionMap): void;
+        public addTileMap(collisionMap: TileMap): void;
+        public removeTileMap(collisionMap: TileMap): void;
         /**
         * Removes an actor from the Scene, it will no longer be drawn or updated.
         * @method removeChild
@@ -3205,7 +3217,7 @@ declare module ex {
         private zoomIncrement;
         constructor(engine: Engine);
         /**
-        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
         * @param actor {Actor} The actor to follow
         */
@@ -3215,7 +3227,7 @@ declare module ex {
         * @method getFocus
         * @returns Point
         */
-        public getFocus(): Point;
+        public getFocus(fromScreen?: boolean): Point;
         /**
         * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
         * @method setFocus
@@ -3269,7 +3281,7 @@ declare module ex {
         * @method getFocus
         * @returns point
         */
-        public getFocus(): Point;
+        public getFocus(fromScreen?: boolean): Point;
     }
     /**
     * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
@@ -3284,7 +3296,7 @@ declare module ex {
         * @method getFocus
         * @returns Point
         */
-        public getFocus(): Point;
+        public getFocus(fromScreen?: boolean): Point;
     }
 }
 declare module ex {
@@ -3747,6 +3759,10 @@ declare module ex {
         * @Property Fixed {DisplayMode}
         */
         Fixed = 2,
+        /**
+        * Canvas fills parent but maintains aspect ratio (no resolution change)
+        */
+        Fill = 3,
     }
     class Timer {
         static id: number;
@@ -3897,8 +3913,8 @@ declare module ex {
         * @param actor {Actor} The actor to remove from the current scene.
         */
         public removeChild(actor: Actor): void;
-        public addCollisionMap(collisionMap: CollisionMap): void;
-        public removeCollisionMap(collisionMap: CollisionMap): void;
+        public addTileMap(collisionMap: TileMap): void;
+        public removeTileMap(collisionMap: TileMap): void;
         /**
         * Adds an excalibur timer to the current scene.
         * @param timer {Timer} The timer to add to the current scene.

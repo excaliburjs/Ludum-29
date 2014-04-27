@@ -1,4 +1,7 @@
-﻿var Resources = {
+﻿/**
+ * Only put ILoadables into this resource hash
+ */
+var Resources = {
 
    // Levels
    Level0: new BaseLevel("/maps/Level-0.json"),
@@ -9,4 +12,10 @@
 
    // Tilesets
    TerrainTexture: new ex.Texture("/images/tilesets/terrain.png")
-}
+};
+
+var Palette = {
+
+   // Night time
+   ColorNightTime: new ex.Color(51, 27, 96)
+};

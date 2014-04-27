@@ -20,6 +20,7 @@
     <Content Include="css\app.css" />
     <Content Include="images\kraken\Kraken.png" />
     <Content Include="images\kraken\KrakenSpriteSheet.png" />
+    <Content Include="images\splash.jpg" />
     <Content Include="images\tilesets\Terrain.png" />
     <Content Include="images\tilesets\world-48x48.png" />
     <Content Include="index.html" />
@@ -28,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="game\Config.ts" />
+    <TypeScriptCompile Include="game\Effects.ts" />
     <TypeScriptCompile Include="game\Enemy.ts" />
     <TypeScriptCompile Include="game\game.ts" />
     <TypeScriptCompile Include="game\Kraken.ts" />
