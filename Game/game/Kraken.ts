@@ -15,7 +15,7 @@ class Kraken extends ex.Actor {
         anim.loop = true;
         anim.setScaleX(2);
         anim.setScaleY(2);
-
+        this.setCenterDrawing(true);
         this.addDrawing("default", anim);
     }
 

@@ -1256,9 +1256,9 @@ var ex;
             var worldCoordsLowerRight = engine.screenToWorldCoordinates(new ex.Point(engine.width, engine.height));
 
             this._onScreenXStart = Math.max(Math.floor(worldCoordsUpperLeft.x / this.cellWidth) - 2, 0);
-            this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight), 0);
-            this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth), 0);
-            this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 1, 0);
+            this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
+            this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth) + 2, 0);
+            this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
         };
 
         /**
@@ -1306,7 +1306,7 @@ var ex;
                 ctx.lineTo(this.x + width, this.y + y * this.cellHeight);
                 ctx.stroke();
             }
-            var solid = ex.Color.Blue.clone();
+            var solid = ex.Color.Red.clone();
             solid.a = .3;
             this.data.filter(function (cell) {
                 return cell.solid;
@@ -2754,7 +2754,7 @@ var ex;
                     var map = engine.currentScene.collisionMaps[j];
                     var intersectMap;
                     var side = 0 /* None */;
-                    var max = 2;
+                    var max = 5;
                     var hasBounced = false;
 
                     while (intersectMap = map.collides(this)) {
@@ -2873,8 +2873,6 @@ var ex;
 
             ctx.save();
             ctx.translate(this.x, this.y);
-            ctx.rotate(this.rotation);
-            ctx.scale(this.scaleX, this.scaleY);
 
             if (this.previousOpacity != this.opacity) {
                 for (var drawing in this.frames) {
@@ -2889,17 +2887,21 @@ var ex;
                     var xDiff = 0;
                     var yDiff = 0;
                     if (this.centerDrawingX) {
-                        xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.width) / 2;
+                        ctx.translate(this.getWidth() / 2, 0);
+
+                        xDiff = (this.currentDrawing.width / 2 * this.currentDrawing.getScaleX());
                     }
 
                     if (this.centerDrawingY) {
-                        yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.height) / 2;
+                        ctx.translate(0, this.getHeight() / 2);
+                        yDiff = (this.currentDrawing.height / 2 * this.currentDrawing.getScaleY());
                     }
 
-                    //var xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
-                    //var yDiff = (this.currentDrawing.height*this.currentDrawing.getScale() - this.height)/2;
+                    ctx.rotate(this.rotation);
                     this.currentDrawing.draw(ctx, -xDiff, -yDiff);
                 } else {
+                    ctx.rotate(this.rotation);
+                    ctx.scale(this.scaleX, this.scaleY);
                     if (this.color)
                         this.color.a = this.opacity;
                     ctx.fillStyle = this.color ? this.color.toString() : (new ex.Color(0, 0, 0)).toString();
@@ -3971,11 +3973,18 @@ var ex;
         * @param handler {GameEvent=>void} The handler callback to fire on this event
         */
         EventDispatcher.prototype.subscribe = function (eventName, handler) {
-            eventName = eventName.toLowerCase();
-            if (!this._handlers[eventName]) {
-                this._handlers[eventName] = [];
-            }
-            this._handlers[eventName].push(handler);
+            var _this = this;
+            var events = eventName.split(',').map(function (eventName) {
+                return eventName.toLowerCase().trim();
+            });
+
+            events.forEach(function (eventName) {
+                eventName = eventName.toLowerCase();
+                if (!_this._handlers[eventName]) {
+                    _this._handlers[eventName] = [];
+                }
+                _this._handlers[eventName].push(handler);
+            });
         };
 
         /**
@@ -8222,9 +8231,11 @@ var ex;
                 };
 
                 ActionQueue.prototype.clearActions = function () {
-                    this._actions.length = 0;
-                    this._completedActions.length = 0;
-                    this._currentAction.stop();
+                    if (this._actions.length) {
+                        this._actions.length = 0;
+                        this._completedActions.length = 0;
+                        this._currentAction.stop();
+                    }
                 };
 
                 ActionQueue.prototype.getActions = function () {
