@@ -29,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="game\Config.ts" />
+    <TypeScriptCompile Include="game\Effects.ts" />
     <TypeScriptCompile Include="game\Enemy.ts" />
     <TypeScriptCompile Include="game\game.ts" />
     <TypeScriptCompile Include="game\Kraken.ts" />
