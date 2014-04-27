@@ -24,6 +24,15 @@ for (var resource in Resources) {
    }
 }
 
+var beginGame = () => {
+   if (game.currentScene !== Resources.Level0) {
+      game.off("keyup", beginGame);
+      game.off("mouseup", beginGame);
+      game.addScene("level0", Resources.Level0);
+      game.goToScene("level0");
+   }
+};
+
 game.start(loader).then(() => {
 
    var splash = new ex.Actor(0, 0, game.width, game.height);
@@ -31,15 +40,6 @@ game.start(loader).then(() => {
 
    game.addChild(splash);
 
-   game.on("keyup", (ev: ex.KeyUp) => {
-
-      if (ev.key !== ex.InputKey.Space) return;
-
-      if (game.currentScene !== Resources.Level0) {
-         game.addScene("level0", Resources.Level0);
-         game.goToScene("level0");
-      }
-   });
-
-
+   game.on("keyup", beginGame);
+   game.on("mouseup", beginGame);
 });

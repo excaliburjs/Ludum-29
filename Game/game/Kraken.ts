@@ -16,10 +16,16 @@ class Kraken extends ex.Actor {
         anim.setScaleX(2);
         anim.setScaleY(2);
         this.setCenterDrawing(true);
+        var centerVector = this.getCenter();
+        //anim.transformAboutPoint(new ex.Point(centerVector.x, centerVector.y));
+
+
         this.addDrawing("default", anim);
+
     }
 
     public onInitialize(game: ex.Engine) {
+
 
         game.on('mousedown', (ev: ex.MouseDown) => {
             console.log("(" + ev.x + ", " + ev.y + ")");
@@ -29,6 +35,11 @@ class Kraken extends ex.Actor {
             travelVector.normalize().scale(20);
             this._travelVector = travelVector;
             this.move(travelVector.x, travelVector.y);
+
+            travelVector.normalize();
+            var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
+            var difference = Math.abs(rotationAngle - this.rotation) > 0.1;
+            this.rotation = rotationAngle;
         });
 
         game.on('mousemove', (ev: ex.MouseMove) => {
@@ -38,6 +49,10 @@ class Kraken extends ex.Actor {
                 travelVector.normalize().scale(20);
                 this._travelVector = travelVector;
                 this.move(travelVector.x, travelVector.y);
+
+                travelVector.normalize();
+                var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
+                this.rotation = rotationAngle;
             }
         });
 
@@ -57,5 +72,7 @@ class Kraken extends ex.Actor {
     public attack() {
 
     }
+
+
 
 }
