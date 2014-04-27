@@ -2,7 +2,7 @@
 
 class BaseLevel extends ex.Scene implements ex.ILoadable {
    public data: IMap;
-   public maps: {[key: string]: ex.CollisionMap} = {};
+   public map: ex.TileMap;
 
    constructor(public jsonPath: string) {
       super();
@@ -10,16 +10,18 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
    public onInitialize(engine: ex.Engine) {
 
+      this.map = new ex.TileMap(0, 0, this.data.tilewidth, this.data.tileheight, this.data.height, this.data.width);
+
       // create collision map for each tileset in map
       this.data.tilesets.forEach(ts => {
          var cols = Math.floor(ts.imagewidth / ts.tilewidth);
          var rows = Math.floor(ts.imageheight / ts.tileheight);
          var ss = new ex.SpriteSheet(ts.texture, cols, rows, ts.tilewidth, ts.tileheight);
 
-         this.maps[ts.firstgid.toString()] = new ex.CollisionMap(0, 0, ts.tilewidth, ts.tileheight, this.data.height, this.data.width, ss);
+         this.map.registerSpriteSheet(ts.firstgid.toString(), ss);
       });
 
-      var i, j, gid, layer: ILayer, map: ex.CollisionMap, tileset: ITileset;
+      var i, j, gid, layer: ILayer, tileset: ITileset;
       for (i = 0; i < this.data.layers.length; i++) {
 
          layer = this.data.layers[i];
@@ -29,12 +31,11 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
             for (j = 0; j < layer.data.length; j++) {
                gid = layer.data[j];
                if (gid !== 0) {
-                  map = this.getCollisionMapForTile(gid);
                   tileset = this.getTilesetForTile(gid);
 
-                  if (map && tileset) {
-                     map.data[j].spriteId = gid - tileset.firstgid;
-                     map.data[j].solid = this.isTileSolidTerrain(gid, tileset);
+                  if (tileset) {
+                     this.map.data[j].sprites.push(new ex.TileSprite(tileset.firstgid.toString(), gid - tileset.firstgid));
+                     this.map.data[j].solid = this.isTileSolidTerrain(gid, tileset);
                   }
                }
             }
@@ -56,14 +57,8 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
          }
       }
 
-      //delete this.maps["401"];
-
       // Add collision maps to scene
-      for (var key in this.maps) {
-         if (this.maps.hasOwnProperty(key)) {
-            this.addCollisionMap(this.maps[key]);
-         }
-      }
+      this.addTileMap(this.map);
    }
 
    //TODO overload draw: draw HUD, UI, etc.
@@ -140,26 +135,6 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
          game.camera.setActorToFollow(kraken);
       }
 
-   }
-
-   private getCollisionMapForTile(gid: number): ex.CollisionMap {
-      
-      // Need to reverse search the maps hash
-      var gids: number[] = [];
-
-      for (var key in this.maps) {
-         if (this.maps.hasOwnProperty(key)) {
-            gids.push(parseInt(key, 10));
-         }
-      }
-
-      for (var i = gids.length - 1; i >= 0; i--) {
-         if (gids[i] <= gid) {
-            return this.maps[gids[i]];
-         }
-      }
-
-      return null;
    }
 
    private getTilesetForTile(gid: number): ITileset {

@@ -1010,6 +1010,15 @@ var ex;
 /// <reference path="Core.ts" />
 var ex;
 (function (ex) {
+    var TileSprite = (function () {
+        function TileSprite(spriteSheetKey, spriteId) {
+            this.spriteSheetKey = spriteSheetKey;
+            this.spriteId = spriteId;
+        }
+        return TileSprite;
+    })();
+    ex.TileSprite = TileSprite;
+
     /**
     * A light-weight object that occupies a space in a collision map. Generally
     * created by a CollisionMap.
@@ -1052,16 +1061,16 @@ var ex;
         * The index of the sprite to use from the CollisionMap SpriteSheet, if -1 is specified nothing is drawn.
         * @property number {number}
         */
-        spriteId) {
+        sprites) {
             if (typeof solid === "undefined") { solid = false; }
-            if (typeof spriteId === "undefined") { spriteId = -1; }
+            if (typeof sprites === "undefined") { sprites = []; }
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
             this.index = index;
             this.solid = solid;
-            this.spriteId = spriteId;
+            this.sprites = sprites;
             this._bounds = new ex.BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
         }
         /**
@@ -1071,6 +1080,10 @@ var ex;
         */
         Cell.prototype.getBounds = function () {
             return this._bounds;
+        };
+
+        Cell.prototype.pushSprite = function (tileSprite) {
+            this.sprites.push(tileSprite);
         };
         return Cell;
     })();
@@ -1089,8 +1102,8 @@ var ex;
     * @param cols {number} The number of cols in the collision map (should not be changed once set)
     * @param spriteSheet {SpriteSheet} The spriteSheet to use for drawing
     */
-    var CollisionMap = (function () {
-        function CollisionMap(x, y, cellWidth, cellHeight, rows, cols, spriteSheet) {
+    var TileMap = (function () {
+        function TileMap(x, y, cellWidth, cellHeight, rows, cols) {
             var _this = this;
             this.x = x;
             this.y = y;
@@ -1098,13 +1111,14 @@ var ex;
             this.cellHeight = cellHeight;
             this.rows = rows;
             this.cols = cols;
-            this.spriteSheet = spriteSheet;
             this._collidingX = -1;
             this._collidingY = -1;
             this._onScreenXStart = 0;
             this._onScreenXEnd = 9999;
             this._onScreenYStart = 0;
             this._onScreenYEnd = 9999;
+            this._spriteSheets = {};
+            this.logger = ex.Logger.getInstance();
             this.data = [];
             this.data = new Array(rows * cols);
             for (var i = 0; i < cols; i++) {
@@ -1116,6 +1130,10 @@ var ex;
                 }
             }
         }
+        TileMap.prototype.registerSpriteSheet = function (key, spriteSheet) {
+            this._spriteSheets[key] = spriteSheet;
+        };
+
         /**
         * Returns the intesection vector that can be used to resolve collisions with actors. If there
         * is no collision null is returned.
@@ -1123,7 +1141,7 @@ var ex;
         * @param actor {Actor}
         * @returns Vector
         */
-        CollisionMap.prototype.collides = function (actor) {
+        TileMap.prototype.collides = function (actor) {
             var points = [];
             var width = actor.x + actor.getWidth();
             var height = actor.y + actor.getHeight();
@@ -1212,7 +1230,7 @@ var ex;
         * @param index {number}
         * @returns Cell
         */
-        CollisionMap.prototype.getCellByIndex = function (index) {
+        TileMap.prototype.getCellByIndex = function (index) {
             return this.data[index];
         };
 
@@ -1223,7 +1241,7 @@ var ex;
         * @param y {number}
         * @returns Cell
         */
-        CollisionMap.prototype.getCell = function (x, y) {
+        TileMap.prototype.getCell = function (x, y) {
             if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) {
                 return null;
             }
@@ -1239,7 +1257,7 @@ var ex;
         * @param y {number}
         * @returns Cell
         */
-        CollisionMap.prototype.getCellByPoint = function (x, y) {
+        TileMap.prototype.getCellByPoint = function (x, y) {
             var x = Math.floor((x - this.x) / this.cellWidth);
             var y = Math.floor((y - this.y) / this.cellHeight);
 
@@ -1251,7 +1269,7 @@ var ex;
             return null;
         };
 
-        CollisionMap.prototype.update = function (engine, delta) {
+        TileMap.prototype.update = function (engine, delta) {
             var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new ex.Point(0, 0));
             var worldCoordsLowerRight = engine.screenToWorldCoordinates(new ex.Point(engine.width, engine.height));
 
@@ -1267,16 +1285,28 @@ var ex;
         * @param ctx {CanvasRenderingContext2D} The current rendering context
         * @param delta {number} The number of milliseconds since the last draw
         */
-        CollisionMap.prototype.draw = function (ctx, delta) {
+        TileMap.prototype.draw = function (ctx, delta) {
+            var _this = this;
             ctx.save();
             ctx.translate(this.x, this.y);
 
             for (var x = this._onScreenXStart; x < Math.min(this._onScreenXEnd, this.cols); x++) {
                 for (var y = this._onScreenYStart; y < Math.min(this._onScreenYEnd, this.rows); y++) {
-                    var spriteId = this.getCell(x, y).spriteId;
-                    if (spriteId > -1) {
-                        this.spriteSheet.getSprite(spriteId).draw(ctx, x * this.cellWidth, y * this.cellHeight);
-                    }
+                    this.getCell(x, y).sprites.filter(function (s) {
+                        return s.spriteId > -1;
+                    }).forEach(function (ts) {
+                        var ss = _this._spriteSheets[ts.spriteSheetKey];
+                        if (ss) {
+                            var sprite = ss.getSprite(ts.spriteId);
+                            if (sprite) {
+                                sprite.draw(ctx, x * _this.cellWidth, y * _this.cellHeight);
+                            } else {
+                                _this.logger.warn("Sprite does not exist for id", ts.spriteId, "in sprite sheet", ts.spriteSheetKey, sprite, ss);
+                            }
+                        } else {
+                            _this.logger.warn("Sprite sheet", ts.spriteSheetKey, "does not exist", ss);
+                        }
+                    });
                 }
             }
             ctx.restore();
@@ -1287,7 +1317,7 @@ var ex;
         * @method draw
         * @param ctx {CanvasRenderingContext2D} The current rendering context
         */
-        CollisionMap.prototype.debugDraw = function (ctx) {
+        TileMap.prototype.debugDraw = function (ctx) {
             var width = this.cols * this.cellWidth;
             var height = this.rows * this.cellHeight;
 
@@ -1321,9 +1351,9 @@ var ex;
             }
             ctx.restore();
         };
-        return CollisionMap;
+        return TileMap;
     })();
-    ex.CollisionMap = CollisionMap;
+    ex.TileMap = TileMap;
 })(ex || (ex = {}));
 /// <reference path="Algebra.ts" />
 var ex;
@@ -1572,7 +1602,7 @@ var ex;
 /// <reference path="Core.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
-/// <reference path="CollisionMap.ts" />
+/// <reference path="TileMap.ts" />
 /// <reference path="BoundingBox.ts" />
 var ex;
 (function (ex) {
@@ -1748,11 +1778,11 @@ var ex;
             actor.parent = this.actor;
         };
 
-        Scene.prototype.addCollisionMap = function (collisionMap) {
+        Scene.prototype.addTileMap = function (collisionMap) {
             this.collisionMaps.push(collisionMap);
         };
 
-        Scene.prototype.removeCollisionMap = function (collisionMap) {
+        Scene.prototype.removeTileMap = function (collisionMap) {
             var index = this.collisionMaps.indexOf(collisionMap);
             if (index > -1) {
                 this.collisionMaps.splice(index, 1);
@@ -2754,11 +2784,12 @@ var ex;
                     var map = engine.currentScene.collisionMaps[j];
                     var intersectMap;
                     var side = 0 /* None */;
-                    var max = 5;
+                    var max = 2;
                     var hasBounced = false;
 
                     while (intersectMap = map.collides(this)) {
                         //iters.push(intersectMap);
+                        //console.log("CollisionMap", intersectMap);
                         if (max-- < 0) {
                             break;
                         }
@@ -2768,8 +2799,10 @@ var ex;
                             //var intersectMap = map.getOverlap(this);
                             if (Math.abs(intersectMap.y) < Math.abs(intersectMap.x)) {
                                 this.y += intersectMap.y;
+                                this.dy = 0;
                             } else {
                                 this.x += intersectMap.x;
+                                this.dx = 0;
                             }
 
                             // Naive elastic bounce
@@ -6357,7 +6390,7 @@ var ex;
 /// <reference path="Promises.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="Binding.ts" />
-/// <reference path="CollisionMap.ts" />
+/// <reference path="TileMap.ts" />
 var ex;
 (function (ex) {
     var Color = (function () {
@@ -6894,12 +6927,12 @@ var ex;
             this.currentScene.removeChild(actor);
         };
 
-        Engine.prototype.addCollisionMap = function (collisionMap) {
-            this.currentScene.addCollisionMap(collisionMap);
+        Engine.prototype.addTileMap = function (collisionMap) {
+            this.currentScene.addTileMap(collisionMap);
         };
 
-        Engine.prototype.removeCollisionMap = function (collisionMap) {
-            this.currentScene.removeCollisionMap(collisionMap);
+        Engine.prototype.removeTileMap = function (collisionMap) {
+            this.currentScene.removeTileMap(collisionMap);
         };
 
         /**
