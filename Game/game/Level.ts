@@ -3,6 +3,7 @@
 class BaseLevel extends ex.Scene implements ex.ILoadable {
    public data: IMap;
    public map: ex.TileMap;
+   public kraken: Kraken;
 
    constructor(public jsonPath: string) {
       super();
@@ -92,10 +93,10 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
                if (promises.length === 0) {
                   this.oncomplete();
-                  complete.resolve(this.data);   
+                  complete.resolve(this.data);
                }
             };
-            promises.push(ts.texture);            
+            promises.push(ts.texture);
          });
 
          promises.forEach(p => p.load());
@@ -129,13 +130,23 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
          ex.Logger.getInstance().info("Released the Kraken!", obj.x, obj.y);
 
-         var kraken = new Kraken(obj.x, obj.y);
+         this.kraken = new Kraken(obj.x, obj.y);
 
          // add to level
-         this.addChild(kraken);
+         this.addChild(this.kraken);
 
          // follow the kraken
-         game.camera.setActorToFollow(kraken);
+         game.camera.setActorToFollow(this.kraken);
+      },
+
+      /**
+       * Spawns an enemy
+       */
+      EnemySpawn: (obj: IObject) => {
+
+         var enemy = new Enemy(obj.x, obj.y);
+
+         this.addChild(enemy);
       }
 
    }
@@ -150,7 +161,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       }
 
       return null;
-   }   
+   }
 
    private isTileSolid(gid: number, layer: ILayer, tileset: ITileset): boolean {
 
@@ -197,13 +208,13 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       return false;
    }
 
-   
+
 }
 
 //#region Tiled Interfaces
 
 interface IMap {
-   
+
    height: number;
    width: number;
    tileheight: number;
@@ -236,7 +247,7 @@ interface ILayer {
 }
 
 interface ITileset {
-   
+
    firstgid: number;
    image: string;
    imageheight: number;
@@ -257,7 +268,7 @@ interface ITileset {
 }
 
 interface IObject {
-   
+
    height: number;
    width: number;
    x: number;
@@ -271,14 +282,14 @@ interface IObject {
 }
 
 interface ITerrain {
-   
+
    name: string;
    properties: { [key: string]: string };
 
 }
 
 interface ITerrainTile {
-   
+
    terrain: number[];
 
 }

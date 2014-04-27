@@ -54,14 +54,16 @@ class Kraken extends ex.Actor {
             this._isMousePressed = true;
             var target = new ex.Vector(ev.x, ev.y);
             var travelVector = target.minus(this.getCenter());
-            travelVector.normalize().scale(20);
+            travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
             this._travelVector = travelVector;
             this.move(travelVector.x, travelVector.y);
 
             travelVector.normalize();
             var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
             var difference = Math.abs(rotationAngle - this.rotation) > 0.1;
-            this.rotation = rotationAngle;
+           this.rotation = rotationAngle;
+
+           Resources.SoundSwim.play();
             if (this._currentMode !== KrakenMode.Attack) {
                 this.setDrawing('swim');    
             }
