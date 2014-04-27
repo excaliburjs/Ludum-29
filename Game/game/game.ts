@@ -25,8 +25,6 @@ for (var resource in Resources) {
    }
 }
 
-var testKraken = new Kraken(700, 4176);
-
 var testBoat = new Enemy(700, 4300, 100, 50, ex.Color.Black);
 var startPoint = new ex.Point(850, 4300);
 var endPoint = new ex.Point(950, 4300);
@@ -38,8 +36,7 @@ var beginGame = () => {
       game.off("mouseup", beginGame);
       game.addScene("level0", Resources.Level0);
       game.goToScene("level0");
-       game.currentScene.addChild(testBoat);
-       game.currentScene.addChild(testKraken);
+      game.currentScene.addChild(testBoat);
    }
 };
 

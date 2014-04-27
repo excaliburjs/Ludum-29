@@ -1,4 +1,5 @@
-﻿
+﻿/// <reference path="Level.ts" />
+
 class Enemy extends ex.Actor {
    private _health: number = Config.defaultEnemyHealth;
    private _alertStatus: AlertStatus = AlertStatus.Calm;
@@ -6,24 +7,27 @@ class Enemy extends ex.Actor {
    private _rayVectors: ex.Vector[] = new Array<ex.Vector>();
    private _fovLength: number;
    private _travelVector: ex.Vector;
+   private _kraken: Kraken;
 
    constructor(x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultEnemyWidth, Config.defaultEnemyHeight, color);
       this.setWidth(width || Config.defaultEnemyWidth);
       this.setHeight(height || Config.defaultEnemyHeight);
       this._health = health || this._health;
-      this._travelVector = new ex.Vector(0, 0);
+      this._travelVector = new ex.Vector(-1, 0);
       this._fovLength = 300;
    }
 
-   public onInitialize(game: ex.Engine) {
+    public onInitialize(game: ex.Engine) {
+
+      this._kraken = (<any>game.currentScene).kraken;
 
       var yValues = new Array<number>(-0.5, -0.25, 0, 0.25, 0.5);
 
 
       for (var i = 0; i < 5; i++) {
          //var rayPoint = new ex.Point(0, this.getHeight() / 2);
-         var rayPoint = new ex.Point(this.x, this.y);
+         var rayPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
          var rayVector = new ex.Vector(-1, yValues[i]);
          var ray = new ex.Ray(rayPoint, rayVector);
          this.rays.push(ray);
@@ -52,7 +56,7 @@ class Enemy extends ex.Actor {
    }
 
    private canSeeKraken() {
-      var krakenLines = testKraken.getLines();
+      var krakenLines = this._kraken.getLines();
       for (var i = 0; i < this.rays.length; i++) {
          for (var j = 0; j < krakenLines.length; j++) {
             var pixelsOut = this.rays[i].intersect(krakenLines[j]);
@@ -69,6 +73,28 @@ class Enemy extends ex.Actor {
       return false;
    }
 
+    private createSpotlight(startPoint: ex.Point, sightDistance: number) {
+        //TODO
+    }
+
+    private createRadar(startPoint: ex.Point, sightDistance: number) {
+        //TODO
+    }
+
+    // roll this back into the Excalibur
+    private rotatePoint(p: ex.Point, rotationAngle: number, anchor: ex.Point) {
+        var sinAngle = Math.sin(rotationAngle);
+        var cosAngle = Math.cos(rotationAngle);
+        var x = cosAngle * (p.x - anchor.x) - sinAngle * (p.y - anchor.y) + anchor.x;
+        var y = sinAngle * (p.x - anchor.x) + cosAngle * (p.y - anchor.y) + anchor.y;
+        return new ex.Point(x, y);
+    }
+
+    private rotateVector(vectorToRotate: ex.Vector, rotationAngle: number, anchor: ex.Point) {
+        var newVectorPoint = this.rotatePoint(vectorToRotate.toPoint(), rotationAngle, new ex.Point(0, 0));
+        return new ex.Vector(newVectorPoint.x, newVectorPoint.y);
+    }
+
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
       //Debugging draw for LOS rays on the enemy
@@ -78,7 +104,7 @@ class Enemy extends ex.Actor {
       for (var i = 0; i < this.rays.length; i++) {
          ctx.beginPath();
          ctx.moveTo(this.rays[i].pos.x, this.rays[i].pos.y);
-         var end = this.rays[i].getPoint(1000);
+         var end = this.rays[i].getPoint(300);
          ctx.lineTo(end.x, end.y);
          ctx.strokeStyle = ex.Color.Chartreuse.toString();
          ctx.stroke();
@@ -86,7 +112,7 @@ class Enemy extends ex.Actor {
       }
       //ctx.restore();
 
-      this.drawFOV(ctx, delta);
+      this.drawFOV(this.getCenter(), ctx, delta);
    }
 
    public movePatrol(start: ex.Point, end: ex.Point) {
@@ -110,13 +136,13 @@ class Enemy extends ex.Actor {
       this.follow(shipInTrouble, 50);
    }
 
-   private drawFOV(ctx: CanvasRenderingContext2D, delta: number): void {
+   private drawFOV(point: ex.Point, ctx: CanvasRenderingContext2D, delta: number): void {
 
       // create radial gradient
-      var fovRay = new ex.Ray(this.getCenter(), this._travelVector);
+      var fovRay = new ex.Ray(point, this._travelVector);
       var fovEndPoint = fovRay.getPoint(this._fovLength);
 
-      var grd = ctx.createRadialGradient(this.getCenter().x, this.getCenter().y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
+      var grd = ctx.createRadialGradient(point.x, point.y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
 
       grd.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
       grd.addColorStop(1, 'rgba(255, 255, 255, 0)');
