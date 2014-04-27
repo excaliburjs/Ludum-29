@@ -28,7 +28,6 @@ for (var resource in Resources) {
 var testBoat = new Enemy("TestBoat", 700, 4300, 100, 50, ex.Color.Black);
 var startPoint = new ex.Point(850, 4300);
 var endPoint = new ex.Point(950, 4300);
-//testBoat.movePatrol(startPoint, endPoint);
 
 var beginGame = () => {
    if (game.currentScene !== Resources.Level0) {

@@ -85,7 +85,6 @@ class Enemy extends ex.Actor {
          for (var j = 0; j < krakenLines.length; j++) {
             var distanceToKraken = this.rays[i].intersect(krakenLines[j]);
             if (distanceToKraken >= 0) {
-               console.log("pixels: ", this.rays[i].getPoint(distanceToKraken));
                return true;
             }
          }
