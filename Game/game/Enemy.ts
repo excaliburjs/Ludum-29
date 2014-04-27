@@ -16,7 +16,7 @@ class Enemy extends ex.Actor {
       this.setHeight(height || Config.defaultEnemyHeight);
       this._health = health || this._health;
       this._travelVector = new ex.Vector(-1, 0);
-      this._fovLength = 300;
+      this._fovLength = 500;
    }
 
     public onInitialize(game: ex.Engine) {
@@ -44,7 +44,13 @@ class Enemy extends ex.Actor {
          this.assistShip(ev.enemy);
       });
 
-      this.on('update', (ev: ex.UpdateEvent) => {
+       this.on('update', (ev: ex.UpdateEvent) => {
+
+          this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+
+          for (var i = 0; i < this.rays.length; i++) {
+             this.rays[i].pos = this._lightStartPoint;
+          }
 
          if (this.canSeeKraken()) {
             this.color = ex.Color.Red;
@@ -143,7 +149,7 @@ class Enemy extends ex.Actor {
       ctx.fillStyle = grd;
       ctx.beginPath();
       // x, y, radius, start, end, [anti-clockwise]
-      ctx.arc(this.getCenter().x, this.getCenter().y, this._fovLength, 0, Math.PI * 2);
+      ctx.arc(this.getCenter().x, this.getCenter().y, this._fovLength-200, 0, Math.PI * 2);
       ctx.closePath();
       ctx.fill();
 
