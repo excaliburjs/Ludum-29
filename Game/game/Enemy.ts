@@ -62,15 +62,11 @@ class Enemy extends ex.Actor {
       var krakenLines = this._kraken.getLines();
       for (var i = 0; i < this.rays.length; i++) {
          for (var j = 0; j < krakenLines.length; j++) {
-            var pixelsOut = this.rays[i].intersect(krakenLines[j]);
-            if (pixelsOut >= 0) {
-               console.log("pixels: ", this.rays[i].getPoint(pixelsOut));
+            var distanceToKraken = this.rays[i].intersect(krakenLines[j]);
+            if (distanceToKraken >= 0) {
+               console.log("pixels: ", this.rays[i].getPoint(distanceToKraken));
                return true;
-               //this.color = ex.Color.Red;
-               //console.log("saw the test kraken");
-            } //else {
-            //this.color = ex.Color.Black;
-            //}
+            }
          }
       }
       return false;
@@ -84,7 +80,6 @@ class Enemy extends ex.Actor {
         //TODO
     }
 
-    // roll this back into the Excalibur
     private rotatePoint(p: ex.Point, rotationAngle: number, anchor: ex.Point) {
         var sinAngle = Math.sin(rotationAngle);
         var cosAngle = Math.cos(rotationAngle);
