@@ -17,5 +17,5 @@ var Resources = {
 var Palette = {
 
    // Night time
-   ColorNightTime: new ex.Color(18, 31, 98)
+   ColorNightTime: new ex.Color(51, 27, 96)
 };
