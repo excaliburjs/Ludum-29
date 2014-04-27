@@ -136,6 +136,16 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
          // follow the kraken
          game.camera.setActorToFollow(kraken);
+      },
+
+      /**
+       * Spawns an enemy
+       */
+      EnemySpawn: (obj: IObject) => {
+
+         var enemy = new Enemy(obj.x, obj.y);
+
+         this.addChild(enemy);
       }
 
    }

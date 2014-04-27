@@ -157,5 +157,6 @@
  </layer>
  <objectgroup name="Characters">
   <object name="Player Spawn" type="PlayerSpawn" x="384" y="4320" width="48" height="48"/>
+  <object name="Enemy 1" type="EnemySpawn" x="1728" y="4176" width="48" height="48"/>
  </objectgroup>
 </map>
