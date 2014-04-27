@@ -5,12 +5,12 @@
  <tileset firstgid="2697" source="World.tsx"/>
  <layer name="Water" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJz7ycHA8HMUj+JRPIpH8SgmEQMASJaRoA==
+   eJw7x8bA8JNjFI/iUTyKR/EoJg0DAC9JkXM=
   </data>
  </layer>
  <layer name="Grass" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYECApcwMDEuYGSgGIHMWAPE8KF5AobmLkcyC4YVkmrcUi1kwTI4bl+ExbzmZbqSmf2FuXIRk1iIK3IZuLjXMoQVQ40PgkWDeKBgFAwEAKOUd9w==
+   eJxjYECApcwMDEuYGSgGIHMWAPE8KF5AobmLkcyC4YVkmrcUi1kwTI4bl+ExbzmZbqSmf2FuXIRk1iIK3IZuLjXMoQVADruRYN4oGAUDAQD1kSHM
   </data>
  </layer>
  <layer name="Sand" width="20" height="20">

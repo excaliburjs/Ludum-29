@@ -10,7 +10,10 @@ class Kraken extends ex.Actor {
         super(x, y, Config.defaultKrakenWidth, Config.defaultKrakenHeight, color);
         this._health = health || this._health;
 
-        var krakenSheet = new ex.SpriteSheet(Resources.KrakenTexture, 4, 3, 120, 60);
+       var krakenSheet = new ex.SpriteSheet(Resources.KrakenTexture, 4, 3, 120, 60);
+
+       krakenSheet.sprites.forEach(s => s.addEffect(new Fx.Multiply(Palette.ColorNightTime)));
+
         var anim = krakenSheet.getAnimationByIndices(game, [0, 1, 2], 200);
         anim.loop = true;
         anim.setScaleX(2);

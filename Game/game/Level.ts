@@ -19,7 +19,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
          var ss = new ex.SpriteSheet(ts.texture, cols, rows, ts.tilewidth, ts.tileheight);
 
          // nighty night!
-         ss.sprites.forEach(s => s.addEffect(new Fx.Multiply(new ex.Color(18, 31, 98))));
+         ss.sprites.forEach(s => s.addEffect(new Fx.Multiply(Palette.ColorNightTime)));
 
          this.map.registerSpriteSheet(ts.firstgid.toString(), ss);
       });
