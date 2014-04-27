@@ -14,16 +14,21 @@ class Kraken extends ex.Actor {
 
        krakenSheet.sprites.forEach(s => s.addEffect(new Fx.Multiply(Palette.ColorNightTime)));
 
-        var anim = krakenSheet.getAnimationByIndices(game, [0, 1, 2], 200);
-        anim.loop = true;
-        anim.setScaleX(1.5);
-        anim.setScaleY(1.5);
+        var swimAnim = krakenSheet.getAnimationByIndices(game, [0, 1, 2, 3], 200);
+        swimAnim.loop = true;
+        swimAnim.setScaleX(1.5);
+        swimAnim.setScaleY(1.5);
         this.setCenterDrawing(true);
-        var centerVector = this.getCenter();
-        //anim.transformAboutPoint(new ex.Point(centerVector.x, centerVector.y));
 
+        var attackAnim = krakenSheet.getAnimationByIndices(game, [4, 5, 6], 200);
+        attackAnim.loop = true;
+        attackAnim.setScaleX(1.5);
+        attackAnim.setScaleY(1.5);
+        this.setCenterDrawing(true);
 
-        this.addDrawing("default", anim);
+        this.addDrawing('attack', attackAnim);
+        this.addDrawing('default', swimAnim);
+        this.setDrawing('default');
 
     }
 
