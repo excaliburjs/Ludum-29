@@ -612,6 +612,7 @@ declare module ex {
         * @returns BoundingBox
         */
         public getBounds(): BoundingBox;
+        public getCenter(): Vector;
         public pushSprite(tileSprite: TileSprite): void;
     }
     /**
@@ -719,6 +720,7 @@ declare module ex {
         * @returns boolean
         */
         contains(point: Point): boolean;
+        toSATBB(): SATBoundingBox;
         debugDraw(ctx: CanvasRenderingContext2D): void;
     }
     /**
@@ -765,10 +767,12 @@ declare module ex {
         */
         public collides(collidable: ICollidable): Vector;
         public debugDraw(ctx: CanvasRenderingContext2D): void;
+        public toSATBB(): SATBoundingBox;
     }
     class SATBoundingBox implements ICollidable {
         private _points;
         constructor(points: Point[]);
+        public toSATBB(): SATBoundingBox;
         public getSides(): Line[];
         public getAxes(): Vector[];
         public project(axis: Vector): Projection;
