@@ -35,7 +35,7 @@ class Kraken extends ex.Actor {
             this._isMousePressed = true;
             var target = new ex.Vector(ev.x, ev.y);
             var travelVector = target.minus(this.getCenter());
-            travelVector.normalize().scale(20);
+            travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
             this._travelVector = travelVector;
             this.move(travelVector.x, travelVector.y);
 
