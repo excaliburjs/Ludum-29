@@ -5200,9 +5200,8 @@ var ex;
         * @returns Animation
         */
         SpriteSheet.prototype.getAnimationByIndices = function (engine, indices, speed) {
-            var _this = this;
-            var images = indices.map(function (index) {
-                return _this.sprites[index];
+            var images = this.sprites.filter(function (sprite, index) {
+                return indices.indexOf(index) > -1;
             });
 
             images = images.map(function (i) {
