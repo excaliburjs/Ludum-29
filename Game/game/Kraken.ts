@@ -16,8 +16,8 @@ class Kraken extends ex.Actor {
 
         var anim = krakenSheet.getAnimationByIndices(game, [0, 1, 2], 200);
         anim.loop = true;
-        anim.setScaleX(2);
-        anim.setScaleY(2);
+        anim.setScaleX(1.5);
+        anim.setScaleY(1.5);
         this.setCenterDrawing(true);
         var centerVector = this.getCenter();
         //anim.transformAboutPoint(new ex.Point(centerVector.x, centerVector.y));
@@ -76,6 +76,36 @@ class Kraken extends ex.Actor {
 
     }
 
+    public getLines() {
+        var lines = new Array<ex.Line>();
 
+        var beginPoint1 = new ex.Point(this.x, this.y);
+        var endPoint1 = new ex.Point(this.x + this.getWidth(), this.y);
+        var newLine1 = new ex.Line(beginPoint1, endPoint1);
+
+        // beginPoint2 is endPoint1
+        var endPoint2 = new ex.Point(endPoint1.x, endPoint1.y + this.getHeight());
+        var newLine2 = new ex.Line(endPoint1, endPoint2);
+
+        // beginPoint3 is endPoint2
+        var endPoint3 = new ex.Point(this.x, this.y + this.getHeight());
+        var newLine3 = new ex.Line(endPoint2, endPoint3);
+
+        // beginPoint4 is endPoint3
+        // endPoint4 is beginPoint1
+        var newLine4 = new ex.Line(endPoint3, beginPoint1);
+
+        //console.log("line1: (" + Math.round(newLine1.begin.x) + ", " + Math.round(newLine1.begin.y) + ") to (" + Math.round(newLine1.end.x) + ", " + Math.round(newLine1.end.y) + ")");
+        //console.log("line2: (" + Math.round(newLine2.begin.x) + ", " + Math.round(newLine2.begin.y) + ") to (" + Math.round(newLine2.end.x) + ", " + Math.round(newLine2.end.y) + ")");
+        //console.log("line3: (" + Math.round(newLine3.begin.x) + ", " + Math.round(newLine3.begin.y) + ") to (" + Math.round(newLine3.end.x) + ", " + Math.round(newLine3.end.y) + ")");
+        //console.log("line4: (" + Math.round(newLine4.begin.x) + ", " + Math.round(newLine4.begin.y) + ") to (" + Math.round(newLine4.end.x) + ", " + Math.round(newLine4.end.y) + ")");
+
+        lines.push(newLine1);
+        lines.push(newLine2);
+        lines.push(newLine3);
+        lines.push(newLine4);
+        return lines;
+
+    }
 
 }
