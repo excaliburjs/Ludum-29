@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="20" height="20" tilewidth="48" tileheight="48">
+ <tileset firstgid="1" source="World.tsx"/>
+ <tileset firstgid="2297" source="Terrain.tsx"/>
+ <tileset firstgid="2697" source="World.tsx"/>
+ <layer name="Water" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJz7ycHA8HMUj+JRPIpH8SgmEQMASJaRoA==
+  </data>
+ </layer>
+ <layer name="Grass" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYECApcwMDEuYGSgGIHMWAPE8KF5AobmLkcyC4YVkmrcUi1kwTI4bl+ExbzmZbqSmf2FuXIRk1iIK3IZuLjXMoQVQ40PgkWDeKBgFAwEAKOUd9w==
+  </data>
+ </layer>
+ <layer name="Sand" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAeiLIwMIiwkKABjzkCQMwHxQIUmiuMZBYMC5JpnigWs2CYHDeK4TFPnEw3UtO/MDcKIZklRIHb0M2lhjmUAuRwGgnmjYJRQC8AAJctBDE=
+  </data>
+ </layer>
+ <layer name="Trees" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJztzNsNgCAQBdGlOATsSR72BKjVMTXAhwnZSc7nvSKatl/WiBxw8Ag4zfzfxTYiIaPgXvirbBs6Hrz4Fv407Y8GzmAJCg==
+  </data>
+ </layer>
+</map>

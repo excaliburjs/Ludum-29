@@ -20,6 +20,7 @@
     <Content Include="css\app.css" />
     <Content Include="images\kraken\Kraken.png" />
     <Content Include="images\kraken\KrakenSpriteSheet.png" />
+    <Content Include="images\splash.jpg" />
     <Content Include="images\tilesets\Terrain.png" />
     <Content Include="images\tilesets\world-48x48.png" />
     <Content Include="index.html" />

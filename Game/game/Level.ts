@@ -1,9 +1,8 @@
 ﻿/// <reference path="../scripts/Excalibur.d.ts" />
 
 class BaseLevel extends ex.Scene implements ex.ILoadable {
-   private _isLoaded: boolean = false;
-   public data: any;
-   public collisionMap: ex.CollisionMap;
+   public data: IMap;
+   public maps: {[key: string]: ex.CollisionMap} = {};
 
    constructor(public jsonPath: string) {
       super();
@@ -11,41 +10,32 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
    public onInitialize(engine: ex.Engine) {
 
-      var terrainTileSet: any;
-      var playerSpawn: ex.Point;
+      // create collision map for each tileset in map
+      this.data.tilesets.forEach(ts => {
+         var cols = Math.floor(ts.imagewidth / ts.tilewidth);
+         var rows = Math.floor(ts.imageheight / ts.tileheight);
+         var ss = new ex.SpriteSheet(ts.texture, cols, rows, ts.tilewidth, ts.tileheight);
 
-      // find terrain tileset
-      this.data.tilesets.forEach(tileset => {
-
-         if (tileset.name === "Terrain") {
-            terrainTileSet = tileset;
-         }
-
+         this.maps[ts.firstgid.toString()] = new ex.CollisionMap(0, 0, ts.tilewidth, ts.tileheight, this.data.height, this.data.width, ss);
       });
 
-      // No terrain? Bad map.
-      if (!terrainTileSet) { return; }
-
-      var columns = terrainTileSet.imagewidth / terrainTileSet.tilewidth;
-      var rows = terrainTileSet.imageheight / terrainTileSet.tileheight;
-
-      var terrainSheet = new ex.SpriteSheet(Resources.TerrainTexture, columns, rows, terrainTileSet.tilewidth, terrainTileSet.tileheight);
-
-      // build the collision map
-      this.collisionMap = new ex.CollisionMap(0, 0, this.data.tilewidth, this.data.tileheight, this.data.width, this.data.height, terrainSheet);
-
-      var i, j, gid, layer;
+      var i, j, gid, layer: ILayer, map: ex.CollisionMap, tileset: ITileset;
       for (i = 0; i < this.data.layers.length; i++) {
 
          layer = this.data.layers[i];
 
          // terrain layer?
-         if (layer.name === "Terrain") {
+         if (layer.type === "tilelayer") {
             for (j = 0; j < layer.data.length; j++) {
                gid = layer.data[j];
                if (gid !== 0) {
-                  this.collisionMap.data[j].spriteId = gid - 1;
-                  this.collisionMap.data[j].solid = this.isTileSolidTerrain(gid, terrainTileSet);
+                  map = this.getCollisionMapForTile(gid);
+                  tileset = this.getTilesetForTile(gid);
+
+                  if (map && tileset) {
+                     map.data[j].spriteId = gid - tileset.firstgid;
+                     map.data[j].solid = this.isTileSolidTerrain(gid, tileset);
+                  }
                }
             }
          }
@@ -57,7 +47,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
                if (obj.type && this._objectFactories[obj.type]) {
 
-                  this._objectFactories[obj.type](obj.x, obj.y);
+                  this._objectFactories[obj.type](obj);
 
                }
 
@@ -66,16 +56,82 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
          }
       }
 
-      this.addCollisionMap(this.collisionMap);
+      //delete this.maps["401"];
+
+      // Add collision maps to scene
+      for (var key in this.maps) {
+         if (this.maps.hasOwnProperty(key)) {
+            this.addCollisionMap(this.maps[key]);
+         }
+      }
    }
 
-   private _objectFactories: {[key: string]: (x: number, y: number) => void } = {
-      
-      PlayerSpawn: (x: number, y: number) => {
+   //TODO overload draw: draw HUD, UI, etc.
+   public draw(ctx: CanvasRenderingContext2D, delta: number) {
+      super.draw(ctx, delta);
+      // draw HUD, UI, etc.
+   }
 
-         ex.Logger.getInstance().info("Spawned the Kraken", x, y);
+   public load(): ex.Promise<IMap> {
+      var complete = new ex.Promise<IMap>();
+      var request = new XMLHttpRequest();
+      request.open("GET", this.jsonPath, true);
+      request.responseType = "json";
+      request.onprogress = this.onprogress;
+      request.onerror = this.onerror;
+      request.onload = (e) => {
 
-         var kraken = new Kraken(x, y);
+         this.data = request.response;
+
+         var promises = [];
+
+         // retrieve images from tilesets and create textures
+         this.data.tilesets.forEach(ts => {
+            ts.texture = new ex.Texture(ts.image);
+            ts.texture.oncomplete = ts.texture.onerror = () => {
+               var idx = promises.indexOf(ts.texture);
+               promises.splice(idx, 1);
+
+               if (promises.length === 0) {
+                  this.oncomplete();
+                  complete.resolve(this.data);   
+               }
+            };
+            promises.push(ts.texture);            
+         });
+
+         promises.forEach(p => p.load());
+      };
+      request.send();
+      return complete;
+   }
+
+   public isLoaded(): boolean {
+      return this.data !== undefined;
+   }
+
+   public onprogress: (e: any) => void = () => { };
+
+   public oncomplete: () => void = () => { };
+
+   public onerror: (e: any) => void = () => { };
+
+   /**
+    * Factories for creating objects from Tiled map data. In Tiled, when you
+    * place an object, you can specify it's Type. The type name gets mapped
+    * to this hash. If it exists, the function is called with the the IObject
+    * interface.
+    */
+   private _objectFactories: { [key: string]: (obj: IObject) => void } = {
+
+      /**
+       * Handle spawning a player
+       */
+      PlayerSpawn: (obj: IObject) => {
+
+         ex.Logger.getInstance().info("Released the Kraken!", obj.x, obj.y);
+
+         var kraken = new Kraken(obj.x, obj.y);
 
          // add to level
          this.addChild(kraken);
@@ -86,9 +142,41 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
    }
 
-   private isTileSolidTerrain(gid: number, tileset: any): boolean {
+   private getCollisionMapForTile(gid: number): ex.CollisionMap {
+      
+      // Need to reverse search the maps hash
+      var gids: number[] = [];
 
-      if (gid === 0) return false;
+      for (var key in this.maps) {
+         if (this.maps.hasOwnProperty(key)) {
+            gids.push(parseInt(key, 10));
+         }
+      }
+
+      for (var i = gids.length - 1; i >= 0; i--) {
+         if (gids[i] <= gid) {
+            return this.maps[gids[i]];
+         }
+      }
+
+      return null;
+   }
+
+   private getTilesetForTile(gid: number): ITileset {
+      for (var i = this.data.tilesets.length - 1; i >= 0; i--) {
+         var ts = this.data.tilesets[i];
+
+         if (ts.firstgid <= gid) {
+            return ts;
+         }
+      }
+
+      return null;
+   }   
+
+   private isTileSolidTerrain(gid: number, tileset: ITileset): boolean {
+
+      if (gid === 0 || !tileset.terrains) return false;
 
       // loop through terrains
       var solidTerrains = [], i, terrain;
@@ -118,35 +206,88 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       return false;
    }
 
-   //TODO overload draw: draw HUD, UI, etc.
-   public draw(ctx: CanvasRenderingContext2D, delta: number) {
-      super.draw(ctx, delta);
-      // draw HUD, UI, etc.
-   }
-
-   public load(): ex.Promise<any> {
-      var complete = new ex.Promise<any>();
-      var request = new XMLHttpRequest();
-      request.open("GET", this.jsonPath, true);
-      request.responseType = "json";
-      request.onprogress = this.onprogress;
-      request.onerror = this.onerror;
-      request.onload = (e) => {
-         complete.resolve(request.response);
-         this.data = request.response;
-         this.oncomplete();
-      };
-      request.send();
-      return complete;
-   }
-
-   public isLoaded(): boolean {
-      return this._isLoaded;
-   }
-
-   public onprogress: (e: any) => void = () => { };
-
-   public oncomplete: () => void = () => { };
-
-   public onerror: (e: any) => void = () => { };
+   
 }
+
+//#region Tiled Interfaces
+
+interface IMap {
+   
+   height: number;
+   width: number;
+   tileheight: number;
+   tilewidth: number;
+   orientation: string;
+
+   layers: ILayer[];
+   tilesets: ITileset[];
+
+   properties: {};
+   version: number;
+
+}
+
+interface ILayer {
+   data: number[];
+   height: number;
+   name: string;
+   opacity: number;
+   type: string;
+   visible: boolean;
+   width: number;
+   x: number;
+   y: number;
+
+   draworder: string;
+   objects: IObject[];
+}
+
+interface ITileset {
+   
+   firstgid: number;
+   image: string;
+   imageheight: number;
+   imagewidth: number;
+   margin: number;
+   name: string;
+   properties: { [key: string]: string };
+   spacing: number;
+   tileheight: number;
+   tilewidth: number;
+
+   // Terrain
+   terrains: ITerrain[];
+   tiles: { [key: string]: ITerrainTile };
+
+   // For this game
+   texture: ex.Texture;
+}
+
+interface IObject {
+   
+   height: number;
+   width: number;
+   x: number;
+   y: number;
+   rotation: number;
+   name: string;
+   properties: { [key: string]: string };
+   type: string;
+   visible: boolean;
+
+}
+
+interface ITerrain {
+   
+   name: string;
+   properties: { [key: string]: string };
+
+}
+
+interface ITerrainTile {
+   
+   terrain: number[];
+
+}
+
+//#endregion
