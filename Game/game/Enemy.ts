@@ -8,6 +8,7 @@ class Enemy extends ex.Actor {
    private _fovLength: number;
    private _travelVector: ex.Vector;
    private _kraken: Kraken;
+   private _lightStartPoint: ex.Point;
 
    constructor(public key: string, x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultEnemyWidth, Config.defaultEnemyHeight, color);
@@ -15,19 +16,21 @@ class Enemy extends ex.Actor {
       this.setHeight(height || Config.defaultEnemyHeight);
       this._health = health || this._health;
       this._travelVector = new ex.Vector(-1, 0);
-      this._fovLength = 300;
+      this._fovLength = 500;
    }
 
     public onInitialize(game: ex.Engine) {
+       this._kraken = (<any>game.currentScene).kraken;
 
-      this._kraken = (<any>game.currentScene).kraken;
+       //assumes all enemies are initially facing left
+       this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
 
       var yValues = new Array<number>(-0.5, -0.25, 0, 0.25, 0.5);
 
 
       for (var i = 0; i < 5; i++) {
          //var rayPoint = new ex.Point(0, this.getHeight() / 2);
-         var rayPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+         var rayPoint = this._lightStartPoint;
          var rayVector = new ex.Vector(-1, yValues[i]);
          var ray = new ex.Ray(rayPoint, rayVector);
          this.rays.push(ray);
@@ -41,7 +44,13 @@ class Enemy extends ex.Actor {
          this.assistShip(ev.enemy);
       });
 
-      this.on('update', (ev: ex.UpdateEvent) => {
+       this.on('update', (ev: ex.UpdateEvent) => {
+
+          this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+
+          for (var i = 0; i < this.rays.length; i++) {
+             this.rays[i].pos = this._lightStartPoint;
+          }
 
          if (this.canSeeKraken()) {
             this.color = ex.Color.Red;
@@ -74,15 +83,11 @@ class Enemy extends ex.Actor {
       var krakenLines = this._kraken.getLines();
       for (var i = 0; i < this.rays.length; i++) {
          for (var j = 0; j < krakenLines.length; j++) {
-            var pixelsOut = this.rays[i].intersect(krakenLines[j]);
-            if (pixelsOut >= 0) {
-               console.log("pixels: ", this.rays[i].getPoint(pixelsOut));
+            var distanceToKraken = this.rays[i].intersect(krakenLines[j]);
+            if (distanceToKraken >= 0) {
+               console.log("pixels: ", this.rays[i].getPoint(distanceToKraken));
                return true;
-               //this.color = ex.Color.Red;
-               //console.log("saw the test kraken");
-            } //else {
-            //this.color = ex.Color.Black;
-            //}
+            }
          }
       }
       return false;
@@ -96,7 +101,6 @@ class Enemy extends ex.Actor {
         //TODO
     }
 
-    // roll this back into the Excalibur
     private rotatePoint(p: ex.Point, rotationAngle: number, anchor: ex.Point) {
         var sinAngle = Math.sin(rotationAngle);
         var cosAngle = Math.cos(rotationAngle);
@@ -113,9 +117,6 @@ class Enemy extends ex.Actor {
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
       //Debugging draw for LOS rays on the enemy
-      //TODO remove save and restore
-      //ctx.save();
-      //ctx.translate(this.x, this.y);
       for (var i = 0; i < this.rays.length; i++) {
          ctx.beginPath();
          ctx.moveTo(this.rays[i].pos.x, this.rays[i].pos.y);
@@ -125,9 +126,7 @@ class Enemy extends ex.Actor {
          ctx.stroke();
          ctx.closePath();
       }
-      //ctx.restore();
-
-      this.drawFOV(this.getCenter(), ctx, delta);
+      this.drawFOV(this._lightStartPoint, ctx, delta);
    }
 
    public moveCircle() {
@@ -153,7 +152,7 @@ class Enemy extends ex.Actor {
       var fovRay = new ex.Ray(point, this._travelVector);
       var fovEndPoint = fovRay.getPoint(this._fovLength);
 
-      var grd = ctx.createRadialGradient(point.x, point.y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
+      var grd = ctx.createRadialGradient(point.x-20, point.y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
 
       grd.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
       grd.addColorStop(1, 'rgba(255, 255, 255, 0)');
@@ -161,7 +160,7 @@ class Enemy extends ex.Actor {
       ctx.fillStyle = grd;
       ctx.beginPath();
       // x, y, radius, start, end, [anti-clockwise]
-      ctx.arc(this.getCenter().x, this.getCenter().y, this._fovLength, 0, Math.PI * 2);
+      ctx.arc(this.getCenter().x, this.getCenter().y, this._fovLength-200, 0, Math.PI * 2);
       ctx.closePath();
       ctx.fill();
 

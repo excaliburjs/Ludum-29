@@ -1,10 +1,17 @@
 ﻿/// <reference path="Config.ts" />
 /// <reference path="Enemy.ts" />
 
+enum KrakenMode {
+    Idle,
+    Attack,
+    Swim
+}
+
 class Kraken extends ex.Actor {
     private _health: number = Config.defaultKrakenHealth;
     private _travelVector: ex.Vector = new ex.Vector(0,0);
     private _isMousePressed = false;
+    private _currentMode: KrakenMode = KrakenMode.Idle;
 
     constructor(x?: number, y?: number, color?: ex.Color, health?: number) {
         super(x, y, Config.defaultKrakenWidth, Config.defaultKrakenHeight, color);
@@ -14,16 +21,28 @@ class Kraken extends ex.Actor {
 
        krakenSheet.sprites.forEach(s => s.addEffect(new Fx.Multiply(Palette.ColorKrakenBlend)));
 
-        var anim = krakenSheet.getAnimationByIndices(game, [0, 1, 2], 200);
-        anim.loop = true;
-        anim.setScaleX(1.5);
-        anim.setScaleY(1.5);
+        var swimAnim = krakenSheet.getAnimationByIndices(game, [0, 1, 2, 3], 200);
+        swimAnim.loop = true;
+        swimAnim.setScaleX(1.5);
+        swimAnim.setScaleY(1.5);
         this.setCenterDrawing(true);
-        var centerVector = this.getCenter();
-        //anim.transformAboutPoint(new ex.Point(centerVector.x, centerVector.y));
 
+        var attackAnim = krakenSheet.getAnimationByIndices(game, [4, 5, 6], 200);
+        attackAnim.loop = true;
+        attackAnim.setScaleX(1.5);
+        attackAnim.setScaleY(1.5);
+        this.setCenterDrawing(true);
 
-        this.addDrawing("default", anim);
+        var idleAnim = krakenSheet.getAnimationByIndices(game, [8, 7, 9, 7], 200);
+        idleAnim.loop = true;
+        idleAnim.setScaleX(1.5);
+        idleAnim.setScaleY(1.5);
+        this.setCenterDrawing(true);
+
+        this.addDrawing('idle', idleAnim);
+        this.addDrawing('attack', attackAnim);
+        this.addDrawing('swim', swimAnim);
+        this.setDrawing('idle');
 
     }
 
@@ -35,7 +54,7 @@ class Kraken extends ex.Actor {
             this._isMousePressed = true;
             var target = new ex.Vector(ev.x, ev.y);
             var travelVector = target.minus(this.getCenter());
-            travelVector.normalize().scale(20);
+            travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
             this._travelVector = travelVector;
             this.move(travelVector.x, travelVector.y);
 
@@ -45,6 +64,10 @@ class Kraken extends ex.Actor {
            this.rotation = rotationAngle;
 
            Resources.SoundSwim.play();
+            if (this._currentMode !== KrakenMode.Attack) {
+                this.setDrawing('swim');    
+            }
+            
         });
 
         game.on('mousemove', (ev: ex.MouseMove) => {
@@ -66,7 +89,34 @@ class Kraken extends ex.Actor {
             this._isMousePressed = false;
             this.dx -= this._travelVector.x;
             this.dy -= this._travelVector.y;
+            this.returnToIdle();
         });
+
+        game.on('keydown', (ev: ex.KeyDown) => {
+            if (ev.key === ex.InputKey.A) {
+                if (this._currentMode !== KrakenMode.Attack) {
+                    this.attack();
+                } else {
+                    this.returnToIdle();
+                }
+            }
+        });
+
+    }
+
+
+    public returnToIdle() {
+        if (this._currentMode === KrakenMode.Attack) {
+            var oldRotation = this.rotation;
+            this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
+                this.setDrawing('idle');
+                this.rotation = oldRotation;
+                this._currentMode = KrakenMode.Idle;
+            });
+        } else {
+            this.setDrawing('idle');
+            this._currentMode = KrakenMode.Idle;
+        }
     }
 
     public move(x: number, y: number) {
@@ -74,8 +124,13 @@ class Kraken extends ex.Actor {
         this.dy = y;
     }
 
-    public attack() {
-
+    public attack(enemy?: Enemy) {
+        this._currentMode = KrakenMode.Attack;
+        var oldRotation = this.rotation;
+        this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
+            this.setDrawing('attack');
+            this.rotation = oldRotation;
+        });
     }
 
     public getLines() {
