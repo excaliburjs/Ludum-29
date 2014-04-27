@@ -1008,6 +1008,7 @@ var ex;
     var Util = ex.Util;
 })(ex || (ex = {}));
 /// <reference path="Core.ts" />
+/// <reference path="Algebra.ts" />
 var ex;
 (function (ex) {
     var TileSprite = (function () {
@@ -1080,6 +1081,10 @@ var ex;
         */
         Cell.prototype.getBounds = function () {
             return this._bounds;
+        };
+
+        Cell.prototype.getCenter = function () {
+            return new ex.Vector(this.x + this.width / 2, this.y + this.height / 2);
         };
 
         Cell.prototype.pushSprite = function (tileSprite) {
@@ -1156,7 +1161,9 @@ var ex;
                     var yover = 0;
                     if (cell && cell.solid) {
                         var overlap = actorBounds.collides(cell.getBounds());
-                        if (overlap) {
+                        var dir = actor.getCenter().minus(cell.getCenter());
+
+                        if (overlap && overlap.dot(dir) > 0) {
                             overlaps.push(overlap);
                         }
                     }
@@ -1439,7 +1446,12 @@ var ex;
                     } else {
                         overlapY = other.top - this.bottom;
                     }
-                    return new ex.Vector(overlapX, overlapY);
+
+                    if (Math.abs(overlapX) < Math.abs(overlapY)) {
+                        return new ex.Vector(overlapX, 0);
+                    } else {
+                        return new ex.Vector(0, overlapY);
+                    }
                 } else {
                     return null;
                 }
@@ -1449,6 +1461,15 @@ var ex;
         };
 
         BoundingBox.prototype.debugDraw = function (ctx) {
+        };
+
+        BoundingBox.prototype.toSATBB = function () {
+            return new SATBoundingBox([
+                new ex.Point(this.left, this.top),
+                new ex.Point(this.right, this.top),
+                new ex.Point(this.right, this.bottom),
+                new ex.Point(this.left, this.bottom)
+            ]);
         };
         return BoundingBox;
     })();
@@ -1460,6 +1481,10 @@ var ex;
                 return p.toVector();
             });
         }
+        SATBoundingBox.prototype.toSATBB = function () {
+            return this;
+        };
+
         SATBoundingBox.prototype.getSides = function () {
             var lines = [];
             var len = this._points.length;
@@ -2364,13 +2389,13 @@ var ex;
         */
         Actor.prototype.getSideFromIntersect = function (intersect) {
             if (intersect) {
-                if (Math.abs(intersect.x) < Math.abs(intersect.y)) {
-                    if (intersect.x < 0) {
+                if (Math.abs(intersect.x) > Math.abs(intersect.y)) {
+                    if (intersect.x > 0) {
                         return 4 /* Right */;
                     }
                     return 3 /* Left */;
                 } else {
-                    if (intersect.y < 0) {
+                    if (intersect.y > 0) {
                         return 2 /* Bottom */;
                     }
                     return 1 /* Top */;
@@ -2757,11 +2782,8 @@ var ex;
                                 this.x += intersectActor.x;
                                 this.y += intersectActor.y;
                             } else {
-                                if (Math.abs(intersectActor.y) < Math.abs(intersectActor.x)) {
-                                    this.y += intersectActor.y;
-                                } else {
-                                    this.x += intersectActor.x;
-                                }
+                                this.y += intersectActor.y;
+                                this.x += intersectActor.x;
                             }
 
                             // Naive elastic bounce
@@ -2789,7 +2811,7 @@ var ex;
 
                     while (intersectMap = map.collides(this)) {
                         //iters.push(intersectMap);
-                        //console.log("CollisionMap", intersectMap);
+                        console.log("CollisionMap", intersectMap);
                         if (max-- < 0) {
                             break;
                         }
@@ -2797,11 +2819,12 @@ var ex;
                         eventDispatcher.publish('collision', new ex.CollisionEvent(this, null, side, intersectMap));
                         if (this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) {
                             //var intersectMap = map.getOverlap(this);
-                            if (Math.abs(intersectMap.y) < Math.abs(intersectMap.x)) {
-                                this.y += intersectMap.y;
+                            this.y += intersectMap.y;
+                            this.x += intersectMap.x;
+
+                            if (Math.abs(intersectMap.y) > Math.abs(intersectMap.x)) {
                                 this.dy = 0;
                             } else {
-                                this.x += intersectMap.x;
                                 this.dx = 0;
                             }
 
@@ -5939,7 +5962,7 @@ var ex;
             this.engine = engine;
         }
         /**
-        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
         * @param actor {Actor} The actor to follow
         */
@@ -5952,7 +5975,8 @@ var ex;
         * @method getFocus
         * @returns Point
         */
-        BaseCamera.prototype.getFocus = function () {
+        BaseCamera.prototype.getFocus = function (fromScreen) {
+            if (typeof fromScreen === "undefined") { fromScreen = false; }
             // this should always be overridden
             if (this.follow) {
                 return new ex.Point(0, 0);
@@ -6124,10 +6148,11 @@ var ex;
         * @method getFocus
         * @returns point
         */
-        SideCamera.prototype.getFocus = function () {
+        SideCamera.prototype.getFocus = function (fromScreen) {
+            if (typeof fromScreen === "undefined") { fromScreen = false; }
             if (this.follow) {
                 // return new Point(-this.follow.x + this.engine.width / 2.0, 0);
-                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
+                return new ex.Point((-(this.follow.getCenter().x / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
             } else {
                 return this.focus;
             }
@@ -6153,9 +6178,12 @@ var ex;
         * @method getFocus
         * @returns Point
         */
-        TopCamera.prototype.getFocus = function () {
+        TopCamera.prototype.getFocus = function (fromScreen) {
+            if (typeof fromScreen === "undefined") { fromScreen = false; }
             if (this.follow) {
-                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, ((-this.follow.y - this.follow.getHeight() / 2) * this.getZoom()) + (this.engine.getHeight() * this.getZoom()) / 2.0);
+                var w = fromScreen ? this.engine.getWidth() : this.engine.canvas.width, h = fromScreen ? this.engine.getHeight() : this.engine.canvas.height;
+
+                return new ex.Point((-this.follow.getCenter().x * this.getZoom()) + (w * this.getZoom()) / 2.0, (-this.follow.getCenter().y * this.getZoom()) + (h * this.getZoom()) / 2.0);
             } else {
                 return this.focus;
             }
@@ -7036,7 +7064,7 @@ var ex;
             var newY = point.y;
 
             if (this.camera) {
-                var focus = this.camera.getFocus();
+                var focus = this.camera.getFocus(true);
                 newX -= focus.x;
                 newY -= focus.y;
             }
@@ -7090,16 +7118,18 @@ var ex;
             }
 
             if (this.displayMode === 3 /* Fill */) {
-                var ws = parent.clientWidth / this.canvas.width;
-                var hs = parent.clientHeight / this.canvas.height;
+                // window
+                var ws = parent.innerWidth / this.canvas.width;
+                var hs = parent.innerHeight / this.canvas.height;
 
                 var s = Math.min(ws, hs);
 
                 // scale to aspect ratio
-                this.width = (this.canvas.width * s);
-                this.height = (this.canvas.height * s);
-                this.canvas.style.width = (this.canvas.width * s).toString() + "px";
-                this.canvas.style.height = (this.canvas.height * s).toString() + "px";
+                var w = Math.floor(this.canvas.width * s), h = Math.floor(this.canvas.height * s);
+                this.width = w;
+                this.height = h;
+                this.canvas.style.width = w.toString() + "px";
+                this.canvas.style.height = h.toString() + "px";
             }
         };
 
@@ -7111,7 +7141,7 @@ var ex;
         Engine.prototype.initialize = function () {
             var _this = this;
             if (this.displayMode === 0 /* FullScreen */ || this.displayMode === 1 /* Container */ || this.displayMode === 3 /* Fill */) {
-                var parent = (this.displayMode === 1 /* Container */ || this.displayMode === 3 /* Fill */ ? (this.canvas.parentElement || document.body) : window);
+                var parent = (this.displayMode === 1 /* Container */ ? (this.canvas.parentElement || document.body) : window);
 
                 this.setHeightByDisplayMode(parent);
 
