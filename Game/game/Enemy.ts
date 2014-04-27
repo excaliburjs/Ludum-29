@@ -8,6 +8,7 @@ class Enemy extends ex.Actor {
    private _fovLength: number;
    private _travelVector: ex.Vector;
    private _kraken: Kraken;
+   private _lightStartPoint: ex.Point;
 
    constructor(x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultEnemyWidth, Config.defaultEnemyHeight, color);
@@ -19,15 +20,17 @@ class Enemy extends ex.Actor {
    }
 
     public onInitialize(game: ex.Engine) {
+       this._kraken = (<any>game.currentScene).kraken;
 
-      this._kraken = (<any>game.currentScene).kraken;
+       //assumes all enemies are initially facing left
+       this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
 
       var yValues = new Array<number>(-0.5, -0.25, 0, 0.25, 0.5);
 
 
       for (var i = 0; i < 5; i++) {
          //var rayPoint = new ex.Point(0, this.getHeight() / 2);
-         var rayPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+         var rayPoint = this._lightStartPoint;
          var rayVector = new ex.Vector(-1, yValues[i]);
          var ray = new ex.Ray(rayPoint, rayVector);
          this.rays.push(ray);
@@ -98,9 +101,6 @@ class Enemy extends ex.Actor {
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
       //Debugging draw for LOS rays on the enemy
-      //TODO remove save and restore
-      //ctx.save();
-      //ctx.translate(this.x, this.y);
       for (var i = 0; i < this.rays.length; i++) {
          ctx.beginPath();
          ctx.moveTo(this.rays[i].pos.x, this.rays[i].pos.y);
@@ -110,9 +110,7 @@ class Enemy extends ex.Actor {
          ctx.stroke();
          ctx.closePath();
       }
-      //ctx.restore();
-
-      this.drawFOV(this.getCenter(), ctx, delta);
+      this.drawFOV(this._lightStartPoint, ctx, delta);
    }
 
    public movePatrol(start: ex.Point, end: ex.Point) {
@@ -142,7 +140,7 @@ class Enemy extends ex.Actor {
       var fovRay = new ex.Ray(point, this._travelVector);
       var fovEndPoint = fovRay.getPoint(this._fovLength);
 
-      var grd = ctx.createRadialGradient(point.x, point.y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
+      var grd = ctx.createRadialGradient(point.x-20, point.y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
 
       grd.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
       grd.addColorStop(1, 'rgba(255, 255, 255, 0)');
