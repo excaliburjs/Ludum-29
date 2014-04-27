@@ -25,6 +25,7 @@
     <Content Include="images\tilesets\world-48x48.png" />
     <Content Include="index.html" />
     <Content Include="scripts\Excalibur.js" />
+    <Content Include="sounds\Swim.wav" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

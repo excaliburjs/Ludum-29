@@ -11,7 +11,10 @@ var Resources = {
    KrakenTexture: new ex.Texture("/images/kraken/KrakenSpriteSheet.png"),
 
    // Tilesets
-   TerrainTexture: new ex.Texture("/images/tilesets/terrain.png")
+   TerrainTexture: new ex.Texture("/images/tilesets/terrain.png"),
+
+   // Kraken
+   SoundSwim: new ex.Sound("/sounds/swim.wav")
 };
 
 var Palette = {

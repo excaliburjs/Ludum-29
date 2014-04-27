@@ -42,7 +42,9 @@ class Kraken extends ex.Actor {
             travelVector.normalize();
             var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
             var difference = Math.abs(rotationAngle - this.rotation) > 0.1;
-            this.rotation = rotationAngle;
+           this.rotation = rotationAngle;
+
+           Resources.SoundSwim.play();
         });
 
         game.on('mousemove', (ev: ex.MouseMove) => {
