@@ -1,10 +1,17 @@
 ﻿/// <reference path="Config.ts" />
 /// <reference path="Enemy.ts" />
 
+enum KrakenMode {
+    Idle,
+    Attack,
+    Swim
+}
+
 class Kraken extends ex.Actor {
     private _health: number = Config.defaultKrakenHealth;
     private _travelVector: ex.Vector = new ex.Vector(0,0);
     private _isMousePressed = false;
+    private _currentMode: KrakenMode = KrakenMode.Idle;
 
     constructor(x?: number, y?: number, color?: ex.Color, health?: number) {
         super(x, y, Config.defaultKrakenWidth, Config.defaultKrakenHeight, color);
@@ -26,9 +33,16 @@ class Kraken extends ex.Actor {
         attackAnim.setScaleY(1.5);
         this.setCenterDrawing(true);
 
+        var idleAnim = krakenSheet.getAnimationByIndices(game, [8, 7, 9, 7], 200);
+        idleAnim.loop = true;
+        idleAnim.setScaleX(1.5);
+        idleAnim.setScaleY(1.5);
+        this.setCenterDrawing(true);
+
+        this.addDrawing('idle', idleAnim);
         this.addDrawing('attack', attackAnim);
-        this.addDrawing('default', swimAnim);
-        this.setDrawing('default');
+        this.addDrawing('swim', swimAnim);
+        this.setDrawing('idle');
 
     }
 
@@ -48,6 +62,10 @@ class Kraken extends ex.Actor {
             var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
             var difference = Math.abs(rotationAngle - this.rotation) > 0.1;
             this.rotation = rotationAngle;
+            if (this._currentMode !== KrakenMode.Attack) {
+                this.setDrawing('swim');    
+            }
+            
         });
 
         game.on('mousemove', (ev: ex.MouseMove) => {
@@ -69,7 +87,34 @@ class Kraken extends ex.Actor {
             this._isMousePressed = false;
             this.dx -= this._travelVector.x;
             this.dy -= this._travelVector.y;
+            this.returnToIdle();
         });
+
+        game.on('keydown', (ev: ex.KeyDown) => {
+            if (ev.key === ex.InputKey.A) {
+                if (this._currentMode !== KrakenMode.Attack) {
+                    this.attack();
+                } else {
+                    this.returnToIdle();
+                }
+            }
+        });
+
+    }
+
+
+    public returnToIdle() {
+        if (this._currentMode === KrakenMode.Attack) {
+            var oldRotation = this.rotation;
+            this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
+                this.setDrawing('idle');
+                this.rotation = oldRotation;
+                this._currentMode = KrakenMode.Idle;
+            });
+        } else {
+            this.setDrawing('idle');
+            this._currentMode = KrakenMode.Idle;
+        }
     }
 
     public move(x: number, y: number) {
@@ -77,8 +122,13 @@ class Kraken extends ex.Actor {
         this.dy = y;
     }
 
-    public attack() {
-
+    public attack(enemy?: Enemy) {
+        this._currentMode = KrakenMode.Attack;
+        var oldRotation = this.rotation;
+        this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
+            this.setDrawing('attack');
+            this.rotation = oldRotation;
+        });
     }
 
     public getLines() {
