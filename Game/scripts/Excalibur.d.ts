@@ -3217,7 +3217,7 @@ declare module ex {
         private zoomIncrement;
         constructor(engine: Engine);
         /**
-        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
         * @param actor {Actor} The actor to follow
         */
@@ -3227,7 +3227,7 @@ declare module ex {
         * @method getFocus
         * @returns Point
         */
-        public getFocus(): Point;
+        public getFocus(fromScreen?: boolean): Point;
         /**
         * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
         * @method setFocus
@@ -3281,7 +3281,7 @@ declare module ex {
         * @method getFocus
         * @returns point
         */
-        public getFocus(): Point;
+        public getFocus(fromScreen?: boolean): Point;
     }
     /**
     * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
@@ -3296,7 +3296,7 @@ declare module ex {
         * @method getFocus
         * @returns Point
         */
-        public getFocus(): Point;
+        public getFocus(fromScreen?: boolean): Point;
     }
 }
 declare module ex {

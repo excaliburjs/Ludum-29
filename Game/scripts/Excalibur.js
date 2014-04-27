@@ -5962,7 +5962,7 @@ var ex;
             this.engine = engine;
         }
         /**
-        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
         * @param actor {Actor} The actor to follow
         */
@@ -5975,7 +5975,8 @@ var ex;
         * @method getFocus
         * @returns Point
         */
-        BaseCamera.prototype.getFocus = function () {
+        BaseCamera.prototype.getFocus = function (fromScreen) {
+            if (typeof fromScreen === "undefined") { fromScreen = false; }
             // this should always be overridden
             if (this.follow) {
                 return new ex.Point(0, 0);
@@ -6147,10 +6148,11 @@ var ex;
         * @method getFocus
         * @returns point
         */
-        SideCamera.prototype.getFocus = function () {
+        SideCamera.prototype.getFocus = function (fromScreen) {
+            if (typeof fromScreen === "undefined") { fromScreen = false; }
             if (this.follow) {
                 // return new Point(-this.follow.x + this.engine.width / 2.0, 0);
-                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
+                return new ex.Point((-(this.follow.getCenter().x / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
             } else {
                 return this.focus;
             }
@@ -6176,9 +6178,12 @@ var ex;
         * @method getFocus
         * @returns Point
         */
-        TopCamera.prototype.getFocus = function () {
+        TopCamera.prototype.getFocus = function (fromScreen) {
+            if (typeof fromScreen === "undefined") { fromScreen = false; }
             if (this.follow) {
-                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, ((-this.follow.y - this.follow.getHeight() / 2) * this.getZoom()) + (this.engine.getHeight() * this.getZoom()) / 2.0);
+                var w = fromScreen ? this.engine.getWidth() : this.engine.canvas.width, h = fromScreen ? this.engine.getHeight() : this.engine.canvas.height;
+
+                return new ex.Point((-this.follow.getCenter().x * this.getZoom()) + (w * this.getZoom()) / 2.0, (-this.follow.getCenter().y * this.getZoom()) + (h * this.getZoom()) / 2.0);
             } else {
                 return this.focus;
             }
@@ -7059,7 +7064,7 @@ var ex;
             var newY = point.y;
 
             if (this.camera) {
-                var focus = this.camera.getFocus();
+                var focus = this.camera.getFocus(true);
                 newX -= focus.x;
                 newY -= focus.y;
             }
@@ -7113,16 +7118,18 @@ var ex;
             }
 
             if (this.displayMode === 3 /* Fill */) {
-                var ws = parent.clientWidth / this.canvas.width;
-                var hs = parent.clientHeight / this.canvas.height;
+                // window
+                var ws = parent.innerWidth / this.canvas.width;
+                var hs = parent.innerHeight / this.canvas.height;
 
                 var s = Math.min(ws, hs);
 
                 // scale to aspect ratio
-                this.width = (this.canvas.width * s);
-                this.height = (this.canvas.height * s);
-                this.canvas.style.width = (this.canvas.width * s).toString() + "px";
-                this.canvas.style.height = (this.canvas.height * s).toString() + "px";
+                var w = Math.floor(this.canvas.width * s), h = Math.floor(this.canvas.height * s);
+                this.width = w;
+                this.height = h;
+                this.canvas.style.width = w.toString() + "px";
+                this.canvas.style.height = h.toString() + "px";
             }
         };
 
@@ -7134,7 +7141,7 @@ var ex;
         Engine.prototype.initialize = function () {
             var _this = this;
             if (this.displayMode === 0 /* FullScreen */ || this.displayMode === 1 /* Container */ || this.displayMode === 3 /* Fill */) {
-                var parent = (this.displayMode === 1 /* Container */ || this.displayMode === 3 /* Fill */ ? (this.canvas.parentElement || document.body) : window);
+                var parent = (this.displayMode === 1 /* Container */ ? (this.canvas.parentElement || document.body) : window);
 
                 this.setHeightByDisplayMode(parent);
 
