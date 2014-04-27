@@ -132,6 +132,19 @@
    eJzt2LENwCAMBEBAyTphVhZgy/Qp6FC6CJzirnH7kuXCnxIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAr9RKdgDeXvQA/1Y4x7xybg6Ge0QmYuQ0AdvM/rrGjL9HJAF88tPQE9g==
   </data>
  </layer>
+ <layer name="Lab 0" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJztwzENAAAIA7C9+PeELizwEJ42aQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwr2sfAAAAAC4NB48I5g==
+  </data>
+ </layer>
+ <layer name="Lab 1" width="100" height="100">
+  <properties>
+   <property name="solid" value="true"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJzt2FEKgkAUQNHRCOc7aCVFW6n11hIqiLYSRImBQX4I0fiIc+Ch+DV4RUZTAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPjetUrp/JpjNfVquGgQih6x6BGLHnHcGz1KWeWUDs/7fWu6Yzvr3J+3s8l6lLCo+z3s++xnn9eW9dSr/X9jn/nt/LfroOMdFIsesegRix6x6BHL2B47+6siTgPfGUPfH/6vA0AcDyx2KCg=
+  </data>
+ </layer>
  <layer name="Cliff Faces" width="100" height="100">
   <data encoding="base64" compression="zlib">
    eJzt0cEJACAMALE+3N+V3UApihZM4Ca4CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyepvHXX7UsvqRjT2nf3jyhh+1eAAAAAAAAAAA8IcB3dknDQ==

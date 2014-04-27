@@ -12,7 +12,7 @@ class Kraken extends ex.Actor {
 
        var krakenSheet = new ex.SpriteSheet(Resources.KrakenTexture, 4, 3, 120, 60);
 
-       krakenSheet.sprites.forEach(s => s.addEffect(new Fx.Multiply(Palette.ColorNightTime)));
+       krakenSheet.sprites.forEach(s => s.addEffect(new Fx.Multiply(Palette.ColorKrakenBlend)));
 
         var swimAnim = krakenSheet.getAnimationByIndices(game, [0, 1, 2, 3], 200);
         swimAnim.loop = true;
@@ -113,4 +113,25 @@ class Kraken extends ex.Actor {
 
     }
 
+   public draw(ctx: CanvasRenderingContext2D, delta: number): void {
+
+      this.drawGlow(ctx, delta);
+
+      super.draw(ctx, delta);
+   }
+
+   private drawGlow(ctx: CanvasRenderingContext2D, delta: number): void {
+      // create radial gradient
+      var grd = ctx.createRadialGradient(this.getCenter().x, this.getCenter().y, 10, this.getCenter().x, this.getCenter().y, 150);
+
+      grd.addColorStop(0, Palette.ColorKrakenGlowStart.toString());
+      grd.addColorStop(1, Palette.ColorKrakenGlowEnd.toString());
+
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      // x, y, radius, start, end, [anti-clockwise]
+      ctx.arc(this.getCenter().x, this.getCenter().y, 150, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+   }
 }
