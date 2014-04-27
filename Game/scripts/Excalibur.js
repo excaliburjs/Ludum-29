@@ -6725,6 +6725,11 @@ var ex;
         * @Property Fixed {DisplayMode}
         */
         DisplayMode[DisplayMode["Fixed"] = 2] = "Fixed";
+
+        /**
+        * Canvas fills parent but maintains aspect ratio (no resolution change)
+        */
+        DisplayMode[DisplayMode["Fill"] = 3] = "Fill";
     })(ex.DisplayMode || (ex.DisplayMode = {}));
     var DisplayMode = ex.DisplayMode;
 
@@ -6872,8 +6877,11 @@ var ex;
             if (width && height) {
                 if (displayMode == undefined) {
                     this.displayMode = 2 /* Fixed */;
+                } else {
+                    this.displayMode = displayMode;
                 }
-                this.logger.debug("Engine viewport is size " + width + " x " + height);
+
+                this.logger.debug("Engine viewport is size " + width + " x " + height, "using DisplayMode", displayMode);
                 this.width = width;
                 this.canvas.width = width;
                 this.height = height;
@@ -7080,6 +7088,19 @@ var ex;
                 this.width = this.canvas.width = parent.innerWidth;
                 this.height = this.canvas.height = parent.innerHeight;
             }
+
+            if (this.displayMode === 3 /* Fill */) {
+                var ws = parent.clientWidth / this.canvas.width;
+                var hs = parent.clientHeight / this.canvas.height;
+
+                var s = Math.min(ws, hs);
+
+                // scale to aspect ratio
+                this.width = (this.canvas.width * s);
+                this.height = (this.canvas.height * s);
+                this.canvas.style.width = (this.canvas.width * s).toString() + "px";
+                this.canvas.style.height = (this.canvas.height * s).toString() + "px";
+            }
         };
 
         /**
@@ -7089,8 +7110,8 @@ var ex;
         */
         Engine.prototype.initialize = function () {
             var _this = this;
-            if (this.displayMode === 0 /* FullScreen */ || this.displayMode === 1 /* Container */) {
-                var parent = (this.displayMode === 1 /* Container */ ? (this.canvas.parentElement || document.body) : window);
+            if (this.displayMode === 0 /* FullScreen */ || this.displayMode === 1 /* Container */ || this.displayMode === 3 /* Fill */) {
+                var parent = (this.displayMode === 1 /* Container */ || this.displayMode === 3 /* Fill */ ? (this.canvas.parentElement || document.body) : window);
 
                 this.setHeightByDisplayMode(parent);
 

@@ -9,6 +9,16 @@ a {
     color: #2b3f56;
 }
 
-canvas {
-    margin: 0 auto;
+#game-wrapper {
+    width: 100%;
+    padding-top: 63.043478260869565217391304347826%;
+    position: relative;
+}
+
+canvas {    
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
