@@ -157,6 +157,14 @@
  </layer>
  <objectgroup name="Characters">
   <object name="Player Spawn" type="PlayerSpawn" x="384" y="4320" width="48" height="48"/>
-  <object name="Enemy 1" type="EnemySpawn" x="1728" y="4176" width="48" height="48"/>
+  <object name="Enemy1" type="EnemySpawn" x="1728" y="4176" width="48" height="48"/>
+ </objectgroup>
+ <objectgroup name="Paths">
+  <object name="Enemy1" type="Path" x="1728" y="4080">
+   <polyline points="0,0 96,0 192,96 192,240 336,288 480,288 576,336"/>
+  </object>
+  <object name="TestPath" type="Path" x="1680" y="3984">
+   <polyline points="0,0 -48,0 -96,0 -144,0"/>
+  </object>
  </objectgroup>
 </map>

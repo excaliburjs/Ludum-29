@@ -9,7 +9,7 @@ class Enemy extends ex.Actor {
    private _travelVector: ex.Vector;
    private _kraken: Kraken;
 
-   constructor(x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
+   constructor(public key: string, x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultEnemyWidth, Config.defaultEnemyHeight, color);
       this.setWidth(width || Config.defaultEnemyWidth);
       this.setHeight(height || Config.defaultEnemyHeight);
@@ -53,6 +53,21 @@ class Enemy extends ex.Actor {
          //        this.triggerEvent('DistressEvent', new DistressEvent(this));
          //    }
       });
+    }
+
+   private movePath: ex.Point[] = [];
+   public createMovePath(path: ex.Point[]): void {
+      this.movePath = path;
+
+      path.forEach(point => {
+         this.moveTo(point.x - this.getWidth() / 2, point.y - this.getHeight() / 2, Config.defaultEnemySpeed);
+      });
+      this.delay(Config.defaultEnemyWaitTime);
+      for (var i = path.length - 1; i >= 0; i--) {
+         this.moveTo(path[i].x - this.getWidth() / 2, path[i].y - this.getHeight() / 2, Config.defaultEnemySpeed);
+      }
+
+      this.repeatForever();
    }
 
    private canSeeKraken() {
@@ -115,10 +130,6 @@ class Enemy extends ex.Actor {
       this.drawFOV(this.getCenter(), ctx, delta);
    }
 
-   public movePatrol(start: ex.Point, end: ex.Point) {
-      this.moveTo(end.x, end.y, Config.defaultEnemySpeed).moveTo(start.x, start.y, Config.defaultEnemySpeed).repeatForever();
-   }
-
    public moveCircle() {
 
    }
@@ -154,6 +165,29 @@ class Enemy extends ex.Actor {
       ctx.closePath();
       ctx.fill();
 
+   }
+
+   public debugDraw(ctx: CanvasRenderingContext2D): void {
+      super.debugDraw(ctx);
+
+      // draw path if any
+      if (this.movePath) {
+
+         ctx.beginPath();
+         this.movePath.forEach((point, i) => {
+
+            ctx.moveTo(point.x, point.y);
+
+            // not at the end yet
+            if (i < (this.movePath.length - 1)) {
+               ctx.lineTo(this.movePath[i + 1].x, this.movePath[i + 1].y);
+            }
+
+         });
+         ctx.closePath();
+         ctx.strokeStyle = ex.Color.Violet.toString();
+         ctx.stroke();
+      }
    }
 }
 

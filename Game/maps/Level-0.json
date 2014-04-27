@@ -91,7 +91,7 @@
                 }, 
                 {
                  "height":48,
-                 "name":"Enemy 1",
+                 "name":"Enemy1",
                  "properties":
                     {
 
@@ -107,6 +107,92 @@
          "type":"objectgroup",
          "visible":true,
          "width":0,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "height":100,
+         "name":"Paths",
+         "objects":[
+                {
+                 "height":0,
+                 "name":"Enemy1",
+                 "polyline":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":96,
+                         "y":0
+                        }, 
+                        {
+                         "x":192,
+                         "y":96
+                        }, 
+                        {
+                         "x":192,
+                         "y":240
+                        }, 
+                        {
+                         "x":336,
+                         "y":288
+                        }, 
+                        {
+                         "x":480,
+                         "y":288
+                        }, 
+                        {
+                         "x":576,
+                         "y":336
+                        }],
+                 "properties":
+                    {
+
+                    },
+                 "rotation":0,
+                 "type":"Path",
+                 "visible":true,
+                 "width":0,
+                 "x":1728,
+                 "y":4080
+                }, 
+                {
+                 "height":0,
+                 "name":"TestPath",
+                 "polyline":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":-48,
+                         "y":0
+                        }, 
+                        {
+                         "x":-96,
+                         "y":0
+                        }, 
+                        {
+                         "x":-144,
+                         "y":0
+                        }],
+                 "properties":
+                    {
+
+                    },
+                 "rotation":0,
+                 "type":"Path",
+                 "visible":true,
+                 "width":0,
+                 "x":1680,
+                 "y":3984
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "width":100,
          "x":0,
          "y":0
         }],

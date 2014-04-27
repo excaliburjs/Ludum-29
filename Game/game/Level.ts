@@ -4,6 +4,8 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
    public data: IMap;
    public map: ex.TileMap;
    public kraken: Kraken;
+   public enemies: Enemy[] = [];
+   public paths: {[key: string]: ex.Point[]} = {};
 
    constructor(public jsonPath: string) {
       super();
@@ -60,6 +62,9 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
          }
       }
+
+      // resolve the associations between enemies and paths
+      this.resolveEnemyPaths();
 
       // Add collision maps to scene
       this.addTileMap(this.map);
@@ -144,10 +149,39 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
        */
       EnemySpawn: (obj: IObject) => {
 
-         var enemy = new Enemy(obj.x, obj.y);
+         var enemy = new Enemy(obj.name, obj.x, obj.y);
 
+         this.enemies.push(enemy);
          this.addChild(enemy);
+      },
+
+      /*
+       * Spawns a path for an actor to follow
+       */
+      Path: (obj: IObject) => {
+
+         if (!obj.polyline || !obj.name) return;
+
+         obj.polyline.forEach(point => {
+
+            // transform polyline point to world coordinates for actors
+            point.x = obj.x + point.x;
+            point.y = obj.y + point.y;
+
+         });
+
+         // push path
+         this.paths[obj.name] = obj.polyline;
       }
+   }
+
+   private resolveEnemyPaths(): void {
+
+      this.enemies.forEach(enemy => {
+         if (enemy.key && this.paths[enemy.key]) {
+            enemy.createMovePath(this.paths[enemy.key]);
+         }
+      });
 
    }
 
@@ -278,6 +312,9 @@ interface IObject {
    properties: { [key: string]: string };
    type: string;
    visible: boolean;
+
+   // Polylines
+   polyline: ex.Point[]
 
 }
 

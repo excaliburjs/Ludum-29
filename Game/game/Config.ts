@@ -15,5 +15,5 @@
     static defaultEnemyHealth: number = 10;
     static defaultEnemySpeed: number = 50;
     static defaultAssistDistance: number = 300;
-
+    static defaultEnemyWaitTime: number = 2000;
 }
