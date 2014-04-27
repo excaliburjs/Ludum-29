@@ -38,7 +38,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
                   if (tileset) {
                      this.map.data[j].sprites.push(new ex.TileSprite(tileset.firstgid.toString(), gid - tileset.firstgid));
-                     this.map.data[j].solid = this.isTileSolidTerrain(gid, tileset);
+                     this.map.data[j].solid = this.map.data[j].solid || this.isTileSolid(gid, layer, tileset);
                   }
                }
             }
@@ -152,31 +152,44 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       return null;
    }   
 
-   private isTileSolidTerrain(gid: number, tileset: ITileset): boolean {
+   private isTileSolid(gid: number, layer: ILayer, tileset: ITileset): boolean {
 
-      if (gid === 0 || !tileset.terrains) return false;
+      if (gid === 0) return false;
 
-      // loop through terrains
       var solidTerrains = [], i, terrain;
-      for (i = 0; i < tileset.terrains.length; i++) {
-         
-         // check for solid terrains
-         terrain = tileset.terrains[i];
-         if (terrain.properties && terrain.properties.solid === "false") {
-            continue;
-         }
 
-         solidTerrains.push(i);
+      if (tileset.terrains) {
+         // loop through terrains         
+         for (i = 0; i < tileset.terrains.length; i++) {
+
+            // check for solid terrains
+            terrain = tileset.terrains[i];
+            if (terrain.properties && terrain.properties.solid === "false") {
+               continue;
+            }
+
+            solidTerrains.push(i);
+         }
+      }
+
+      // todo individual tile overrides layer
+
+      // layers > terrain
+      if (layer.properties && layer.properties["solid"] === "true") {
+         return true;
       }
 
       // loop through tiles
-      var tile = tileset.tiles[(gid - 1).toString()];
+      if (tileset.tiles) {
+         var tile = tileset.tiles[(gid - 1).toString()];
 
-      if (tile && tile.terrain) {
-         for (i = 0; i < tile.terrain.length; i++) {
-            // for each corner of terrain, it is not solid if all corners are not solid
-            if (solidTerrains.indexOf(tile.terrain[i]) > -1) {
-               return true;
+         if (tile && tile.terrain) {
+            for (i = 0; i < tile.terrain.length; i++) {
+
+               // for each corner of terrain, it is not solid if all corners are not solid
+               if (solidTerrains.indexOf(tile.terrain[i]) > -1) {
+                  return true;
+               }
             }
          }
       }
@@ -215,6 +228,8 @@ interface ILayer {
    width: number;
    x: number;
    y: number;
+
+   properties: { [key: string]: string };
 
    draworder: string;
    objects: IObject[];
