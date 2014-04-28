@@ -46,6 +46,13 @@ game.start(loader).then(() => {
 
    game.addChild(splash);
 
+   var startButton = new ex.Actor(game.width / 2 - (329/2), game.height - 120, 329, 76);
+   startButton.collisionType = ex.CollisionType.PreventCollision;
+   startButton.addDrawing("bg", new ex.Sprite(Resources.StartButtonTexture, 0, 0, 329, 76));
+   startButton.blink(0.5, 6000, 500).repeatForever();
+
+   game.addChild(startButton);
+
    game.on("keyup", beginGame);
    game.on("mouseup", beginGame);
 });

@@ -26,12 +26,14 @@
     <Content Include="images\kraken\KrakenSpriteSheet.png" />
     <Content Include="images\ship-1.png" />
     <Content Include="images\splash.jpg" />
+    <Content Include="images\start.png" />
     <Content Include="images\tilesets\Terrain.png" />
     <Content Include="images\tilesets\world-48x48.png" />
     <Content Include="index.html" />
     <Content Include="scripts\Excalibur.js" />
     <Content Include="sounds\airwave mit mitch kelli.mp3" />
     <Content Include="sounds\Hit.wav" />
+    <Content Include="sounds\Death.wav" />
     <Content Include="sounds\Hurt.wav" />
     <Content Include="sounds\ShipSink.wav" />
     <Content Include="sounds\Shoot.wav" />
