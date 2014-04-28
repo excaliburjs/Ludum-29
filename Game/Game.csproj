@@ -20,7 +20,7 @@
     <Content Include="css\app.css" />
     <Content Include="images\alert.png" />
     <Content Include="images\bullet.png" />
-	<Content Include="images\death.jpg" />
+    <Content Include="images\death.jpg" />
     <Content Include="images\heart.png" />
     <Content Include="images\kraken\Kraken.png" />
     <Content Include="images\kraken\KrakenSpriteSheet.png" />
@@ -47,6 +47,7 @@
     <TypeScriptCompile Include="game\ShipEvents.ts" />
     <TypeScriptCompile Include="game\Sonar.ts" />
     <TypeScriptCompile Include="game\Stats.ts" />
+    <TypeScriptCompile Include="game\VictoryScene.ts" />
     <TypeScriptCompile Include="scripts\Excalibur.d.ts" />
   </ItemGroup>
   <ItemGroup>

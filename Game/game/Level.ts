@@ -93,6 +93,14 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
       // kill enemies
       this.enemies = this.enemies.filter(enemy => !(<any>enemy)._isKilled);
+
+      var levelWidth = this.data.width * this.data.tilewidth;
+      var levelHeight = this.data.height * this.data.tileheight;
+
+      if ((this.kraken.x < 0) || (this.kraken.x > levelWidth) || (this.kraken.y < 0) || (this.kraken.y > levelHeight)) {
+         console.log("victory!");
+         game.goToScene("victory");
+      }
    }
 
    //TODO overload draw: draw HUD, UI, etc.
