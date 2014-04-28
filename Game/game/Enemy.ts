@@ -5,9 +5,11 @@ class Enemy extends ex.Actor {
    private _health: number = Config.defaultEnemyHealth;
    private _alertStatus: AlertStatus = AlertStatus.Calm;
    public rays: ex.Ray[] = new Array<ex.Ray>();
+   public originalRays: ex.Ray[] = new Array<ex.Ray>();
    private _rayVectors: ex.Vector[] = new Array<ex.Vector>();
    private _fovLength: number;
    private _travelVector: ex.Vector;
+   private _originalTravelVector: ex.Vector;
    private _kraken: Kraken;
    private _lightStartPoint: ex.Point;
    private _shipSheet: ex.SpriteSheet;
@@ -20,6 +22,7 @@ class Enemy extends ex.Actor {
       this.setHeight(height || Config.defaultEnemyHeight);
       this._health = health || this._health;
       this._travelVector = new ex.Vector(-1, 0);
+      this._originalTravelVector = new ex.Vector(-1, 0);
       this._fovLength = Config.defaultEnemyFOV;
 
       this._shipSheet = new ex.SpriteSheet(Resources.Ship1Texture, 3, 2, 191, 73);
@@ -41,16 +44,18 @@ class Enemy extends ex.Actor {
 
       var yValues = new Array<number>(-0.5, -0.25, 0, 0.25, 0.5);
 
-       this.sonar = new Sonar(this.getWidth()/2, this.getHeight()/2, 1, 1);
-       this.addChild(this.sonar);
+       //this.sonar = new Sonar(this.getWidth()/2, this.getHeight()/2, 1, 1);
+       //this.addChild(this.sonar);
 
-      for (var i = 0; i < 5; i++) {
-         //var rayPoint = new ex.Point(0, this.getHeight() / 2);
-         var rayPoint = this._lightStartPoint;
-         var rayVector = new ex.Vector(-1, yValues[i]);
-         var ray = new ex.Ray(rayPoint, rayVector);
-         this.rays.push(ray);
-      }
+       for (var i = 0; i < 5; i++) {
+          //var rayPoint = new ex.Point(0, this.getHeight() / 2);
+          var rayPoint = this._lightStartPoint;
+          var rayVector = new ex.Vector(-1, yValues[i]);
+          var ray = new ex.Ray(rayPoint, rayVector);
+          var ray2 = new ex.Ray(rayPoint, rayVector);
+          this.rays.push(ray);
+          this.originalRays.push(ray2);
+       }
 
       this.on('DistressEvent', (ev: DistressEvent) => {
          //if (this.within(ev.enemy, Config.defaultAssistDistance)) {
@@ -68,13 +73,24 @@ class Enemy extends ex.Actor {
     public update(engine: ex.Engine, delta: number) {
         super.update(engine, delta);
 
-        this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+       this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+       this._lightStartPoint = this.rotatePoint(this._lightStartPoint, this.rotation, this.getCenter());
+
+       for (var i = 0; i < this.rays.length; i++) {
+          this.rays[i].pos = this._lightStartPoint;
+
+          // updating for potential rotation
+          this.rays[i].dir = this.rotateVector(this.originalRays[i].dir, this.rotation);
+          //this.rays[i].pos = this.rotatePoint(this.originalRays[i].pos, this.rotation, this.getCenter());
+          this._travelVector = this.rotateVector(this._originalTravelVector, this.rotation);
+       }
+
 
           if (this.detectKraken() == AlertStatus.Warn) {
              //this._alertStatus = AlertStatus.Warn;
           } else if (this.detectKraken() == AlertStatus.Attack) {
              this._alertStatus = AlertStatus.Attack;
-                this.sonar.ping();
+                //this.sonar.ping();
           } else {
              //this._alertStatus = AlertStatus.Calm;
           }
@@ -162,10 +178,10 @@ class Enemy extends ex.Actor {
         return new ex.Point(x, y);
     }
 
-    private rotateVector(vectorToRotate: ex.Vector, rotationAngle: number, anchor: ex.Point) {
-        var newVectorPoint = this.rotatePoint(vectorToRotate.toPoint(), rotationAngle, new ex.Point(0, 0));
-        return new ex.Vector(newVectorPoint.x, newVectorPoint.y);
-    }
+   private rotateVector(vectorToRotate: ex.Vector, rotationAngle: number) {
+      var newVectorPoint = this.rotatePoint(vectorToRotate.toPoint(), rotationAngle, new ex.Point(0, 0));
+      return new ex.Vector(newVectorPoint.x, newVectorPoint.y);
+   }
 
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
