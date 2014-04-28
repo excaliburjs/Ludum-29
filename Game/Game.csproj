@@ -52,6 +52,7 @@
     <TypeScriptCompile Include="game\ShipEvents.ts" />
     <TypeScriptCompile Include="game\Sonar.ts" />
     <TypeScriptCompile Include="game\Stats.ts" />
+    <TypeScriptCompile Include="game\VictoryScene.ts" />
     <TypeScriptCompile Include="scripts\Excalibur.d.ts" />
   </ItemGroup>
   <ItemGroup>
