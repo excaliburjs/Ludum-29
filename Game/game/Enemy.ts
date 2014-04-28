@@ -45,8 +45,10 @@ class Enemy extends ex.Actor {
    public onInitialize(game: ex.Engine) {
       this._kraken = (<any>game.currentScene).kraken;
 
+      this.rotation = Math.PI / 2;
+
        //TODO assumes all enemies are initially facing right
-       this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
+      this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
 
       var yValues = new Array<number>(-0.62, -0.25, 0, 0.25, 0.62);
 
