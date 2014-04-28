@@ -24,23 +24,26 @@ class VictoryScene extends ex.Scene {
       var damageTaken = stats.damageTaken;
       var healthGained = stats.healthGained;
 
+      var splash = new ex.Actor(0, 0, game.width, game.height);
+      splash.addDrawing("bg", new ex.Sprite(Resources.VictoryTexture, 0, 0, game.width, game.height));
+      this.addChild(splash);
 
-      var labelVictory = new ex.Label("Game Complete!", w / 2, 150, '90px Iceland');
-      labelVictory.color = ex.Color.Red;
-      labelVictory.textAlign = ex.TextAlign.Center;
-      this.addChild(labelVictory);
+      //var labelVictory = new ex.Label("Game Complete!", w / 2, 150, '90px Iceland');
+      //labelVictory.color = ex.Color.Red;
+      //labelVictory.textAlign = ex.TextAlign.Center;
+      //this.addChild(labelVictory);
 
-      var labelBoatsDestroyed = new ex.Label("boats destroyed     " + boatsDestroyed, w/2, 200, '50px Iceland');
+      var labelBoatsDestroyed = new ex.Label("boats destroyed     " + boatsDestroyed, w/2, 350, '50px Iceland');
       labelBoatsDestroyed.color = ex.Color.White;
       labelBoatsDestroyed.textAlign = ex.TextAlign.Center;
       this.addChild(labelBoatsDestroyed);
 
-      var labelDamageTaken = new ex.Label("damage taken     " + damageTaken, w/2, 250, '50px Iceland');
+      var labelDamageTaken = new ex.Label("damage taken     " + damageTaken, w/2, 400, '50px Iceland');
       labelDamageTaken.color = ex.Color.White;
       labelDamageTaken.textAlign = ex.TextAlign.Center;
       this.addChild(labelDamageTaken);
 
-      var labelHealthGained = new ex.Label("health gained     " + healthGained, w / 2, 300, '50px Iceland');
+      var labelHealthGained = new ex.Label("health gained     " + healthGained, w / 2, 450, '50px Iceland');
       labelHealthGained.color = ex.Color.White;
       labelHealthGained.textAlign = ex.TextAlign.Center;
       this.addChild(labelHealthGained);
