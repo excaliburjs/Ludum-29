@@ -1,23 +1,28 @@
 ﻿/// <reference path="Level.ts" />
+/// <reference path="Sonar.ts" />
 
 class Enemy extends ex.Actor {
    public health: number = Config.defaultEnemyHealth;
    private _alertStatus: AlertStatus = AlertStatus.Calm;
    public rays: ex.Ray[] = new Array<ex.Ray>();
+   public originalRays: ex.Ray[] = new Array<ex.Ray>();
    private _rayVectors: ex.Vector[] = new Array<ex.Vector>();
    private _fovLength: number;
    private _travelVector: ex.Vector;
+   private _originalTravelVector: ex.Vector;
    private _kraken: Kraken;
    private _lightStartPoint: ex.Point;
    private _shipSheet: ex.SpriteSheet;
    private _bulletTimer: number = 0;
+   public sonar: Sonar;
 
    constructor(public key: string, x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultEnemyWidth, Config.defaultEnemyHeight, color);
       this.setWidth(width || Config.defaultEnemyWidth);
       this.setHeight(height || Config.defaultEnemyHeight);
       this.health = health || this.health;
-      this._travelVector = new ex.Vector(-1, 0);
+      this._travelVector = new ex.Vector(1, 0);
+      this._originalTravelVector = new ex.Vector(1, 0);
       this._fovLength = Config.defaultEnemyFOV;
 
       this._shipSheet = new ex.SpriteSheet(Resources.Ship1Texture, 3, 2, 191, 73);
@@ -38,19 +43,23 @@ class Enemy extends ex.Actor {
    public onInitialize(game: ex.Engine) {
       this._kraken = (<any>game.currentScene).kraken;
 
-      //assumes all enemies are initially facing left
-      this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+       //TODO assumes all enemies are initially facing right
+       this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
 
-      var yValues = new Array<number>(-0.5, -0.25, 0, 0.25, 0.5);
+      var yValues = new Array<number>(-0.62, -0.25, 0, 0.25, 0.62);
 
+       //this.sonar = new Sonar(this.getWidth()/2, this.getHeight()/2, 1, 1);
+       //this.addChild(this.sonar);
 
-      for (var i = 0; i < 5; i++) {
-         //var rayPoint = new ex.Point(0, this.getHeight() / 2);
-         var rayPoint = this._lightStartPoint;
-         var rayVector = new ex.Vector(-1, yValues[i]);
-         var ray = new ex.Ray(rayPoint, rayVector);
-         this.rays.push(ray);
-      }
+       for (var i = 0; i < 5; i++) {
+          //var rayPoint = new ex.Point(0, this.getHeight() / 2);
+          var rayPoint = this._lightStartPoint;
+          var rayVector = new ex.Vector(1, yValues[i]);
+          var ray = new ex.Ray(rayPoint, rayVector);
+          var ray2 = new ex.Ray(rayPoint, rayVector);
+          this.rays.push(ray);
+          this.originalRays.push(ray2);
+       }
 
       this.on('DistressEvent', (ev: DistressEvent) => {
          //if (this.within(ev.enemy, Config.defaultAssistDistance)) {
@@ -68,6 +77,8 @@ class Enemy extends ex.Actor {
    public update(engine: ex.Engine, delta: number) {
       super.update(engine, delta);
 
+      this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
+      this._lightStartPoint = this.rotatePoint(this._lightStartPoint, this.rotation, this.getCenter());
       if (this.health < Config.defaultEnemyHealth  && this.health >= Config.defaultEnemyHealth * 0.8) {
          this.setDrawing("full");
       }
@@ -75,8 +86,7 @@ class Enemy extends ex.Actor {
       if (this.health < Config.defaultEnemyHealth * 0.8 && this.health >= Config.defaultEnemyHealth * 0.5) {
          this.setDrawing("half");
       }
-
-      if (this.health < Config.defaultEnemyHealth * 0.5 && this.health >= 0) {
+       if (this.health < Config.defaultEnemyHealth * 0.5 && this.health >= 0) {
          this.setDrawing("eighty");
       }
 
@@ -89,9 +99,25 @@ class Enemy extends ex.Actor {
          game.currentScene.addTimer(timer);
 
       }
-      
+      for (var i = 0; i < this.rays.length; i++) {
+         this.rays[i].pos = this._lightStartPoint;
 
-      this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+         // updating for potential rotation
+         this.rays[i].dir = this.rotateVector(this.originalRays[i].dir, this.rotation);
+         //this.rays[i].pos = this.rotatePoint(this.originalRays[i].pos, this.rotation, this.getCenter());
+         this._travelVector = this.rotateVector(this._originalTravelVector, this.rotation);
+      }
+
+
+      if (this.detectKraken() == AlertStatus.Warn) {
+         //this._alertStatus = AlertStatus.Warn;
+      } else if (this.detectKraken() == AlertStatus.Attack) {
+         this._alertStatus = AlertStatus.Attack;
+            //this.sonar.ping();
+      } else {
+         //this._alertStatus = AlertStatus.Calm;
+      }
+
 
       if (this.detectKraken() == AlertStatus.Warn) {
          //this._alertStatus = AlertStatus.Warn;
@@ -184,7 +210,7 @@ class Enemy extends ex.Actor {
       return new ex.Point(x, y);
    }
 
-   private rotateVector(vectorToRotate: ex.Vector, rotationAngle: number, anchor: ex.Point) {
+   private rotateVector(vectorToRotate: ex.Vector, rotationAngle: number) {
       var newVectorPoint = this.rotatePoint(vectorToRotate.toPoint(), rotationAngle, new ex.Point(0, 0));
       return new ex.Vector(newVectorPoint.x, newVectorPoint.y);
    }
@@ -220,7 +246,7 @@ class Enemy extends ex.Actor {
       var fovRay = new ex.Ray(point, this._travelVector);
       var fovEndPoint = fovRay.getPoint(this._fovLength);
 
-      var grd = ctx.createRadialGradient(point.x - 20, point.y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
+      var grd = ctx.createRadialGradient(point.x, point.y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
 
       grd.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
       grd.addColorStop(1, 'rgba(255, 255, 255, 0)');

@@ -142,7 +142,7 @@
    <property name="solid" value="true"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJzt2FEKgkAUQNHRCOc7aCVFW6n11hIqiLYSRImBQX4I0fiIc+Ch+DV4RUZTAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPjetUrp/JpjNfVquGgQih6x6BGLHnHcGz1KWeWUDs/7fWu6Yzvr3J+3s8l6lLCo+z3s++xnn9eW9dSr/X9jn/nt/LfroOMdFIsesegRix6x6BHL2B47+6siTgPfGUPfH/6vA0AcDyx2KCg=
+   eJzt3D2KwkAYgOGJIqZe8CSKV9Hzam21KuJVBNFgYcjPbhRmHOR54CMhpAjzNhMCCQEAAAAAAAAAAAAA0tsXIRxqcyyG3ffXvQAAAAAAAAAAAAAAAAAAAAAAAADwab9Fe0irvva7xugR37n2D8lmgyY94jv906BOj/j0yIseedEjH9epHqnMyxC29/W+TB/Hahbl87yaZalHCj+j9v/Qq9mM29dmIz1iOw1Y28pqEv9ZGN6DNPTIix550SMvsXrYX71naI/1i/srPd6z73jP6Hr/6Pre1Lfmvkd9Rl8jLQC+zw0yxmjY
   </data>
  </layer>
  <layer name="Cliff Faces" width="100" height="100">
@@ -155,16 +155,63 @@
    eJzt00sKgCAUBVAn0pqqUd/976MWUQ0CCRtEAyPOgQsKCuLlhQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAE13MZ9pTx9KvI9Xr43Pmy8zkZuk8Y57eG+L9/lifWaoQ1ip/J6WTMsabHht9FNEm/64DAAAAAAAAAID/2gCZuQrk
   </data>
  </layer>
- <objectgroup name="Characters">
-  <object name="Player Spawn" type="PlayerSpawn" x="384" y="4320" width="48" height="48"/>
-  <object name="Enemy1" type="EnemySpawn" x="1728" y="4176" width="48" height="48"/>
+ <objectgroup name="Enemies">
+  <object name="Enemy1" type="EnemySpawn" x="1104" y="3936" width="48" height="48"/>
+  <object name="Enemy2" type="EnemySpawn" x="3840" y="4416" width="48" height="48"/>
+  <object name="Enemy3" type="EnemySpawn" x="3264" y="3744" width="48" height="48"/>
+  <object name="Enemy4" type="EnemySpawn" x="4272" y="2112" width="48" height="48"/>
+  <object name="Enemy5" type="EnemySpawn" x="3888" y="1056" width="48" height="48"/>
+  <object name="Enemy6" type="EnemySpawn" x="2208" y="2448" width="48" height="48"/>
+  <object name="Enemy7" type="EnemySpawn" x="2976" y="3216" width="48" height="48"/>
+  <object name="Enemy8" type="EnemySpawn" x="2112" y="3216" width="48" height="48"/>
+  <object name="Enemy9" type="EnemySpawn" x="720" y="1440" width="48" height="48"/>
+  <object name="Enemy10" type="EnemySpawn" x="624" y="3216" width="48" height="48"/>
+  <object name="Enemy11" type="EnemySpawn" x="2448" y="192" width="48" height="48"/>
+  <object name="Enemy12" type="EnemySpawn" x="2736" y="288" width="48" height="48"/>
+  <object name="Enemy13" type="EnemySpawn" x="3072" y="672" width="48" height="48"/>
+  <object name="Enemy14" type="EnemySpawn" x="1920" y="672" width="48" height="48"/>
+  <object name="Enemy15" type="EnemySpawn" x="2016" y="1056" width="48" height="48"/>
+  <object name="Enemy16" type="EnemySpawn" x="2400" y="1056" width="48" height="48"/>
  </objectgroup>
- <objectgroup name="Paths">
-  <object name="Enemy1" type="Path" x="1728" y="4080">
-   <polyline points="0,0 96,0 192,96 192,240 336,288 480,288 576,336"/>
+ <objectgroup name="Enemy Paths">
+  <object name="Enemy1" type="Path" x="1128" y="3984">
+   <polyline points="0,0 0,480"/>
   </object>
-  <object name="TestPath" type="Path" x="1680" y="3984">
-   <polyline points="0,0 -48,0 -96,0 -144,0"/>
+  <object name="Enemy2" type="Path" x="3840" y="4440">
+   <polyline points="0,0 -1920,0"/>
   </object>
+  <object name="Enemy3" type="Path" x="3312" y="3768">
+   <polyline points="0,0 240,-168 336,-360 336,-1080 480,-1320 624,-1512 792,-1680 900,-1596 732,-1392 588,-1116 588,-396 648,-192 720,-48 696,48 600,96 24,96 0,0"/>
+  </object>
+  <object name="Enemy4" type="Path" x="4212" y="2172">
+   <polyline points="0,0 -168,204 -312,480 -312,1200 -252,1404 -180,1548 -204,1644 -300,1692 -876,1692 -900,1596 -660,1428 -564,1236 -564,516 -420,276 -276,84 -108,-84 0,0"/>
+  </object>
+  <object name="Enemy5" type="Path" x="3936" y="1080">
+   <polyline points="0,0 240,0 432,168 432,312"/>
+  </object>
+  <object name="Enemy6" type="Path" x="2256" y="2472">
+   <polyline points="0,0 624,0"/>
+  </object>
+  <object name="Enemy7" type="Path" x="3000" y="3216">
+   <polyline points="0,0 0,-624"/>
+  </object>
+  <object name="Enemy8" type="Path" x="2136" y="3216">
+   <polyline points="0,0 0,-480 120,-576 696,-240 696,-96 216,144 0,0"/>
+  </object>
+  <object name="Enemy9" type="Path" x="768" y="1488">
+   <polyline points="0,0 576,384 864,288 1104,288 1152,336 912,576 708,888 564,1176 432,1464 432,1656 528,1716 588,1800 612,1860 564,1920 420,1980 264,1980 -264,1920 -336,1752 -216,1596 192,1596 192,1260 252,864 300,900 300,816 528,612 540,672 564,576 432,432 192,360 -36,300 216,252 360,312"/>
+  </object>
+  <object name="Enemy10" type="Path" x="672" y="3240">
+   <polyline points="0,0 96,0 132,36 144,-12 264,-12 288,36 312,-12 408,-12 432,36 456,-12"/>
+  </object>
+  <object name="Enemy14" type="Path" x="1968" y="696">
+   <polyline points="0,0 480,0"/>
+  </object>
+  <object name="Enemy13" type="Path" x="3072" y="696">
+   <polyline points="0,0 -384,0"/>
+  </object>
+ </objectgroup>
+ <objectgroup name="Player">
+  <object name="Player Spawn" type="PlayerSpawn" x="384" y="4320" width="48" height="48"/>
  </objectgroup>
 </map>

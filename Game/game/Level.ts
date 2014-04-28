@@ -5,7 +5,8 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
    public map: ex.TileMap;
    public kraken: Kraken;
    public enemies: Enemy[] = [];
-   public paths: {[key: string]: ex.Point[]} = {};
+   public paths: { [key: string]: ex.Point[] } = {};
+   public stats: Stats;
    public heartSprite: ex.Sprite;
 
    constructor(public jsonPath: string) {
@@ -13,6 +14,8 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
    }
 
    public onInitialize(engine: ex.Engine) {
+
+      this.stats = new Stats();
 
       this.map = new ex.TileMap(0, 0, this.data.tilewidth, this.data.tileheight, this.data.height, this.data.width);
       this.heartSprite = new ex.Sprite(Resources.Heart, 0, 0, 20, 20);
