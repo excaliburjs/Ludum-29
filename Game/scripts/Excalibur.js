@@ -2723,6 +2723,10 @@ var ex;
                 this._isInitialized = true;
             }
 
+            if (this._isKilled) {
+                return;
+            }
+
             this.sceneNode.update(engine, delta);
             var eventDispatcher = this.eventDispatcher;
 
