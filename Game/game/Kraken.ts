@@ -89,6 +89,18 @@ class Kraken extends ex.Actor {
 
       ex.Logger.getInstance().info("Kraken initialized");
 
+      Resources.SoundSwim.setVolume(.3);
+
+      // Build swim sound timer
+      var swimTimer = new ex.Timer(() => {
+         if (this._currentMode === KrakenMode.Swim) {
+            Resources.SoundSwim.play();
+         }
+         
+      }, 800, true);
+      
+      game.currentScene.addTimer(swimTimer);
+
       game.on('mousemove', (ev: ex.MouseMove) => {
 
          // todo play sound in interval
