@@ -25,6 +25,8 @@
    static defaultAssistDistance: number = 300;
    static defaultEnemyWaitTime: number = 2000;
 
+   static defaultEnemyMaxFiringDistance: number = 400;
+
    //distance of detection tied to the FOV
    static defaultMaxAttackDistance: number = 250
    static defaultMaxAlertDistance: number = 275;

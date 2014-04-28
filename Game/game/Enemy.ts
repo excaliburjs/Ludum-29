@@ -66,18 +66,22 @@ class Enemy extends ex.Actor {
           }
 
           if (this.detectKraken() == AlertStatus.Warn) {
-             this._alertStatus = AlertStatus.Warn;
+             //this._alertStatus = AlertStatus.Warn;
           } else if (this.detectKraken() == AlertStatus.Attack) {
              this._alertStatus = AlertStatus.Attack;
           } else {
-             this._alertStatus = AlertStatus.Calm;
+             //this._alertStatus = AlertStatus.Calm;
           }
 
           if (this._alertStatus == AlertStatus.Warn) {
              this.triggerEvent('DistressEvent', new DistressEvent(this));
           } else if (this._alertStatus == AlertStatus.Attack) {
              this.triggerEvent('AttackEvent', new AttackEvent(this));
-             this.attack(ev.delta);
+             if (this.within(this._kraken, Config.defaultEnemyMaxFiringDistance)) {
+                this.attack(ev.delta);
+             } else {
+                this._alertStatus = AlertStatus.Calm;
+             }
           }
       });
     }
