@@ -2770,11 +2770,6 @@ var ex;
                                 });
                             }
                         });
-                        if (this.collisionType === 4 /* Fixed */ && collider.collisionType !== 1 /* Passive */) {
-                            // If you are fixed collision type move others out of your way
-                            collider.x -= intersectActor.x;
-                            collider.y -= intersectActor.y;
-                        }
 
                         // If the actor is active push the actor out if its not passive
                         if ((this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
@@ -2808,10 +2803,7 @@ var ex;
                     var side = 0 /* None */;
                     var max = 2;
                     var hasBounced = false;
-
                     while (intersectMap = map.collides(this)) {
-                        //iters.push(intersectMap);
-                        console.log("CollisionMap", intersectMap);
                         if (max-- < 0) {
                             break;
                         }
@@ -2821,12 +2813,6 @@ var ex;
                             //var intersectMap = map.getOverlap(this);
                             this.y += intersectMap.y;
                             this.x += intersectMap.x;
-
-                            if (Math.abs(intersectMap.y) > Math.abs(intersectMap.x)) {
-                                this.dy = 0;
-                            } else {
-                                this.dx = 0;
-                            }
 
                             // Naive elastic bounce
                             if (this.collisionType === 3 /* Elastic */ && !hasBounced) {
@@ -5200,8 +5186,9 @@ var ex;
         * @returns Animation
         */
         SpriteSheet.prototype.getAnimationByIndices = function (engine, indices, speed) {
-            var images = this.sprites.filter(function (sprite, index) {
-                return indices.indexOf(index) > -1;
+            var _this = this;
+            var images = indices.map(function (index) {
+                return _this.sprites[index];
             });
 
             images = images.map(function (i) {

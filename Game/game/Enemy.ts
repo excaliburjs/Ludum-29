@@ -17,6 +17,7 @@ class Enemy extends ex.Actor {
       this._health = health || this._health;
       this._travelVector = new ex.Vector(-1, 0);
       this._fovLength = 500;
+      this.collisionType = ex.CollisionType.Fixed;
    }
 
     public onInitialize(game: ex.Engine) {

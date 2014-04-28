@@ -12,6 +12,7 @@ class Kraken extends ex.Actor {
     private _travelVector: ex.Vector = new ex.Vector(0,0);
     private _isMousePressed = false;
     private _currentMode: KrakenMode = KrakenMode.Idle;
+    private _lastTarge: Enemy;
 
     constructor(x?: number, y?: number, color?: ex.Color, health?: number) {
         super(x, y, Config.defaultKrakenWidth, Config.defaultKrakenHeight, color);
@@ -46,22 +47,42 @@ class Kraken extends ex.Actor {
 
     }
 
+    public moveKraken(x: number, y: number): void {
+        this._isMousePressed = true;
+        var target = new ex.Vector(x, y);
+        var travelVector = target.minus(this.getCenter());
+        travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
+        this._travelVector = travelVector;
+        this.move(travelVector.x, travelVector.y);
+
+        travelVector.normalize();
+        var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
+        this.rotation = rotationAngle;
+    }
+
+    public checkForShipClick(x: number, y: number) {
+
+        var clickVector = new ex.Vector(x, y);
+        var ships: Enemy[] = (<any>game.currentScene).enemies;
+        var target: Enemy = ships.sort((a, b) => {
+            return a.getCenter().distance(this.getCenter()) - b.getCenter().distance(this.getCenter());
+        })[0];
+
+
+        // Attack the ship if in range
+        if (target && target.getCenter().distance(this.getCenter()) <= Config.krakenAttackRange && clickVector.distance(target.getCenter()) <= Config.krakenAttackRange) {
+            this.attack(target);
+        } else {
+            this.returnToSwim();
+        }
+        
+    }
+
     public onInitialize(game: ex.Engine) {
-
-
+        
         game.on('mousedown', (ev: ex.MouseDown) => {
-            console.log("(" + ev.x + ", " + ev.y + ")");
-            this._isMousePressed = true;
-            var target = new ex.Vector(ev.x, ev.y);
-            var travelVector = target.minus(this.getCenter());
-            travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
-            this._travelVector = travelVector;
-            this.move(travelVector.x, travelVector.y);
-
-            travelVector.normalize();
-            var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
-            var difference = Math.abs(rotationAngle - this.rotation) > 0.1;
-           this.rotation = rotationAngle;
+           this.moveKraken(ev.x, ev.y);
+           this.checkForShipClick(ev.x, ev.y);
 
            Resources.SoundSwim.play();
             if (this._currentMode !== KrakenMode.Attack) {
@@ -72,24 +93,20 @@ class Kraken extends ex.Actor {
 
         game.on('mousemove', (ev: ex.MouseMove) => {
             if (this._isMousePressed) {
-                var target = new ex.Vector(ev.x, ev.y);
-                var travelVector = target.minus(this.getCenter());
-                travelVector.normalize().scale(20);
-                this._travelVector = travelVector;
-                this.move(travelVector.x, travelVector.y);
-
-                travelVector.normalize();
-                var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
-                this.rotation = rotationAngle;
+                this.moveKraken(ev.x, ev.y);
+                if (this._currentMode !== KrakenMode.Attack) {
+                    this.setDrawing('swim');
+                }
             }
+
         });
 
         game.on('mouseup', (ev: ex.MouseUp) => {
             //TODO rapidly decellerate rather than immediate stop?
             this._isMousePressed = false;
-            this.dx -= this._travelVector.x;
-            this.dy -= this._travelVector.y;
-            this.returnToIdle();
+            //this.dx -= this._travelVector.x;
+            //this.dy -= this._travelVector.y;
+            //this.returnToIdle();
         });
 
         game.on('keydown', (ev: ex.KeyDown) => {
@@ -97,25 +114,70 @@ class Kraken extends ex.Actor {
                 if (this._currentMode !== KrakenMode.Attack) {
                     this.attack();
                 } else {
-                    this.returnToIdle();
+                    this.returnToSwim();
                 }
+            }
+        });
+
+        this.on('collision', (ev: ex.CollisionEvent) => {
+            if (!ev.other) {
+                this.dx = 0;
+                this.dy = 0;
             }
         });
 
     }
 
 
-    public returnToIdle() {
-        if (this._currentMode === KrakenMode.Attack) {
-            var oldRotation = this.rotation;
-            this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
-                this.setDrawing('idle');
-                this.rotation = oldRotation;
-                this._currentMode = KrakenMode.Idle;
-            });
-        } else {
+    public update(engine: ex.Engine, delta: number) {
+        super.update(engine, delta);
+
+        var dampeningVector = this._travelVector.normalize().scale(Config.krakenInertiaDampen).scale(-1);
+
+        if (this.dx < 2 && this.dx > -2) {
+            this.dx = 0;
+        }
+
+        if (this.dy < 2 && this.dy > -2) {
+            this.dy = 0;
+        }
+
+        if (this.dx === 0 && this.dy === 0 && this._currentMode !== KrakenMode.Attack) {
             this.setDrawing('idle');
             this._currentMode = KrakenMode.Idle;
+        }
+
+        if (this.dx > dampeningVector.x && this.dx !== 0) {
+            this.dx += dampeningVector.x;
+        }
+
+        if (this.dx < dampeningVector.x && this.dx !== 0) {
+            this.dx += dampeningVector.x;
+        }
+
+        if (this.dy > dampeningVector.y && this.dy !== 0) {
+            this.dy += dampeningVector.y;
+        }
+
+        if (this.dy < dampeningVector.y && this.dy !== 0) {
+            this.dy += dampeningVector.y;
+        }
+
+       
+    }
+
+    public returnToSwim() {
+        if (this._currentMode === KrakenMode.Attack) {
+            var oldRotation = this.rotation;
+            this.clearActions();
+            this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
+                this.setDrawing('swim');
+                this.rotation = oldRotation;
+                this._currentMode = KrakenMode.Swim;
+            });
+        } else {
+            this.setDrawing('swim');
+            this._currentMode = KrakenMode.Swim;
         }
     }
 
@@ -125,12 +187,17 @@ class Kraken extends ex.Actor {
     }
 
     public attack(enemy?: Enemy) {
-        this._currentMode = KrakenMode.Attack;
-        var oldRotation = this.rotation;
-        this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
-            this.setDrawing('attack');
-            this.rotation = oldRotation;
-        });
+        if (this._currentMode !== KrakenMode.Attack) {
+            console.log("Spinning", this._currentMode);
+            this._currentMode = KrakenMode.Attack;
+            var oldRotation = this.rotation;
+            this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
+                this.setDrawing('attack');
+                this.rotation = oldRotation;
+            });
+        }
+
+        //todo do damage here
     }
 
     public getLines() {
