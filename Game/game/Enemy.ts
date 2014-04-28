@@ -14,6 +14,7 @@ class Enemy extends ex.Actor {
    private _lightStartPoint: ex.Point;
    private _shipSheet: ex.SpriteSheet;
    private _bulletTimer: number = 0;
+   public alertSprite: ex.Sprite = new ex.Sprite(Resources.AlertTexture, 0, 0, 60, 60);
    public sonar: Sonar;
 
    constructor(public key: string, x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
@@ -219,6 +220,10 @@ class Enemy extends ex.Actor {
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
       this.drawFOV(this._lightStartPoint, ctx, delta);
+
+      if (this._alertStatus === AlertStatus.Attack) {
+         this.alertSprite.draw(ctx, this.getCenter().x + Config.enemyAlertOffsetX - this.alertSprite.width/2, this.getCenter().y + Config.enemyAlertOffsetY - this.alertSprite.height/2);
+      }
    }
 
    public attack(delta: number) {

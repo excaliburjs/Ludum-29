@@ -29,6 +29,9 @@
    static enemyRotationSpeed: number = Math.PI / 2;
    static enemyDps: number = 10;
    static enemyGunOffset: number = 80;
+   static enemyAlertOffsetX: number = 0;
+   static enemyAlertOffsetY: number = -20;
+
 
 
    static defaultEnemyMaxFiringDistance: number = 400;
