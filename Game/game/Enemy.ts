@@ -3,7 +3,7 @@
 
 class Enemy extends ex.Actor {
    public health: number = Config.defaultEnemyHealth;
-   private _alertStatus: AlertStatus = AlertStatus.Calm;
+   public alertStatus: AlertStatus = AlertStatus.Calm;
    public rays: ex.Ray[] = new Array<ex.Ray>();
    public originalRays: ex.Ray[] = new Array<ex.Ray>();
    private _rayVectors: ex.Vector[] = new Array<ex.Vector>();
@@ -114,7 +114,7 @@ class Enemy extends ex.Actor {
       if (this.detectKraken() == AlertStatus.Warn) {
          //this._alertStatus = AlertStatus.Warn;
       } else if (this.detectKraken() == AlertStatus.Attack) {
-         this._alertStatus = AlertStatus.Attack;
+         this.alertStatus = AlertStatus.Attack;
             //this.sonar.ping();
       } else {
          //this._alertStatus = AlertStatus.Calm;
@@ -124,19 +124,19 @@ class Enemy extends ex.Actor {
       if (this.detectKraken() == AlertStatus.Warn) {
          //this._alertStatus = AlertStatus.Warn;
       } else if (this.detectKraken() == AlertStatus.Attack) {
-         this._alertStatus = AlertStatus.Attack;
+         this.alertStatus = AlertStatus.Attack;
       } else {
          //this._alertStatus = AlertStatus.Calm;
       }
 
-      if (this._alertStatus == AlertStatus.Warn) {
+      if (this.alertStatus == AlertStatus.Warn) {
          this.triggerEvent('DistressEvent', new DistressEvent(this));
-      } else if (this._alertStatus == AlertStatus.Attack) {
+      } else if (this.alertStatus == AlertStatus.Attack) {
          this.triggerEvent('AttackEvent', new AttackEvent(this));
          if (this.within(this._kraken, Config.defaultEnemyMaxFiringDistance)) {
             this.attack(delta);
          } else {
-            this._alertStatus = AlertStatus.Calm;
+            this.alertStatus = AlertStatus.Calm;
          }
       }
    }
@@ -221,7 +221,7 @@ class Enemy extends ex.Actor {
       super.draw(ctx, delta);
       this.drawFOV(this._lightStartPoint, ctx, delta);
 
-      if (this._alertStatus === AlertStatus.Attack) {
+      if (this.alertStatus === AlertStatus.Attack) {
          this.alertSprite.draw(ctx, this.getCenter().x + Config.enemyAlertOffsetX - this.alertSprite.width/2, this.getCenter().y + Config.enemyAlertOffsetY - this.alertSprite.height/2);
       }
    }

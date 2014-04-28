@@ -270,6 +270,7 @@ class Kraken extends ex.Actor {
          if (enemy) {
             game.camera.shake(10, 10, 200);
             enemy.health -= Config.krakenDps;
+            enemy._alertStatus = AlertStatus.Attack;
             //record damage dealt
             (<BaseLevel>game.currentScene).stats.damageDealt += Config.krakenDps;
          }
