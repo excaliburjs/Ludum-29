@@ -16,7 +16,7 @@ class Enemy extends ex.Actor {
       this.setHeight(height || Config.defaultEnemyHeight);
       this._health = health || this._health;
       this._travelVector = new ex.Vector(-1, 0);
-      this._fovLength = 500;
+      this._fovLength = Config.defaultEnemyFOV;
    }
 
     public onInitialize(game: ex.Engine) {
@@ -52,11 +52,20 @@ class Enemy extends ex.Actor {
              this.rays[i].pos = this._lightStartPoint;
           }
 
-         if (this.canSeeKraken()) {
-            this.color = ex.Color.Red;
-         } else {
-            this.color = ex.Color.Black;
-         }
+          if (this.detectKraken() == AlertStatus.Warn) {
+             this.color = ex.Color.Orange;
+          } else if (this.detectKraken() == AlertStatus.Attack) {
+             // attack the kraken
+             this.color = ex.Color.Red;
+          } else {
+             this.color = ex.Color.Black;
+          }
+
+         //if (this.canSeeKraken()) {
+         //   this.color = ex.Color.Red;
+         //} else {
+         //   this.color = ex.Color.Black;
+         //}
 
          //    if (this._alertStatus = alertStatus.Warn) {
          //        this.triggerEvent('DistressEvent', new DistressEvent(this));
@@ -77,6 +86,23 @@ class Enemy extends ex.Actor {
       }
 
       this.repeatForever();
+   }
+
+   private detectKraken() {
+      var result = AlertStatus.Calm;
+      var krakenLines = this._kraken.getLines();
+      for (var i = 0; i < this.rays.length; i++) {
+         for (var j = 0; j < krakenLines.length; j++) {
+            var distanceToKraken = this.rays[i].intersect(krakenLines[j]);
+            if ((result != AlertStatus.Attack) && (distanceToKraken >= Config.defaultMaxAttackDistance) && (distanceToKraken <= Config.defaultMaxAlertDistance)) {
+               result = AlertStatus.Warn;
+            }
+            if ((distanceToKraken >= 0) && (distanceToKraken <= Config.defaultMaxAttackDistance)) {
+               result = AlertStatus.Attack;
+            }
+         }
+      }
+      return result;
    }
 
    private canSeeKraken() {
@@ -119,7 +145,7 @@ class Enemy extends ex.Actor {
       for (var i = 0; i < this.rays.length; i++) {
          ctx.beginPath();
          ctx.moveTo(this.rays[i].pos.x, this.rays[i].pos.y);
-         var end = this.rays[i].getPoint(300);
+         var end = this.rays[i].getPoint(Config.defaultMaxAlertDistance);
          ctx.lineTo(end.x, end.y);
          ctx.strokeStyle = ex.Color.Chartreuse.toString();
          ctx.stroke();
