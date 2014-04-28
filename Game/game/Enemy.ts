@@ -140,16 +140,6 @@ class Enemy extends ex.Actor {
 
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
-      //Debugging draw for LOS rays on the enemy
-      for (var i = 0; i < this.rays.length; i++) {
-         ctx.beginPath();
-         ctx.moveTo(this.rays[i].pos.x, this.rays[i].pos.y);
-         var end = this.rays[i].getPoint(Config.defaultMaxAlertDistance);
-         ctx.lineTo(end.x, end.y);
-         ctx.strokeStyle = ex.Color.Chartreuse.toString();
-         ctx.stroke();
-         ctx.closePath();
-      }
       this.drawFOV(this._lightStartPoint, ctx, delta);
    }
 
@@ -184,6 +174,17 @@ class Enemy extends ex.Actor {
 
    public debugDraw(ctx: CanvasRenderingContext2D): void {
       super.debugDraw(ctx);
+
+      //Debugging draw for LOS rays on the enemy
+      for (var i = 0; i < this.rays.length; i++) {
+         ctx.beginPath();
+         ctx.moveTo(this.rays[i].pos.x, this.rays[i].pos.y);
+         var end = this.rays[i].getPoint(Config.defaultMaxAlertDistance);
+         ctx.lineTo(end.x, end.y);
+         ctx.strokeStyle = ex.Color.Chartreuse.toString();
+         ctx.stroke();
+         ctx.closePath();
+      }
 
       // draw path if any
       if (this.movePath) {
