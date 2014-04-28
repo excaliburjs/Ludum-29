@@ -3,6 +3,9 @@
  */
 var Resources = {
 
+   // Soundtrack
+   SoundTrack: new ex.Sound("/sounds/airwave mit mitch kelli.mp3"),
+
    // Levels
    Level0: new BaseLevel("/maps/Level-0.json"),
 
@@ -19,6 +22,10 @@ var Resources = {
 
    AlertTexture: new ex.Texture("/images/alert.png"),
 
+   BulletSound: new ex.Sound("/sounds/shoot.wav"),
+
+   SinkSound: new ex.Sound("/sounds/shipsink.wav"),
+
    // Tilesets
    TerrainTexture: new ex.Texture("/images/tilesets/terrain.png"),
 
@@ -27,6 +34,7 @@ var Resources = {
    SoundHurt: new ex.Sound("/sounds/hurt.wav"),
    SoundWaves: new ex.Sound("/sounds/waves.wav"),
    SoundDeath: new ex.Sound("/sounds/death.wav"),
+   HitSound: new ex.Sound("/sounds/hit.wav"),
 
    // HUD
    Heart: new ex.Texture("/images/heart.png")

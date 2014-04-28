@@ -15,6 +15,7 @@ class Enemy extends ex.Actor {
    private _shipSheet: ex.SpriteSheet;
    private _bulletTimer: number = 0;
    public alertSprite: ex.Sprite = new ex.Sprite(Resources.AlertTexture, 0, 0, 60, 60);
+   public isDead: boolean;
    public sonar: Sonar;
 
    constructor(public key: string, x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
@@ -91,9 +92,11 @@ class Enemy extends ex.Actor {
          this.setDrawing("eighty");
       }
 
-      if (this.health < 0) {
+      if (this.health < 0 && !this.isDead) {
          game.camera.shake(10, 10, 600);
          this.setDrawing("explode");
+         Resources.SinkSound.play();
+         this.isDead = true;
          var timer = new ex.Timer(() => {
             this.kill();
             (<BaseLevel>game.currentScene).kraken.health += Config.krakenHealthRegen;
@@ -233,6 +236,7 @@ class Enemy extends ex.Actor {
          var fireLocation = this.rotatePoint(new ex.Point(this.getCenter().x + Config.enemyGunOffset, this.getCenter().y), this.rotation, this.getCenter());
 
          game.addChild(new Bullet(fireLocation.x, fireLocation.y, this._kraken.getCenter().x, this._kraken.getCenter().y));
+         Resources.BulletSound.play();
 
          this._bulletTimer = Config.defaultEnemyBulletWait;
       }
@@ -251,9 +255,13 @@ class Enemy extends ex.Actor {
       var fovEndPoint = fovRay.getPoint(this._fovLength);
 
       var grd = ctx.createRadialGradient(point.x, point.y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
-
-      grd.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-      grd.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      if (this.alertStatus !== AlertStatus.Attack) {
+         grd.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+         grd.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      } else {
+         grd.addColorStop(0, 'rgba(255, 150, 150, 0.3)');
+         grd.addColorStop(1, 'rgba(255, 150, 150, 0)');
+      }
 
       ctx.fillStyle = grd;
       ctx.beginPath();
