@@ -43,6 +43,10 @@ class Enemy extends ex.Actor {
          //}
       });
 
+       this.on('AttackEvent', (ev: AttackEvent) => {
+
+       });
+
        this.on('update', (ev: ex.UpdateEvent) => {
 
           this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
@@ -147,14 +151,6 @@ class Enemy extends ex.Actor {
          ctx.closePath();
       }
       this.drawFOV(this._lightStartPoint, ctx, delta);
-   }
-
-   public moveCircle() {
-
-   }
-
-   public moveMeander() {
-
    }
 
    public attack() {
