@@ -20,6 +20,7 @@
     <Content Include="css\app.css" />
     <Content Include="images\alert.png" />
     <Content Include="images\bullet.png" />
+	<Content Include="images\death.jpg" />
     <Content Include="images\heart.png" />
     <Content Include="images\kraken\Kraken.png" />
     <Content Include="images\kraken\KrakenSpriteSheet.png" />
@@ -36,6 +37,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="game\Bullet.ts" />
     <TypeScriptCompile Include="game\Config.ts" />
+    <TypeScriptCompile Include="game\DeathScene.ts" />
     <TypeScriptCompile Include="game\Effects.ts" />
     <TypeScriptCompile Include="game\Enemy.ts" />
     <TypeScriptCompile Include="game\game.ts" />

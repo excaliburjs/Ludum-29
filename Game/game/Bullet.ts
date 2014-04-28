@@ -26,6 +26,11 @@
       super.update(engine, delta);
 
       // can only spawn on level!
+      if (!(engine.currentScene instanceof BaseLevel)) {
+         this.kill();
+         return;
+      }
+            
       var currentMap = (<BaseLevel>engine.currentScene).data;
 
       // todo it would be cool to die when you hit a solid tile (not terrain)

@@ -137,7 +137,8 @@ class Kraken extends ex.Actor {
 
       // if killed?
       if (this.health <= 0) {
-         // todo
+         game.goToScene("death");
+         return;
       }
 
       // check for enemy proximity

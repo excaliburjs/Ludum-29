@@ -30,6 +30,7 @@ var beginGame = () => {
       game.off("keyup", beginGame);
       game.off("mouseup", beginGame);
       game.addScene("level0", Resources.Level0);
+      game.addScene("death", new DeathScene());
       game.goToScene("level0");
    }
 };

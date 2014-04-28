@@ -8,12 +8,18 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
    public paths: { [key: string]: ex.Point[] } = {};
    public stats: Stats;
    public heartSprite: ex.Sprite;
+   private _waveTimer: ex.Timer;
 
    constructor(public jsonPath: string) {
       super();
    }
 
    public onInitialize(engine: ex.Engine) {
+
+      // play waves
+      Resources.SoundWaves.setVolume(0.1);
+      Resources.SoundWaves.setLoop(true);
+      Resources.SoundWaves.play();
 
       this.stats = new Stats();
 
@@ -73,6 +79,13 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
       // Add collision maps to scene
       this.addTileMap(this.map);
+   }
+
+   public onDeactivate(): void {
+      super.onDeactivate();
+
+      // stop sounds
+      Resources.SoundWaves.stop();
    }
 
    public update(engine: ex.Engine, delta: number) {

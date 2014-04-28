@@ -11,6 +11,7 @@ var Resources = {
 
    // Textures
    SplashTexture: new ex.Texture("/images/splash.jpg"),
+   DeathTexture: new ex.Texture("/images/death.jpg"),
    KrakenTexture: new ex.Texture("/images/kraken/KrakenSpriteSheet.png"),
 
    // Enemies
@@ -30,6 +31,7 @@ var Resources = {
    // Kraken
    SoundSwim: new ex.Sound("/sounds/swim.wav"),
    SoundHurt: new ex.Sound("/sounds/hurt.wav"),
+   SoundWaves: new ex.Sound("/sounds/waves.wav"),
    HitSound: new ex.Sound("/sounds/hit.wav"),
 
    // HUD
