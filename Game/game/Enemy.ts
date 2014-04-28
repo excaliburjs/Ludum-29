@@ -39,10 +39,10 @@ class Enemy extends ex.Actor {
     public onInitialize(game: ex.Engine) {
        this._kraken = (<any>game.currentScene).kraken;
 
-       //TODO assumes all enemies are initially facing left
+       //TODO assumes all enemies are initially facing right
        this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
 
-      var yValues = new Array<number>(-0.5, -0.25, 0, 0.25, 0.5);
+      var yValues = new Array<number>(-0.62, -0.25, 0, 0.25, 0.62);
 
        //this.sonar = new Sonar(this.getWidth()/2, this.getHeight()/2, 1, 1);
        //this.addChild(this.sonar);
