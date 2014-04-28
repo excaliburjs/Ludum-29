@@ -38,10 +38,9 @@ class Enemy extends ex.Actor {
 
       this.on('DistressEvent', (ev: DistressEvent) => {
          //if (this.within(ev.enemy, Config.defaultAssistDistance)) {
-
+            //this._alertStatus = AlertStatus.Warn;
+            //this.assistShip(ev.enemy);
          //}
-         this._alertStatus = AlertStatus.Warn;
-         this.assistShip(ev.enemy);
       });
 
        this.on('update', (ev: ex.UpdateEvent) => {
@@ -61,15 +60,11 @@ class Enemy extends ex.Actor {
              this.color = ex.Color.Black;
           }
 
-         //if (this.canSeeKraken()) {
-         //   this.color = ex.Color.Red;
-         //} else {
-         //   this.color = ex.Color.Black;
-         //}
-
-         //    if (this._alertStatus = alertStatus.Warn) {
-         //        this.triggerEvent('DistressEvent', new DistressEvent(this));
-         //    }
+          if (this._alertStatus == AlertStatus.Warn) {
+             this.triggerEvent('DistressEvent', new DistressEvent(this));
+          } else if (this._alertStatus == AlertStatus.Attack) {
+             this.triggerEvent('AttackEvent', new AttackEvent(this));
+          }
       });
     }
 
