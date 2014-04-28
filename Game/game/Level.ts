@@ -75,6 +75,13 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       this.addTileMap(this.map);
    }
 
+   public update(engine: ex.Engine, delta: number) {
+      super.update(engine, delta);
+
+      // kill enemies
+      this.enemies = this.enemies.filter(enemy => !(<any>enemy)._isKilled);
+   }
+
    //TODO overload draw: draw HUD, UI, etc.
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);

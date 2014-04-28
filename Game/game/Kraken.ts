@@ -90,7 +90,10 @@ class Kraken extends ex.Actor {
          this._canAttack = true;
       } else {
          this._canAttack = false;
-         this.returnToSwim();
+
+         if (this._currentMode === KrakenMode.Attack) {
+            this.returnToSwim();
+         }
       }
 
    }
@@ -166,6 +169,9 @@ class Kraken extends ex.Actor {
       if (this.dx === 0 && this.dy === 0 && this._currentMode !== KrakenMode.Attack) {
          this.setDrawing('idle');
          this._currentMode = KrakenMode.Idle;
+      } else if (this._currentMode !== KrakenMode.Swim && this._currentMode !== KrakenMode.Attack) {
+         this.setDrawing('swim');
+         this._currentMode = KrakenMode.Swim;
       }
 
       if (this.dx > dampeningVector.x && this.dx !== 0) {
@@ -210,20 +216,19 @@ class Kraken extends ex.Actor {
       this.dy = y;
    }
 
-   public attack(enemy?: Enemy) {
+   public attack(enemy?: Enemy) {       
+
       if ((Date.now() - this._lastAttackTime) > Config.krakenAttackTime) {
          if (this._currentMode !== KrakenMode.Attack) {
-            if (!this.actionQueue.hasNext()) {
-               console.log("Spinning", this._currentMode);
-               this._currentMode = KrakenMode.Attack;
+            console.log("Spinning", this._currentMode);
+            this._currentMode = KrakenMode.Attack;
 
-               var oldRotation = this.rotation;
-               this.clearActions();
-               this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
-                  this.setDrawing('attack');
-                  this.rotation = oldRotation;
-               });
-            }
+            var oldRotation = this.rotation;
+            this.clearActions();
+            this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
+               this.setDrawing('attack');
+               this.rotation = oldRotation;
+            });
          }
 
          //todo do damage here
