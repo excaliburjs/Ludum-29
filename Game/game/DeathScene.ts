@@ -9,6 +9,10 @@
 
       game.camera = new ex.BaseCamera(engine);
 
+      // play death
+      Resources.SoundDeath.play();
+
+      // splash
       var death = new ex.Actor(0, 0, engine.canvas.width, engine.canvas.height);
       death.addDrawing("bg", new ex.Sprite(Resources.DeathTexture, 0, 0, engine.canvas.width, engine.canvas.height));
 
