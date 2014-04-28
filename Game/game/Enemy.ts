@@ -97,7 +97,8 @@ class Enemy extends ex.Actor {
             this.kill();
          }, 600, false);
          game.currentScene.addTimer(timer);
-
+         //record ship destroyed
+         (<BaseLevel>game.currentScene).stats.numBoatsDestroyed++;
       }
       for (var i = 0; i < this.rays.length; i++) {
          this.rays[i].pos = this._lightStartPoint;

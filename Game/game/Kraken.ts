@@ -61,21 +61,20 @@ class Kraken extends ex.Actor {
    }
 
    public handleAttackPress() {
-      var target = this.getClosestEnemy(this.x, this.y);
+      var target = this.getClosestEnemy();
 
       if (this._canAttack && target) {
          this.attack(target);
       }
    }
 
-   private getClosestEnemy(x: number, y: number): Enemy {
-      var clickVector = new ex.Vector(x, y);
+   private getClosestEnemy(): Enemy {
       var ships: Enemy[] = (<any>game.currentScene).enemies;
       var target: Enemy = ships.sort((a, b) => {
          return a.getCenter().distance(this.getCenter()) - b.getCenter().distance(this.getCenter());
       })[0];
 
-      if (target && target.getCenter().distance(this.getCenter()) <= Config.krakenAttackRange && clickVector.distance(target.getCenter()) <= Config.krakenAttackRange) {
+      if (target && target.getCenter().distance(this.getCenter()) <= Config.krakenAttackRange) {
          return target;
       }
 
@@ -83,7 +82,7 @@ class Kraken extends ex.Actor {
    }
 
    public checkForShipProximity() {
-      var targetInRange = this.getClosestEnemy(this.x, this.y);
+      var targetInRange = this.getClosestEnemy();
 
       // Attack the ship if in range
       if (targetInRange) {
@@ -100,29 +99,15 @@ class Kraken extends ex.Actor {
 
       ex.Logger.getInstance().info("Kraken initialized");
 
-      game.on('mousedown', (ev: ex.MouseDown) => {
-         // this.moveKraken(ev.x, ev.y);
-         // this.checkForShipClick(ev.x, ev.y);
-
-      });
-
       game.on('mousemove', (ev: ex.MouseMove) => {
 
          // todo play sound in interval
          //Resources.SoundSwim.play();         
          this.moveKraken(ev.x, ev.y);
       });
-
-      game.on('mouseup', (ev: ex.MouseUp) => {
-         //TODO rapidly decellerate rather than immediate stop?
-         // this._isMousePressed = false;
-         //this.dx -= this._travelVector.x;
-         //this.dy -= this._travelVector.y;
-         //this.returnToIdle();
-      });
-
+      
       game.on('keyup', (ev: ex.KeyUp) => {
-         if (ev.key === ex.InputKey.Space && this._canAttack && this._currentMode !== KrakenMode.Attack) {
+         if (ev.key === ex.InputKey.Space) {
             this.handleAttackPress();
          }
       });
@@ -142,6 +127,9 @@ class Kraken extends ex.Actor {
 
             // subtract health
             this.health -= Config.enemyDps;
+
+            // record damage taken
+            (<BaseLevel>game.currentScene).stats.damageTaken += Config.enemyDps;
 
             // cue
             Resources.SoundHurt.play();
@@ -242,6 +230,8 @@ class Kraken extends ex.Actor {
          if (enemy) {
             game.camera.shake(10, 10, 200);
             enemy.health -= Config.krakenDps;
+            //record damage dealt
+            (<BaseLevel>game.currentScene).stats.damageDealt += Config.krakenDps;
          }
          this._lastAttackTime = Date.now();
 
