@@ -6,7 +6,7 @@
 
 var game = new ex.Engine(920, 580, "game");
 //ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
-game.backgroundColor = ex.Color.fromHex("#2b3f56");
+game.backgroundColor = ex.Color.fromHex("#030d18");
 game.setAntialiasing(false);
 game.on('keydown', function(ev: ex.KeyDown) {
     if (ev.key === ex.InputKey.D) {

@@ -4,6 +4,9 @@
    static defaultKrakenWidth: number = 50;
    static defaultKrakenHeight: number = 50;
    static defaultKrakenSpeedScale: number = 10;
+   static defaultKrakenMaxSpeed: number = 200;
+   static defaultKrakenIdleThreshold: number = 10;
+   static defaultKrakenAnimationChangeThreshold: number = 400; // todo hack to get around collision dx/dy and fast animation changes
    static defaultKrakenHealth: number = 100;
    //static defaultKrakenStamina: number = 100;
    static defaultKrakenSpecial: number = 5;
