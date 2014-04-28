@@ -45,5 +45,6 @@
 
 
    // Sonar
-   static defaultSonarPing: number = 100;
+   static defaultSonarPingScale: number = 4000;
+   static defaultSonarPingSpeed: number = 600;
 }
