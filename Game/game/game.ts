@@ -38,6 +38,9 @@ game.start(loader).then(() => {
 
    var splash = new ex.Actor(0, 0, game.width, game.height);
    splash.addDrawing("bg", new ex.Sprite(Resources.SplashTexture, 0, 0, game.width, game.height));
+   Resources.SoundTrack.setVolume(.5);
+   Resources.SoundTrack.setLoop(true);
+   Resources.SoundTrack.play();
 
    game.addChild(splash);
 
