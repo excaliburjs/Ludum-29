@@ -17,6 +17,7 @@
    static krakenAttackTime: number = 300;
    static krakenAttackRange: number = 150;
    static krakenInertiaDampen: number = 1;
+   static krakenHealthRegen: number = 10;
 
    // Enemies
    static defaultEnemyWidth: number = 191;
@@ -35,6 +36,7 @@
    static enemyGunOffset: number = 80;
    static enemyAlertOffsetX: number = 0;
    static enemyAlertOffsetY: number = -20;
+
 
 
 

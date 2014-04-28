@@ -96,6 +96,7 @@ class Enemy extends ex.Actor {
          this.setDrawing("explode");
          var timer = new ex.Timer(() => {
             this.kill();
+            (<BaseLevel>game.currentScene).kraken.health += Config.krakenHealthRegen;
          }, 600, false);
          game.currentScene.addTimer(timer);
          //record ship destroyed
