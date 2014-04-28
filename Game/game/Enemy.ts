@@ -3,7 +3,7 @@
 
 class Enemy extends ex.Actor {
    public health: number = Config.defaultEnemyHealth;
-   private _alertStatus: AlertStatus = AlertStatus.Calm;
+   public alertStatus: AlertStatus = AlertStatus.Calm;
    public rays: ex.Ray[] = new Array<ex.Ray>();
    public originalRays: ex.Ray[] = new Array<ex.Ray>();
    private _rayVectors: ex.Vector[] = new Array<ex.Vector>();
@@ -14,6 +14,7 @@ class Enemy extends ex.Actor {
    private _lightStartPoint: ex.Point;
    private _shipSheet: ex.SpriteSheet;
    private _bulletTimer: number = 0;
+   public alertSprite: ex.Sprite = new ex.Sprite(Resources.AlertTexture, 0, 0, 60, 60);
    public sonar: Sonar;
 
    constructor(public key: string, x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
@@ -95,6 +96,7 @@ class Enemy extends ex.Actor {
          this.setDrawing("explode");
          var timer = new ex.Timer(() => {
             this.kill();
+            (<BaseLevel>game.currentScene).kraken.health += Config.krakenHealthRegen;
          }, 600, false);
          game.currentScene.addTimer(timer);
          //record ship destroyed
@@ -113,20 +115,20 @@ class Enemy extends ex.Actor {
       if (this.detectKraken() == AlertStatus.Warn) {
          //this._alertStatus = AlertStatus.Warn;
       } else if (this.detectKraken() == AlertStatus.Attack) {
-         this._alertStatus = AlertStatus.Attack;
+         this.alertStatus = AlertStatus.Attack;
             //this.sonar.ping();
       } else {
          //this._alertStatus = AlertStatus.Calm;
       }
 
-      if (this._alertStatus == AlertStatus.Warn) {
+      if (this.alertStatus == AlertStatus.Warn) {
          this.triggerEvent('DistressEvent', new DistressEvent(this));
-      } else if (this._alertStatus == AlertStatus.Attack) {
+      } else if (this.alertStatus == AlertStatus.Attack) {
          this.triggerEvent('AttackEvent', new AttackEvent(this));
          if (this.within(this._kraken, Config.defaultEnemyMaxFiringDistance)) {
             this.attack(delta);
          } else {
-            this._alertStatus = AlertStatus.Calm;
+            this.alertStatus = AlertStatus.Calm;
          }
       }
    }
@@ -210,6 +212,10 @@ class Enemy extends ex.Actor {
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
       this.drawFOV(this._lightStartPoint, ctx, delta);
+
+      if (this.alertStatus === AlertStatus.Attack) {
+         this.alertSprite.draw(ctx, this.getCenter().x + Config.enemyAlertOffsetX - this.alertSprite.width/2, this.getCenter().y + Config.enemyAlertOffsetY - this.alertSprite.height/2);
+      }
    }
 
    public attack(delta: number) {

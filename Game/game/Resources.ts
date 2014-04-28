@@ -16,6 +16,8 @@ var Resources = {
 
    BulletTexture: new ex.Texture("/images/bullet.png"),
 
+   AlertTexture: new ex.Texture("/images/alert.png"),
+
    // Tilesets
    TerrainTexture: new ex.Texture("/images/tilesets/terrain.png"),
 
