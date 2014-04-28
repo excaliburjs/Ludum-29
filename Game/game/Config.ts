@@ -1,6 +1,7 @@
 ﻿class Config {
 
    // Kraken
+   static defaultKrakenMoveRadius: number = 300;
    static defaultKrakenWidth: number = 50;
    static defaultKrakenHeight: number = 50;
    static defaultKrakenSpeedScale: number = 10;
