@@ -5,6 +5,7 @@ class Stats {
    public numBoatsAlerted: number = 0;
    public damageTaken: number = 0;
    public damageDealt: number = 0;
+   public healthGained: number = 0;
    public timeToFinishLevel = 0;
 
    constructor() {}
