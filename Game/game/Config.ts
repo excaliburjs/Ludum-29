@@ -22,6 +22,8 @@
    static defaultEnemySpeed: number = 50;
    static defaultAssistDistance: number = 300;
    static defaultEnemyWaitTime: number = 2000;
+   static enemyRotationSpeed: number = Math.PI / 2;
+
 
    //distance of detection tied to the FOV
    static defaultMaxAttackDistance: number = 250

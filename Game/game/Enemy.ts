@@ -20,9 +20,11 @@ class Enemy extends ex.Actor {
       this._fovLength = Config.defaultEnemyFOV;
 
       this._shipSheet = new ex.SpriteSheet(Resources.Ship1Texture, 3, 2, 191, 73);
+
       this.addDrawing("full", this._shipSheet.getSprite(0));
       this.addDrawing("half", this._shipSheet.getSprite(1));
       this.addDrawing("eighty", this._shipSheet.getSprite(2));
+      this.setCenterDrawing(true);
 
       this.setDrawing("full");
       this.collisionType = ex.CollisionType.Fixed;
@@ -56,41 +58,59 @@ class Enemy extends ex.Actor {
 
        });
 
-       this.on('update', (ev: ex.UpdateEvent) => {
+    }
 
-          this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+    public update(engine: ex.Engine, delta: number) {
+        super.update(engine, delta);
 
-          for (var i = 0; i < this.rays.length; i++) {
-             this.rays[i].pos = this._lightStartPoint;
-          }
+        this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
 
-          if (this.detectKraken() == AlertStatus.Warn) {
-             this.color = ex.Color.Orange;
-          } else if (this.detectKraken() == AlertStatus.Attack) {
-             // attack the kraken
-             this.color = ex.Color.Red;
-          } else {
-             this.color = ex.Color.Black;
-          }
+        for (var i = 0; i < this.rays.length; i++) {
+            this.rays[i].pos = this._lightStartPoint;
+        }
 
-          if (this._alertStatus == AlertStatus.Warn) {
-             this.triggerEvent('DistressEvent', new DistressEvent(this));
-          } else if (this._alertStatus == AlertStatus.Attack) {
-             this.triggerEvent('AttackEvent', new AttackEvent(this));
-          }
-      });
+        if (this.detectKraken() == AlertStatus.Warn) {
+            this.color = ex.Color.Orange;
+        } else if (this.detectKraken() == AlertStatus.Attack) {
+            // attack the kraken
+            this.color = ex.Color.Red;
+        } else {
+            this.color = ex.Color.Black;
+        }
+
+        if (this._alertStatus == AlertStatus.Warn) {
+            this.triggerEvent('DistressEvent', new DistressEvent(this));
+        } else if (this._alertStatus == AlertStatus.Attack) {
+            this.triggerEvent('AttackEvent', new AttackEvent(this));
+        }
+
+       
+          
+       
+
+
     }
 
    private movePath: ex.Point[] = [];
    public createMovePath(path: ex.Point[]): void {
       this.movePath = path;
 
-      path.forEach(point => {
+      path.forEach((point, i) => {
          this.moveTo(point.x - this.getWidth() / 2, point.y - this.getHeight() / 2, Config.defaultEnemySpeed);
+         if (path[i + 1]) {
+            var direction = new ex.Vector(path[i + 1].x, path[i + 1].y).minus(point.toVector()).normalize();
+            var angle = Math.atan2(direction.y, direction.x);
+            this.rotateTo(angle, Config.enemyRotationSpeed);
+         }
       });
       this.delay(Config.defaultEnemyWaitTime);
       for (var i = path.length - 1; i >= 0; i--) {
          this.moveTo(path[i].x - this.getWidth() / 2, path[i].y - this.getHeight() / 2, Config.defaultEnemySpeed);
+         if (path[i - 1]) {
+            var direction = new ex.Vector(path[i - 1].x, path[i - 1].y).minus(path[i].toVector()).normalize();
+            var angle = Math.atan2(direction.y, direction.x);
+            this.rotateTo(angle, Config.enemyRotationSpeed);
+         }
       }
 
       this.repeatForever();

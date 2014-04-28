@@ -422,6 +422,7 @@ declare module ex.Util {
     }
     function base64Encode(inputStr: string): string;
     function clamp(val: any, min: any, max: any): any;
+    function canonicalizeAngle(angle: number): number;
     function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
     function randomInRange(min: number, max: number): number;
     function getPosition(el: HTMLElement): Point;
@@ -4150,17 +4151,23 @@ declare module ex.Internal.Actions {
         public stop(): void;
         public reset(): void;
     }
+    enum RotationStrategy {
+        Clockwise = 0,
+        CounterClockwise = 1,
+        ShortestPath = 2,
+    }
     class RotateTo implements IAction {
         private actor;
         public x: number;
         public y: number;
-        private start;
         private end;
         private speed;
         private distance;
         private _started;
         private _stopped;
-        constructor(actor: Actor, angleRadians: number, speed: number);
+        private _rotationStrategy;
+        private _traveled;
+        constructor(actor: Actor, angleRadians: number, speed: number, rotationStrategy?: RotationStrategy);
         public update(delta: number): void;
         public isComplete(actor: Actor): boolean;
         public stop(): void;

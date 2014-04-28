@@ -171,7 +171,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
          });
 
          // push path
-         this.paths[obj.name] = obj.polyline;
+         this.paths[obj.name] = obj.polyline.map(function(p) { return new ex.Point(p.x, p.y); });
       }
    }
 
