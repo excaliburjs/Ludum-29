@@ -79,7 +79,9 @@ class Kraken extends ex.Actor {
     }
 
     public onInitialize(game: ex.Engine) {
-        
+
+       ex.Logger.getInstance().info("Kraken initialized");
+
         game.on('mousedown', (ev: ex.MouseDown) => {
            this.moveKraken(ev.x, ev.y);
            this.checkForShipClick(ev.x, ev.y);
@@ -124,6 +126,23 @@ class Kraken extends ex.Actor {
                 this.dx = 0;
                 this.dy = 0;
             }
+
+           // todo workaround race condition in Excalibur collisions
+           // when two collision events are queued for this actor
+           // don't process if other was killed in previous handler
+           if (ev.other instanceof Bullet && !(<any>ev.other)._isKilled) { 
+
+              ex.Logger.getInstance().info("Kraken got shot, yo!");
+
+              // subtract health
+              this._health -= 10;
+
+              // cue
+              Resources.SoundHurt.play();
+
+              // kill
+              ev.other.kill();              
+           }
         });
 
     }
@@ -131,6 +150,11 @@ class Kraken extends ex.Actor {
 
     public update(engine: ex.Engine, delta: number) {
         super.update(engine, delta);
+
+        // if killed?
+        if (this._health <= 0) {
+           // todo
+        }
 
         var dampeningVector = this._travelVector.normalize().scale(Config.krakenInertiaDampen).scale(-1);
 

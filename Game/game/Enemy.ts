@@ -10,6 +10,7 @@ class Enemy extends ex.Actor {
    private _kraken: Kraken;
    private _lightStartPoint: ex.Point;
    private _shipSheet: ex.SpriteSheet;
+   private _bulletTimer: number = 0;
 
    constructor(public key: string, x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultEnemyWidth, Config.defaultEnemyHeight, color);
@@ -65,30 +66,24 @@ class Enemy extends ex.Actor {
 
         this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
 
-        for (var i = 0; i < this.rays.length; i++) {
-            this.rays[i].pos = this._lightStartPoint;
-        }
+          if (this.detectKraken() == AlertStatus.Warn) {
+             //this._alertStatus = AlertStatus.Warn;
+          } else if (this.detectKraken() == AlertStatus.Attack) {
+             this._alertStatus = AlertStatus.Attack;
+          } else {
+             //this._alertStatus = AlertStatus.Calm;
+          }
 
-        if (this.detectKraken() == AlertStatus.Warn) {
-            this.color = ex.Color.Orange;
-        } else if (this.detectKraken() == AlertStatus.Attack) {
-            // attack the kraken
-            this.color = ex.Color.Red;
-        } else {
-            this.color = ex.Color.Black;
-        }
-
-        if (this._alertStatus == AlertStatus.Warn) {
-            this.triggerEvent('DistressEvent', new DistressEvent(this));
-        } else if (this._alertStatus == AlertStatus.Attack) {
-            this.triggerEvent('AttackEvent', new AttackEvent(this));
-        }
-
-       
-          
-       
-
-
+          if (this._alertStatus == AlertStatus.Warn) {
+             this.triggerEvent('DistressEvent', new DistressEvent(this));
+          } else if (this._alertStatus == AlertStatus.Attack) {
+             this.triggerEvent('AttackEvent', new AttackEvent(this));
+             if (this.within(this._kraken, Config.defaultEnemyMaxFiringDistance)) {
+                this.attack(delta);
+             } else {
+                this._alertStatus = AlertStatus.Calm;
+             }
+          }
     }
 
    private movePath: ex.Point[] = [];
@@ -172,8 +167,19 @@ class Enemy extends ex.Actor {
       this.drawFOV(this._lightStartPoint, ctx, delta);
    }
 
-   public attack() {
+   public attack(delta: number) {
       // if the ship can still see the kraken (or the kraken is in the ship's attack proximity), attack the kraken
+      
+      if (this._bulletTimer <= 0) {
+         ex.Logger.getInstance().info("Shot bullet");
+
+         // shoot
+         // todo lead them a bit based on kraken's travel vector? bonus!
+         game.addChild(new Bullet(this.x, this.y, this._kraken.getCenter().x, this._kraken.getCenter().y));
+
+         this._bulletTimer = Config.defaultEnemyBulletWait;
+      }
+      this._bulletTimer -= delta;
    }
 
    public assistShip(shipInTrouble: Enemy) {
