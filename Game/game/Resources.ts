@@ -10,6 +10,9 @@ var Resources = {
    SplashTexture: new ex.Texture("/images/splash.jpg"),
    KrakenTexture: new ex.Texture("/images/kraken/KrakenSpriteSheet.png"),
 
+   // Enemies
+   Ship1Texture: new ex.Texture("/images/ship-1.png"),
+
    // Tilesets
    TerrainTexture: new ex.Texture("/images/tilesets/terrain.png"),
 

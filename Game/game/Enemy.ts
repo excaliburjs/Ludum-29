@@ -9,6 +9,7 @@ class Enemy extends ex.Actor {
    private _travelVector: ex.Vector;
    private _kraken: Kraken;
    private _lightStartPoint: ex.Point;
+   private _shipSheet: ex.SpriteSheet;
 
    constructor(public key: string, x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultEnemyWidth, Config.defaultEnemyHeight, color);
@@ -16,7 +17,14 @@ class Enemy extends ex.Actor {
       this.setHeight(height || Config.defaultEnemyHeight);
       this._health = health || this._health;
       this._travelVector = new ex.Vector(-1, 0);
-      this._fovLength = 500;
+      this._fovLength = Config.defaultEnemyFOV;
+
+      this._shipSheet = new ex.SpriteSheet(Resources.Ship1Texture, 3, 2, 191, 73);
+      this.addDrawing("full", this._shipSheet.getSprite(0));
+      this.addDrawing("half", this._shipSheet.getSprite(1));
+      this.addDrawing("eighty", this._shipSheet.getSprite(2));
+
+      this.setDrawing("full");
       this.collisionType = ex.CollisionType.Fixed;
    }
 
@@ -39,11 +47,14 @@ class Enemy extends ex.Actor {
 
       this.on('DistressEvent', (ev: DistressEvent) => {
          //if (this.within(ev.enemy, Config.defaultAssistDistance)) {
-
+            //this._alertStatus = AlertStatus.Warn;
+            //this.assistShip(ev.enemy);
          //}
-         this._alertStatus = AlertStatus.Warn;
-         this.assistShip(ev.enemy);
       });
+
+       this.on('AttackEvent', (ev: AttackEvent) => {
+
+       });
 
        this.on('update', (ev: ex.UpdateEvent) => {
 
@@ -53,15 +64,20 @@ class Enemy extends ex.Actor {
              this.rays[i].pos = this._lightStartPoint;
           }
 
-         if (this.canSeeKraken()) {
-            this.color = ex.Color.Red;
-         } else {
-            this.color = ex.Color.Black;
-         }
+          if (this.detectKraken() == AlertStatus.Warn) {
+             this.color = ex.Color.Orange;
+          } else if (this.detectKraken() == AlertStatus.Attack) {
+             // attack the kraken
+             this.color = ex.Color.Red;
+          } else {
+             this.color = ex.Color.Black;
+          }
 
-         //    if (this._alertStatus = alertStatus.Warn) {
-         //        this.triggerEvent('DistressEvent', new DistressEvent(this));
-         //    }
+          if (this._alertStatus == AlertStatus.Warn) {
+             this.triggerEvent('DistressEvent', new DistressEvent(this));
+          } else if (this._alertStatus == AlertStatus.Attack) {
+             this.triggerEvent('AttackEvent', new AttackEvent(this));
+          }
       });
     }
 
@@ -78,6 +94,23 @@ class Enemy extends ex.Actor {
       }
 
       this.repeatForever();
+   }
+
+   private detectKraken() {
+      var result = AlertStatus.Calm;
+      var krakenLines = this._kraken.getLines();
+      for (var i = 0; i < this.rays.length; i++) {
+         for (var j = 0; j < krakenLines.length; j++) {
+            var distanceToKraken = this.rays[i].intersect(krakenLines[j]);
+            if ((result != AlertStatus.Attack) && (distanceToKraken >= Config.defaultMaxAttackDistance) && (distanceToKraken <= Config.defaultMaxAlertDistance)) {
+               result = AlertStatus.Warn;
+            }
+            if ((distanceToKraken >= 0) && (distanceToKraken <= Config.defaultMaxAttackDistance)) {
+               result = AlertStatus.Attack;
+            }
+         }
+      }
+      return result;
    }
 
    private canSeeKraken() {
@@ -116,25 +149,7 @@ class Enemy extends ex.Actor {
 
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
-      //Debugging draw for LOS rays on the enemy
-      for (var i = 0; i < this.rays.length; i++) {
-         ctx.beginPath();
-         ctx.moveTo(this.rays[i].pos.x, this.rays[i].pos.y);
-         var end = this.rays[i].getPoint(300);
-         ctx.lineTo(end.x, end.y);
-         ctx.strokeStyle = ex.Color.Chartreuse.toString();
-         ctx.stroke();
-         ctx.closePath();
-      }
       this.drawFOV(this._lightStartPoint, ctx, delta);
-   }
-
-   public moveCircle() {
-
-   }
-
-   public moveMeander() {
-
    }
 
    public attack() {
@@ -168,6 +183,17 @@ class Enemy extends ex.Actor {
 
    public debugDraw(ctx: CanvasRenderingContext2D): void {
       super.debugDraw(ctx);
+
+      //Debugging draw for LOS rays on the enemy
+      for (var i = 0; i < this.rays.length; i++) {
+         ctx.beginPath();
+         ctx.moveTo(this.rays[i].pos.x, this.rays[i].pos.y);
+         var end = this.rays[i].getPoint(Config.defaultMaxAlertDistance);
+         ctx.lineTo(end.x, end.y);
+         ctx.strokeStyle = ex.Color.Chartreuse.toString();
+         ctx.stroke();
+         ctx.closePath();
+      }
 
       // draw path if any
       if (this.movePath) {
