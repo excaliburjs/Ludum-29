@@ -229,7 +229,7 @@ class Enemy extends ex.Actor {
 
          // shoot
          // todo lead them a bit based on kraken's travel vector? bonus!
-         game.addChild(new Bullet(this.x, this.y, this._kraken.getCenter().x, this._kraken.getCenter().y));
+         game.addChild(new Bullet(this.getCenter().x, this.getCenter().y, this._kraken.getCenter().x, this._kraken.getCenter().y));
 
          this._bulletTimer = Config.defaultEnemyBulletWait;
       }
