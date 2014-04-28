@@ -32,6 +32,7 @@ var Resources = {
    SoundSwim: new ex.Sound("/sounds/swim.wav"),
    SoundHurt: new ex.Sound("/sounds/hurt.wav"),
    SoundWaves: new ex.Sound("/sounds/waves.wav"),
+   SoundDeath: new ex.Sound("/sounds/death.wav"),
    HitSound: new ex.Sound("/sounds/hit.wav"),
 
    // HUD
