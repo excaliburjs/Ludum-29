@@ -2,10 +2,21 @@
     font-family: Iceland, 'Segoe UI', sans-serif;
     text-align: center;
     background: #030d18;
-    color: #2b3f56;
+    color: #6380a2;
+    font-size: 20px;
 }
 
 
 a {
-    color: #2b3f56;
+    color: #6380a2;
+}
+
+p {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    display: block;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 10px 50px;
 }
