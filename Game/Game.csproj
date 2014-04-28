@@ -20,7 +20,7 @@
     <Content Include="css\app.css" />
     <Content Include="images\alert.png" />
     <Content Include="images\bullet.png" />
-	<Content Include="images\death.jpg" />
+    <Content Include="images\death.jpg" />
     <Content Include="images\heart.png" />
     <Content Include="images\kraken\Kraken.png" />
     <Content Include="images\kraken\KrakenSpriteSheet.png" />
@@ -30,8 +30,13 @@
     <Content Include="images\tilesets\world-48x48.png" />
     <Content Include="index.html" />
     <Content Include="scripts\Excalibur.js" />
+    <Content Include="sounds\airwave mit mitch kelli.mp3" />
+    <Content Include="sounds\Hit.wav" />
     <Content Include="sounds\Hurt.wav" />
+    <Content Include="sounds\ShipSink.wav" />
+    <Content Include="sounds\Shoot.wav" />
     <Content Include="sounds\Swim.wav" />
+    <Content Include="sounds\Waves.wav" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
