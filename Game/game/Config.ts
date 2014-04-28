@@ -35,4 +35,8 @@
 
    //FOV for the spotlight effect
    static defaultEnemyFOV: number = 500;
+
+
+   // Sonar
+   static defaultSonarPing: number = 100;
 }

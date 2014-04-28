@@ -25,6 +25,6 @@ class Sonar extends ex.Actor {
    }
 
    public ping() {
-      this.scaleTo(100, 100, 10, 10);
+      this.scaleTo(100, 100, Config.defaultSonarPing, Config.defaultSonarPing);
    }
 }
