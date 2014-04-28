@@ -6,6 +6,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
    public kraken: Kraken;
    public enemies: Enemy[] = [];
    public paths: {[key: string]: ex.Point[]} = {};
+   public heartSprite: ex.Sprite;
 
    constructor(public jsonPath: string) {
       super();
@@ -14,6 +15,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
    public onInitialize(engine: ex.Engine) {
 
       this.map = new ex.TileMap(0, 0, this.data.tilewidth, this.data.tileheight, this.data.height, this.data.width);
+      this.heartSprite = new ex.Sprite(Resources.Heart, 0, 0, 20, 20);
 
       // create collision map for each tileset in map
       this.data.tilesets.forEach(ts => {
@@ -74,6 +76,16 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
       // draw HUD, UI, etc.
+      ctx.restore();
+      var krakenHealth = (<BaseLevel>game.currentScene).kraken.health;
+      var numHearts = Math.floor(krakenHealth / 5);
+
+      for (var i = 0; i < numHearts; i++) {
+         this.heartSprite.draw(ctx, (this.heartSprite.width+5) * i  + 10, 10);
+      }
+      ctx.save();
+      game.camera.update(0);
+
    }
 
    public load(): ex.Promise<IMap> {

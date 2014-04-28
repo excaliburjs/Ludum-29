@@ -1,17 +1,19 @@
 ﻿class Config {
 
-    // Kraken
-    static defaultKrakenWidth: number = 50;
-    static defaultKrakenHeight: number = 50;
-    static defaultKrakenSpeedScale: number = 10;
-    static defaultKrakenHealth: number = 100;
-    //static defaultKrakenStamina: number = 100;
-    static defaultKrakenSpecial: number = 5;
+   // Kraken
+   static defaultKrakenWidth: number = 50;
+   static defaultKrakenHeight: number = 50;
+   static defaultKrakenSpeedScale: number = 10;
+   static defaultKrakenHealth: number = 100;
+   //static defaultKrakenStamina: number = 100;
+   static defaultKrakenSpecial: number = 5;
    //static defaultKrakenStamina: number = 100;
    //static defaultKrakenSpecial: number = 5;
-    static krakenAttackRange: number = 150;
-    static krakenInertiaDampen: number = 1;
-    
+   static krakenDps: number = 1;
+   static krakenAttackTime: number = 300;
+   static krakenAttackRange: number = 150;
+   static krakenInertiaDampen: number = 1;
+
    // Enemies
    static defaultEnemyWidth: number = 191;
    static defaultEnemyHeight: number = 73;
@@ -25,6 +27,7 @@
    static defaultAssistDistance: number = 300;
    static defaultEnemyWaitTime: number = 2000;
    static enemyRotationSpeed: number = Math.PI / 2;
+   static enemyDps: number = 10;
 
 
    static defaultEnemyMaxFiringDistance: number = 400;

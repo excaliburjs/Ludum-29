@@ -18,6 +18,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="css\app.css" />
+    <Content Include="images\heart.png" />
     <Content Include="images\kraken\Kraken.png" />
     <Content Include="images\kraken\KrakenSpriteSheet.png" />
     <Content Include="images\ship-1.png" />
