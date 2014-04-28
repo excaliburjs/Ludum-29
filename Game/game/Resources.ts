@@ -8,6 +8,7 @@ var Resources = {
 
    // Textures
    SplashTexture: new ex.Texture("/images/splash.jpg"),
+   DeathTexture: new ex.Texture("/images/death.jpg"),
    KrakenTexture: new ex.Texture("/images/kraken/KrakenSpriteSheet.png"),
 
    // Enemies

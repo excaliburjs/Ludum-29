@@ -1,5 +1,8 @@
 ﻿class Config {
 
+   // Death
+   static deathTimer: number = 5000;
+
    // Kraken
    static defaultKrakenMoveRadius: number = 300;
    static defaultKrakenWidth: number = 50;
