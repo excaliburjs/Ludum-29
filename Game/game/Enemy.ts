@@ -9,6 +9,7 @@ class Enemy extends ex.Actor {
    private _travelVector: ex.Vector;
    private _kraken: Kraken;
    private _lightStartPoint: ex.Point;
+   private _shipSheet: ex.SpriteSheet;
 
    constructor(public key: string, x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultEnemyWidth, Config.defaultEnemyHeight, color);
@@ -17,6 +18,13 @@ class Enemy extends ex.Actor {
       this._health = health || this._health;
       this._travelVector = new ex.Vector(-1, 0);
       this._fovLength = Config.defaultEnemyFOV;
+
+      this._shipSheet = new ex.SpriteSheet(Resources.Ship1Texture, 3, 2, 191, 73);
+      this.addDrawing("full", this._shipSheet.getSprite(0));
+      this.addDrawing("half", this._shipSheet.getSprite(1));
+      this.addDrawing("eighty", this._shipSheet.getSprite(2));
+
+      this.setDrawing("full");
    }
 
     public onInitialize(game: ex.Engine) {

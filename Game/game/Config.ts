@@ -9,8 +9,8 @@
    //static defaultKrakenSpecial: number = 5;
 
    // Enemies
-   static defaultEnemyWidth: number = 100;
-   static defaultEnemyHeight: number = 100;
+   static defaultEnemyWidth: number = 191;
+   static defaultEnemyHeight: number = 73;
 
    static defaultEnemyAlertDistance = 500
 

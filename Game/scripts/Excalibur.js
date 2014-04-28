@@ -2808,10 +2808,7 @@ var ex;
                     var side = 0 /* None */;
                     var max = 2;
                     var hasBounced = false;
-
                     while (intersectMap = map.collides(this)) {
-                        //iters.push(intersectMap);
-                        console.log("CollisionMap", intersectMap);
                         if (max-- < 0) {
                             break;
                         }
@@ -5200,8 +5197,9 @@ var ex;
         * @returns Animation
         */
         SpriteSheet.prototype.getAnimationByIndices = function (engine, indices, speed) {
-            var images = this.sprites.filter(function (sprite, index) {
-                return indices.indexOf(index) > -1;
+            var _this = this;
+            var images = indices.map(function (index) {
+                return _this.sprites[index];
             });
 
             images = images.map(function (i) {
