@@ -101,7 +101,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       // draw HUD, UI, etc.
       ctx.restore();
       var krakenHealth = (<BaseLevel>game.currentScene).kraken.health;
-      var numHearts = Math.floor(krakenHealth / 5);
+      var numHearts = Math.floor(krakenHealth / 10);
 
       for (var i = 0; i < numHearts; i++) {
          this.heartSprite.draw(ctx, (this.heartSprite.width+5) * i  + 10, 10);

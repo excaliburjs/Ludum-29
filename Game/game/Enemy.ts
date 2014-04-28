@@ -252,9 +252,13 @@ class Enemy extends ex.Actor {
       var fovEndPoint = fovRay.getPoint(this._fovLength);
 
       var grd = ctx.createRadialGradient(point.x, point.y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
-
-      grd.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-      grd.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      if (this.alertStatus !== AlertStatus.Attack) {
+         grd.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+         grd.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      } else {
+         grd.addColorStop(0, 'rgba(255, 150, 150, 0.3)');
+         grd.addColorStop(1, 'rgba(255, 150, 150, 0)');
+      }
 
       ctx.fillStyle = grd;
       ctx.beginPath();

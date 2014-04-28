@@ -23,7 +23,7 @@
    static krakenHealthRegen: number = 10;
 
    // Enemies
-   static defaultEnemyWidth: number = 191;
+   static defaultEnemyWidth: number = 73;
    static defaultEnemyHeight: number = 73;
    static defaultEnemyBulletWait: number = 2000; // in ms
    static defaultEnemyBulletSpeed: number = 150;
