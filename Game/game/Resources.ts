@@ -18,7 +18,10 @@ var Resources = {
 
    // Kraken
    SoundSwim: new ex.Sound("/sounds/swim.wav"),
-   SoundHurt: new ex.Sound("/sounds/hurt.wav")
+   SoundHurt: new ex.Sound("/sounds/hurt.wav"),
+
+   // HUD
+   Heart: new ex.Texture("/images/heart.png")
 };
 
 var Palette = {

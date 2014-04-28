@@ -8,15 +8,16 @@ enum KrakenMode {
 }
 
 class Kraken extends ex.Actor {
-   private _health: number = Config.defaultKrakenHealth;
+   public health: number = Config.defaultKrakenHealth;
    private _travelVector: ex.Vector = new ex.Vector(0, 0);
    private _currentMode: KrakenMode = KrakenMode.Idle;
-   private _lastTarge: Enemy;
+   private _lastTarget: Enemy;
+   private _lastAttackTime: number = Date.now();
    private _canAttack: boolean;
 
    constructor(x?: number, y?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultKrakenWidth, Config.defaultKrakenHeight, color);
-      this._health = health || this._health;
+      this.health = health || this.health;
 
       var krakenSheet = new ex.SpriteSheet(Resources.KrakenTexture, 4, 3, 120, 60);
 
@@ -115,7 +116,7 @@ class Kraken extends ex.Actor {
       game.on('mouseup', (ev: ex.MouseUp) => {
          //TODO rapidly decellerate rather than immediate stop?
          // this._isMousePressed = false;
-         //this.dx -= this._travelVector.x; 
+         //this.dx -= this._travelVector.x;
          //this.dy -= this._travelVector.y;
          //this.returnToIdle();
       });
@@ -140,7 +141,7 @@ class Kraken extends ex.Actor {
             ex.Logger.getInstance().info("Kraken got shot, yo!");
 
             // subtract health
-            this._health -= 10;
+            this.health -= Config.enemyDps;
 
             // cue
             Resources.SoundHurt.play();
@@ -157,7 +158,7 @@ class Kraken extends ex.Actor {
       super.update(engine, delta);
 
       // if killed?
-      if (this._health <= 0) {
+      if (this.health <= 0) {
          // todo
       }
 
@@ -222,21 +223,31 @@ class Kraken extends ex.Actor {
    }
 
    public attack(enemy?: Enemy) {
-      if (this._currentMode !== KrakenMode.Attack) {
-         if (!this.actionQueue.hasNext()) {
-            console.log("Spinning", this._currentMode);
-            this._currentMode = KrakenMode.Attack;
+      if ((Date.now() - this._lastAttackTime) > Config.krakenAttackTime) {
+         if (this._currentMode !== KrakenMode.Attack) {
+            if (!this.actionQueue.hasNext()) {
+               console.log("Spinning", this._currentMode);
+               this._currentMode = KrakenMode.Attack;
 
-            var oldRotation = this.rotation;
-            this.clearActions();
-            this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
-               this.setDrawing('attack');
-               this.rotation = oldRotation;
-            });
+               var oldRotation = this.rotation;
+               this.clearActions();
+               this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
+                  this.setDrawing('attack');
+                  this.rotation = oldRotation;
+               });
+            }
          }
+
+         //todo do damage here
+         if (enemy) {
+            game.camera.shake(10, 10, 200);
+            enemy.health -= Config.krakenDps;
+         }
+         this._lastAttackTime = Date.now();
+
       }
 
-      //todo do damage here
+
    }
 
    public getLines() {
