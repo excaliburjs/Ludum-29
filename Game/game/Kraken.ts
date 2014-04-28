@@ -128,6 +128,9 @@ class Kraken extends ex.Actor {
             // subtract health
             this.health -= Config.enemyDps;
 
+            // record damage taken
+            (<BaseLevel>game.currentScene).stats.damageTaken += Config.enemyDps;
+
             // cue
             Resources.SoundHurt.play();
 
@@ -227,6 +230,8 @@ class Kraken extends ex.Actor {
          if (enemy) {
             game.camera.shake(10, 10, 200);
             enemy.health -= Config.krakenDps;
+            //record damage dealt
+            (<BaseLevel>game.currentScene).stats.damageDealt += Config.krakenDps;
          }
          this._lastAttackTime = Date.now();
 
