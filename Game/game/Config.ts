@@ -1,6 +1,7 @@
 ﻿class Config {
 
    // Kraken
+   static defaultKrakenMoveRadius: number = 300;
    static defaultKrakenWidth: number = 50;
    static defaultKrakenHeight: number = 50;
    static defaultKrakenSpeedScale: number = 10;
@@ -48,5 +49,6 @@
 
 
    // Sonar
-   static defaultSonarPing: number = 100;
+   static defaultSonarPingScale: number = 4000;
+   static defaultSonarPingSpeed: number = 600;
 }

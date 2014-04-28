@@ -174,13 +174,19 @@ class Kraken extends ex.Actor {
    }
 
    public moveKraken(x: number, y: number): void {
-      var target = new ex.Vector(x, y);
-      var travelVector = target.minus(this.getCenter());
+      var potentialTarget = new ex.Vector(x, y);
+
+      if (potentialTarget.minus(this.getCenter()).distance() > Config.defaultKrakenMoveRadius) {
+         var rayTarget = new ex.Ray(this.getCenter(), potentialTarget.minus(this.getCenter()));
+         potentialTarget = rayTarget.getPoint(Config.defaultKrakenMoveRadius).toVector();
+      }
+
+      var travelVector = potentialTarget.minus(this.getCenter());
       travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
       this._travelVector = travelVector;
 
-      this._travelVector = new ex.Vector(ex.Util.clamp(travelVector.x, -Config.defaultKrakenMaxSpeed, Config.defaultKrakenMaxSpeed),
-         ex.Util.clamp(travelVector.y, -Config.defaultKrakenMaxSpeed, Config.defaultKrakenMaxSpeed));
+      //this._travelVector = new ex.Vector(ex.Util.clamp(travelVector.x, -Config.defaultKrakenMaxSpeed, Config.defaultKrakenMaxSpeed),
+      //   ex.Util.clamp(travelVector.y, -Config.defaultKrakenMaxSpeed, Config.defaultKrakenMaxSpeed));
 
       this.move(travelVector.x, travelVector.y);
 
