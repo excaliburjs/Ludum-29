@@ -48,18 +48,6 @@ class Kraken extends ex.Actor {
 
    }
 
-   public moveKraken(x: number, y: number): void {
-      var target = new ex.Vector(x, y);
-      var travelVector = target.minus(this.getCenter());
-      travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
-      this._travelVector = travelVector;
-      this.move(travelVector.x, travelVector.y);
-
-      travelVector.normalize();
-      var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
-      this.rotation = rotationAngle;
-   }
-
    public handleAttackPress() {
       var target = this.getClosestEnemy();
 
@@ -85,8 +73,7 @@ class Kraken extends ex.Actor {
       var targetInRange = this.getClosestEnemy();
 
       // Attack the ship if in range
-      if (targetInRange) {
-         ex.Logger.getInstance().info("Proximity check: ship in range!", targetInRange);
+      if (targetInRange) {         
          this._canAttack = true;
       } else {
          this._canAttack = false;
@@ -158,21 +145,15 @@ class Kraken extends ex.Actor {
 
       var dampeningVector = this._travelVector.normalize().scale(Config.krakenInertiaDampen).scale(-1);
 
-      if (this.dx < 2 && this.dx > -2) {
+      if (Math.abs(this.dx) < Config.defaultKrakenIdleThreshold) {
          this.dx = 0;
       }
 
-      if (this.dy < 2 && this.dy > -2) {
+      if (Math.abs(this.dy) < Config.defaultKrakenIdleThreshold) {
          this.dy = 0;
       }
 
-      if (this.dx === 0 && this.dy === 0 && this._currentMode !== KrakenMode.Attack) {
-         this.setDrawing('idle');
-         this._currentMode = KrakenMode.Idle;
-      } else if (this._currentMode !== KrakenMode.Swim && this._currentMode !== KrakenMode.Attack) {
-         this.setDrawing('swim');
-         this._currentMode = KrakenMode.Swim;
-      }
+      this.setAnimationState(delta);
 
       if (this.dx > dampeningVector.x && this.dx !== 0) {
          this.dx += dampeningVector.x;
@@ -190,25 +171,22 @@ class Kraken extends ex.Actor {
          this.dy += dampeningVector.y;
       }
 
-
    }
 
-   public returnToSwim() {
-      if (this._currentMode === KrakenMode.Attack) {
-         if (!this.actionQueue.hasNext()) {
-            var oldRotation = this.rotation;
+   public moveKraken(x: number, y: number): void {
+      var target = new ex.Vector(x, y);
+      var travelVector = target.minus(this.getCenter());
+      travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
+      this._travelVector = travelVector;
 
-            this.clearActions();
-            this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
-               this.setDrawing('swim');
-               this.rotation = oldRotation;
-               this._currentMode = KrakenMode.Swim;
-            });
-         }
-      } else {
-         this.setDrawing('swim');
-         this._currentMode = KrakenMode.Swim;
-      }
+      this._travelVector = new ex.Vector(ex.Util.clamp(travelVector.x, -Config.defaultKrakenMaxSpeed, Config.defaultKrakenMaxSpeed),
+         ex.Util.clamp(travelVector.y, -Config.defaultKrakenMaxSpeed, Config.defaultKrakenMaxSpeed));
+
+      this.move(travelVector.x, travelVector.y);
+
+      travelVector.normalize();
+      var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
+      this.rotation = rotationAngle;
    }
 
    public move(x: number, y: number) {
@@ -216,12 +194,69 @@ class Kraken extends ex.Actor {
       this.dy = y;
    }
 
+   private _animationTimer: number = 0;
+   public setAnimationState(delta: number): void {
+
+      // Moving
+      if (this.dx === 0 && this.dy === 0 && this._animationTimer <= 0) {
+
+         if (this._currentMode !== KrakenMode.Attack && this._currentMode !== KrakenMode.Idle) {
+            ex.Logger.getInstance().info("Setting animation state to Idle", this.dx, this.dy);
+            this.setDrawing('idle');
+            this._currentMode = KrakenMode.Idle;
+            this._animationTimer = Config.defaultKrakenAnimationChangeThreshold;
+            return;
+         }         
+      }
+
+      // Moving
+      if (this.dx !== 0 && this.dy !== 0 && this._animationTimer <= 0) {
+
+         if (this._currentMode !== KrakenMode.Attack && this._currentMode !== KrakenMode.Swim) {
+            ex.Logger.getInstance().info("Setting animation state to Swim", this.dx, this.dy);
+            this.setDrawing('swim');
+            this._currentMode = KrakenMode.Swim;
+            this._animationTimer = Config.defaultKrakenAnimationChangeThreshold;
+            return;
+         }
+
+      }
+
+      this._animationTimer -= delta;
+   }
+
+   public returnToSwim() {
+      if (this._currentMode === KrakenMode.Attack) {
+         if (!this.actionQueue.hasNext()) {
+
+            ex.Logger.getInstance().info("Kraken.returnToSwim: Returning to swim");
+
+            var oldRotation = this.rotation;
+
+            this.clearActions();
+            this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
+               this.setDrawing('swim');
+               this.rotation = oldRotation;
+               this._currentMode = KrakenMode.Swim;
+               ex.Logger.getInstance().info("Kraken.returnToSwim: Setting mode to Swim after rotate");
+            });
+         }
+      } else {
+         this.setDrawing('swim');
+         this._currentMode = KrakenMode.Swim;
+         ex.Logger.getInstance().info("Kraken.returnToSwim: Setting mode to Swim");
+      }
+   }
+
+   
+
    public attack(enemy?: Enemy) {       
 
       if ((Date.now() - this._lastAttackTime) > Config.krakenAttackTime) {
          if (this._currentMode !== KrakenMode.Attack) {
             console.log("Spinning", this._currentMode);
             this._currentMode = KrakenMode.Attack;
+            ex.Logger.getInstance().info("Kraken.attack: Setting mode to Attack");
 
             var oldRotation = this.rotation;
             this.clearActions();
