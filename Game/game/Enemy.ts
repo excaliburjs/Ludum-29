@@ -1,4 +1,5 @@
 ﻿/// <reference path="Level.ts" />
+/// <reference path="Sonar.ts" />
 
 class Enemy extends ex.Actor {
    private _health: number = Config.defaultEnemyHealth;
@@ -11,6 +12,7 @@ class Enemy extends ex.Actor {
    private _lightStartPoint: ex.Point;
    private _shipSheet: ex.SpriteSheet;
    private _bulletTimer: number = 0;
+   public sonar: Sonar;
 
    constructor(public key: string, x?: number, y?: number, width?: number, height?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultEnemyWidth, Config.defaultEnemyHeight, color);
@@ -34,11 +36,13 @@ class Enemy extends ex.Actor {
     public onInitialize(game: ex.Engine) {
        this._kraken = (<any>game.currentScene).kraken;
 
-       //assumes all enemies are initially facing left
+       //TODO assumes all enemies are initially facing left
        this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
 
       var yValues = new Array<number>(-0.5, -0.25, 0, 0.25, 0.5);
 
+       this.sonar = new Sonar(this.getWidth()/2, this.getHeight()/2, 1, 1);
+       this.addChild(this.sonar);
 
       for (var i = 0; i < 5; i++) {
          //var rayPoint = new ex.Point(0, this.getHeight() / 2);
@@ -70,6 +74,7 @@ class Enemy extends ex.Actor {
              //this._alertStatus = AlertStatus.Warn;
           } else if (this.detectKraken() == AlertStatus.Attack) {
              this._alertStatus = AlertStatus.Attack;
+                this.sonar.ping();
           } else {
              //this._alertStatus = AlertStatus.Calm;
           }
