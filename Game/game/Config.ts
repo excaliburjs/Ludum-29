@@ -31,6 +31,7 @@
    static defaultEnemyWaitTime: number = 2000;
    static enemyRotationSpeed: number = Math.PI / 2;
    static enemyDps: number = 10;
+   static enemyGunOffset: number = 80;
 
 
    static defaultEnemyMaxFiringDistance: number = 400;

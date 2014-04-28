@@ -1,6 +1,8 @@
 ﻿class Bullet extends ex.Actor {
    
    private remainingLife: number;
+   private bulletSpriteSheet: ex.SpriteSheet = new ex.SpriteSheet(Resources.BulletTexture, 6, 1, 32, 32);
+   private bulletAnimation: ex.Animation =  this.bulletSpriteSheet.getAnimationForAll(game, 200);
 
    constructor(x: number, y: number, destX: number, destY: number) {
       super(x, y, 3, 3, ex.Color.Red);
@@ -13,6 +15,9 @@
 
       this.dx = fv.x;
       this.dy = fv.y;
+      this.bulletAnimation.loop = true;
+      this.addDrawing('default', this.bulletAnimation);
+      this.setCenterDrawing(true);
 
       this.remainingLife = Config.defaultEnemyBulletLife;
    }

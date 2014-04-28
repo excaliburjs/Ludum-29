@@ -13,6 +13,8 @@ var Resources = {
    // Enemies
    Ship1Texture: new ex.Texture("/images/ship-1.png"),
 
+   BulletTexture: new ex.Texture("/images/bullet.png"),
+
    // Tilesets
    TerrainTexture: new ex.Texture("/images/tilesets/terrain.png"),
 
