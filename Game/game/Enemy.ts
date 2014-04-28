@@ -119,15 +119,6 @@ class Enemy extends ex.Actor {
          //this._alertStatus = AlertStatus.Calm;
       }
 
-
-      if (this.detectKraken() == AlertStatus.Warn) {
-         //this._alertStatus = AlertStatus.Warn;
-      } else if (this.detectKraken() == AlertStatus.Attack) {
-         this._alertStatus = AlertStatus.Attack;
-      } else {
-         //this._alertStatus = AlertStatus.Calm;
-      }
-
       if (this._alertStatus == AlertStatus.Warn) {
          this.triggerEvent('DistressEvent', new DistressEvent(this));
       } else if (this._alertStatus == AlertStatus.Attack) {
