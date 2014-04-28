@@ -21,8 +21,8 @@ class Enemy extends ex.Actor {
       this.setWidth(width || Config.defaultEnemyWidth);
       this.setHeight(height || Config.defaultEnemyHeight);
       this._health = health || this._health;
-      this._travelVector = new ex.Vector(-1, 0);
-      this._originalTravelVector = new ex.Vector(-1, 0);
+      this._travelVector = new ex.Vector(1, 0);
+      this._originalTravelVector = new ex.Vector(1, 0);
       this._fovLength = Config.defaultEnemyFOV;
 
       this._shipSheet = new ex.SpriteSheet(Resources.Ship1Texture, 3, 2, 191, 73);
@@ -40,7 +40,7 @@ class Enemy extends ex.Actor {
        this._kraken = (<any>game.currentScene).kraken;
 
        //TODO assumes all enemies are initially facing left
-       this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+       this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
 
       var yValues = new Array<number>(-0.5, -0.25, 0, 0.25, 0.5);
 
@@ -50,7 +50,7 @@ class Enemy extends ex.Actor {
        for (var i = 0; i < 5; i++) {
           //var rayPoint = new ex.Point(0, this.getHeight() / 2);
           var rayPoint = this._lightStartPoint;
-          var rayVector = new ex.Vector(-1, yValues[i]);
+          var rayVector = new ex.Vector(1, yValues[i]);
           var ray = new ex.Ray(rayPoint, rayVector);
           var ray2 = new ex.Ray(rayPoint, rayVector);
           this.rays.push(ray);
@@ -73,7 +73,7 @@ class Enemy extends ex.Actor {
     public update(engine: ex.Engine, delta: number) {
         super.update(engine, delta);
 
-       this._lightStartPoint = new ex.Point(this.x, this.y + this.getHeight() / 2);
+       this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
        this._lightStartPoint = this.rotatePoint(this._lightStartPoint, this.rotation, this.getCenter());
 
        for (var i = 0; i < this.rays.length; i++) {
