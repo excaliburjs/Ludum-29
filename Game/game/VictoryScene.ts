@@ -45,6 +45,15 @@ class VictoryScene extends ex.Scene {
          grade = "S+";
       }
 
+      // Analytics events
+      var analytics = (<any>window).ga;
+      if (analytics) {
+         analytics('send', 'event', 'Gameover', 'level0', 'Win', { 'nonInteraction': 1 });
+         analytics('send', 'event', 'WinStats', 'level0', 'Aggregate Score', { 'eventValue': aggregateScore, 'nonInteraction': 1 });
+         analytics('send', 'event', 'WinStats', 'level0', 'Boats Destroyed', { 'eventValue': boatsDestroyed, 'nonInteraction': 1 });
+         analytics('send', 'event', 'WinStats', 'level0', 'Damage Taken', { 'eventValue': damageTaken, 'nonInteraction': 1 });
+         analytics('send', 'event', 'WinStats', 'level0', 'Health Gained', { 'eventValue': healthGained, 'nonInteraction': 1 });
+      }
 
       var splash = new ex.Actor(0, 0, game.width, game.height);
       splash.addDrawing("bg", new ex.Sprite(Resources.VictoryTexture, 0, 0, game.width, game.height));

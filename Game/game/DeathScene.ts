@@ -9,6 +9,21 @@
 
       game.camera = new ex.BaseCamera(engine);
 
+      var level0Scene = (<any>game).sceneHash["level0"];
+      var stats = level0Scene.stats;
+
+      var boatsDestroyed = stats.numBoatsDestroyed;
+      var damageTaken = stats.damageTaken;
+      var healthGained = stats.healthGained;
+
+      var analytics = (<any>window).ga;
+      if (analytics) {
+         analytics('send', 'event', 'Gameover', 'level0', 'Death', { 'nonInteraction': 1 });
+         analytics('send', 'event', 'DeathStats', 'level0', 'Boats Destroyed', { 'eventValue': boatsDestroyed, 'nonInteraction': 1 });
+         analytics('send', 'event', 'DeathStats', 'level0', 'Damage Taken', { 'eventValue': damageTaken, 'nonInteraction': 1 });
+         analytics('send', 'event', 'DeathStats', 'level0', 'Health Gained', { 'eventValue': healthGained, 'nonInteraction': 1 });
+      }
+
       // play death
       Resources.SoundDeath.play();
 
