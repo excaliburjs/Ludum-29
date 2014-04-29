@@ -24,6 +24,28 @@ class VictoryScene extends ex.Scene {
       var damageTaken = stats.damageTaken;
       var healthGained = stats.healthGained;
 
+      var grade = "C";
+
+      var enemiesDestroyedPercentage = 1 - ((stats.numBoats - boatsDestroyed)/stats.numBoats);
+      //var damageTakenState = 
+      //var healthGainedStat =
+      var originalHealth = Config.defaultKrakenHealth;
+      var finalHealth = Config.defaultKrakenHealth + healthGained - damageTaken;
+      var healthPercentage = 1 - ((originalHealth - finalHealth) / originalHealth); //TODO calculate maximum possible score for "perfect" rank
+
+      var aggregateScore = (enemiesDestroyedPercentage + healthPercentage) / 2;
+
+      if (aggregateScore > 0.5) {
+         grade = "B";
+      } else if (aggregateScore > 0.8) {
+         grade = "A";
+      } else if (aggregateScore > 1) {
+         grade = "S";
+      } else if (aggregateScore > 1.5) {
+         grade = "S+";
+      }
+
+
       var splash = new ex.Actor(0, 0, game.width, game.height);
       splash.addDrawing("bg", new ex.Sprite(Resources.VictoryTexture, 0, 0, game.width, game.height));
       this.addChild(splash);
@@ -47,6 +69,16 @@ class VictoryScene extends ex.Scene {
       labelHealthGained.color = ex.Color.White;
       labelHealthGained.textAlign = ex.TextAlign.Center;
       this.addChild(labelHealthGained);
+
+      var labelGrade = new ex.Label("grade     " + grade, w / 2, 550, '75px Iceland');
+      labelGrade.color = ex.Color.White;
+      labelGrade.textAlign = ex.TextAlign.Center;
+      this.addChild(labelGrade);
+
+      //var labelDetected = new ex.Label("avoided detection     " , w / 2, 300, '50px Iceland');
+      //labelDetected.color = ex.Color.White;
+      //labelDetected.textAlign = ex.TextAlign.Center;
+      //this.addChild(labelDetected);
 
       //var damageDealt = new ex.Label("damage dealt", w/2, 450, '50px Iceland');
       //boatsDestroyed.color = ex.Color.White;

@@ -124,6 +124,7 @@ class Enemy extends ex.Actor {
          //this._alertStatus = AlertStatus.Warn;
       } else if (this.detectKraken() == AlertStatus.Attack) {
          this.alertStatus = AlertStatus.Attack;
+         (<any>game.currentScene).stats.numBoatsAlerted = 1; //TODO have this correctly count
             //this.sonar.ping();
       } else {
          //this._alertStatus = AlertStatus.Calm;

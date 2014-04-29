@@ -196,6 +196,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
          this.enemies.push(enemy);
          this.addChild(enemy);
+         this.stats.numBoats++;
       },
 
       /*
