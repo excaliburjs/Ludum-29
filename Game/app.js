@@ -83,10 +83,10 @@ var Config = (function () {
     Config.defaultEnemyBulletLife = 20000;
 
     Config.defaultEnemyHealth = 10;
-    Config.defaultEnemySpeed = 50;
+    Config.defaultEnemySpeed = 100;
     Config.defaultAssistDistance = 300;
     Config.defaultEnemyWaitTime = 2000;
-    Config.enemyRotationSpeed = Math.PI / 2;
+    Config.enemyRotationSpeed = Math.PI / 1.5;
     Config.enemyDps = 10;
     Config.enemyGunOffset = 80;
     Config.enemyAlertOffsetX = 0;
@@ -295,7 +295,7 @@ var BaseLevel = (function (_super) {
         var levelHeight = this.data.height * this.data.tileheight;
 
         if ((this.kraken.x < 0) || (this.kraken.x > levelWidth) || (this.kraken.y < 0) || (this.kraken.y > levelHeight)) {
-            console.log("victory!");
+            //console.log("victory!");
             game.goToScene("victory");
         }
     };
@@ -1069,7 +1069,7 @@ var Kraken = (function (_super) {
         var _this = this;
         if ((Date.now() - this._lastAttackTime) > Config.krakenAttackTime) {
             if (this._currentMode !== 1 /* Attack */) {
-                console.log("Spinning", this._currentMode);
+                //console.log("Spinning", this._currentMode);
                 this._currentMode = 1 /* Attack */;
                 ex.Logger.getInstance().info("Kraken.attack: Setting mode to Attack");
 

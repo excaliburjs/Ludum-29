@@ -31,10 +31,10 @@
    static defaultEnemyBulletLife = 20000; // in ms
 
    static defaultEnemyHealth: number = 10;
-   static defaultEnemySpeed: number = 50;
+   static defaultEnemySpeed: number = 100;
    static defaultAssistDistance: number = 300;
    static defaultEnemyWaitTime: number = 2000;
-   static enemyRotationSpeed: number = Math.PI / 2;
+   static enemyRotationSpeed: number = Math.PI / 1.5;
    static enemyDps: number = 10;
    static enemyGunOffset: number = 80;
    static enemyAlertOffsetX: number = 0;
