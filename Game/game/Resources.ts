@@ -4,7 +4,7 @@
 var Resources = {
 
    // Soundtrack
-   SoundTrack: new ex.Sound("/sounds/airwave mit mitch kelli.mp3"),
+   SoundTrack: new ex.Sound("/sounds/KrakenMusic.mp3", "/sounds/KrakenMusic.wav"),
 
    // Levels
    Level0: new BaseLevel("/maps/Level-0.json"),
@@ -23,19 +23,18 @@ var Resources = {
 
    AlertTexture: new ex.Texture("/images/alert.png"),
 
-   BulletSound: new ex.Sound("/sounds/shoot.wav"),
-
-   SinkSound: new ex.Sound("/sounds/shipsink.wav"),
+   BulletSound: new ex.Sound("/sounds/shoot.mp3", "/sounds/shoot.wav"),
+   SinkSound: new ex.Sound("/sounds/shipsink.mp3", "/sounds/shipsink.wav"),
 
    // Tilesets
    TerrainTexture: new ex.Texture("/images/tilesets/terrain.png"),
 
    // Kraken
-   SoundSwim: new ex.Sound("/sounds/swim.wav"),
-   SoundHurt: new ex.Sound("/sounds/hurt.wav"),
-   SoundWaves: new ex.Sound("/sounds/waves.wav"),
-   SoundDeath: new ex.Sound("/sounds/death.wav"),
-   HitSound: new ex.Sound("/sounds/hit.wav"),
+   SoundSwim: new ex.Sound("/sounds/swim.mp3", "/sounds/swim.wav"),
+   SoundHurt: new ex.Sound("/sounds/hurt.mp3", "/sounds/hurt.wav"),
+   SoundWaves: new ex.Sound("/sounds/waves.mp3", "/sounds/waves.wav"),
+   SoundDeath: new ex.Sound("/sounds/death.mp3", "/sounds/death.wav"),
+   HitSound: new ex.Sound("/sounds/hit.mp3", "/sounds/hit.wav"),
 
    // HUD
    Heart: new ex.Texture("/images/heart.png")
