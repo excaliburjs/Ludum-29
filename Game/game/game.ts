@@ -3,6 +3,18 @@
 /// <reference path="Resources.ts" />
 /// <reference path="Kraken.ts" />
 /// <reference path="Enemy.ts" />
+/// <reference path="util.ts" />
+
+document.getElementById("sound").addEventListener('click', function () {
+    if (hasClass(this, 'fa-volume-up')) {
+        replaceClass(this, 'fa-volume-up', 'fa-volume-off');
+        setVolume(0);
+        
+    } else {
+        replaceClass(this, 'fa-volume-off', 'fa-volume-up');
+        setVolume(.5);
+    }
+});
 
 var game = new ex.Engine(920, 580, "game");
 //ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
@@ -40,7 +52,7 @@ game.start(loader).then(() => {
 
    var splash = new ex.Actor(0, 0, game.width, game.height);
    splash.addDrawing("bg", new ex.Sprite(Resources.SplashTexture, 0, 0, game.width, game.height));
-   Resources.SoundTrack.setVolume(.5);
+   Resources.SoundTrack.setVolume(.2);
    Resources.SoundTrack.setLoop(true);
    Resources.SoundTrack.play();
 

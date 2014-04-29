@@ -18,6 +18,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="css\app.css" />
+    <Content Include="css\font-awesome.css" />
+    <Content Include="css\font-awesome.min.css" />
+    <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="images\alert.png" />
     <Content Include="images\bullet.png" />
     <Content Include="images\death.jpg" />
@@ -63,6 +66,7 @@
     <TypeScriptCompile Include="game\ShipEvents.ts" />
     <TypeScriptCompile Include="game\Sonar.ts" />
     <TypeScriptCompile Include="game\Stats.ts" />
+    <TypeScriptCompile Include="game\Util.ts" />
     <TypeScriptCompile Include="game\VictoryScene.ts" />
     <TypeScriptCompile Include="scripts\Excalibur.d.ts" />
   </ItemGroup>
@@ -70,6 +74,10 @@
     <Content Include="scripts\Excalibur.js.map" />
     <Content Include="maps\TestMap.json" />
     <Content Include="maps\Level-0.json" />
+    <Content Include="fonts\fontawesome-webfont.eot" />
+    <Content Include="fonts\fontawesome-webfont.ttf" />
+    <Content Include="fonts\fontawesome-webfont.woff" />
+    <Content Include="fonts\FontAwesome.otf" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

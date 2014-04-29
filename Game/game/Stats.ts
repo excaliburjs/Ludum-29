@@ -8,6 +8,11 @@ class Stats {
    public healthGained: number = 0;
    public timeToFinishLevel = 0;
 
+
+   // original stats for the level
+   public numBoats: number = 0;
+   public krakenHealth: number = Config.defaultKrakenHealth;
+
    constructor() {}
 
 }
