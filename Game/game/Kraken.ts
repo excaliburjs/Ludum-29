@@ -273,7 +273,7 @@ class Kraken extends ex.Actor {
 
       if ((Date.now() - this._lastAttackTime) > Config.krakenAttackTime) {
          if (this._currentMode !== KrakenMode.Attack) {
-            console.log("Spinning", this._currentMode);
+            //console.log("Spinning", this._currentMode);
             this._currentMode = KrakenMode.Attack;
             ex.Logger.getInstance().info("Kraken.attack: Setting mode to Attack");
 
