@@ -28,7 +28,6 @@ var Bullet = (function (_super) {
     Bullet.prototype.update = function (engine, delta) {
         _super.prototype.update.call(this, engine, delta);
 
-        // can only spawn on level!
         if (!(engine.currentScene instanceof BaseLevel)) {
             this.kill();
             return;
@@ -36,14 +35,11 @@ var Bullet = (function (_super) {
 
         var currentMap = engine.currentScene.data;
 
-        // todo it would be cool to die when you hit a solid tile (not terrain)
-        // exit map
         if (this.x <= 0 || this.y <= 0 || this.x >= (currentMap.width * currentMap.tilewidth) || this.y >= (currentMap.height * currentMap.tileheight)) {
             this.kill();
             return;
         }
 
-        // or time out
         if (this.remainingLife <= 0) {
             this.kill();
             return;
@@ -78,7 +74,7 @@ var Config = (function () {
     Config.defaultEnemyWidth = 73;
     Config.defaultEnemyHeight = 73;
     Config.defaultEnemyBulletWait = 2000;
-    Config.defaultEnemyBulletSpeed = 150;
+    Config.defaultEnemyBulletSpeed = 300;
     Config.defaultEnemyAlertDistance = 500;
     Config.defaultEnemyBulletLife = 20000;
 
@@ -113,10 +109,8 @@ var DeathScene = (function (_super) {
 
         game.camera = new ex.BaseCamera(engine);
 
-        // play death
         Resources.SoundDeath.play();
 
-        // splash
         var death = new ex.Actor(0, 0, engine.canvas.width, engine.canvas.height);
         death.addDrawing("bg", new ex.Sprite(Resources.DeathTexture, 0, 0, engine.canvas.width, engine.canvas.height));
 
@@ -148,7 +142,6 @@ var Fx;
     })();
     Fx.Multiply = Multiply;
 })(Fx || (Fx = {}));
-/// <reference path="../scripts/Excalibur.d.ts" />
 var BaseLevel = (function (_super) {
     __extends(BaseLevel, _super);
     function BaseLevel(jsonPath) {
@@ -163,50 +156,32 @@ var BaseLevel = (function (_super) {
         };
         this.onerror = function () {
         };
-        /**
-        * Factories for creating objects from Tiled map data. In Tiled, when you
-        * place an object, you can specify it's Type. The type name gets mapped
-        * to this hash. If it exists, the function is called with the the IObject
-        * interface.
-        */
         this._objectFactories = {
-            /**
-            * Handle spawning a player
-            */
             PlayerSpawn: function (obj) {
                 ex.Logger.getInstance().info("Released the Kraken!", obj.x, obj.y);
 
                 _this.kraken = new Kraken(obj.x, obj.y);
 
-                // add to level
                 _this.addChild(_this.kraken);
 
-                // follow the kraken
                 game.camera.setActorToFollow(_this.kraken);
             },
-            /**
-            * Spawns an enemy
-            */
             EnemySpawn: function (obj) {
                 var enemy = new Enemy(obj.name, obj.x, obj.y);
 
                 _this.enemies.push(enemy);
                 _this.addChild(enemy);
+                _this.stats.numBoats++;
             },
-            /*
-            * Spawns a path for an actor to follow
-            */
             Path: function (obj) {
                 if (!obj.polyline || !obj.name)
                     return;
 
                 obj.polyline.forEach(function (point) {
-                    // transform polyline point to world coordinates for actors
                     point.x = obj.x + point.x;
                     point.y = obj.y + point.y;
                 });
 
-                // push path
                 _this.paths[obj.name] = obj.polyline.map(function (p) {
                     return new ex.Point(p.x, p.y);
                 });
@@ -215,7 +190,6 @@ var BaseLevel = (function (_super) {
     }
     BaseLevel.prototype.onInitialize = function (engine) {
         var _this = this;
-        // play waves
         Resources.SoundWaves.setVolume(0.1);
         Resources.SoundWaves.setLoop(true);
         Resources.SoundWaves.play();
@@ -225,13 +199,11 @@ var BaseLevel = (function (_super) {
         this.map = new ex.TileMap(0, 0, this.data.tilewidth, this.data.tileheight, this.data.height, this.data.width);
         this.heartSprite = new ex.Sprite(Resources.Heart, 0, 0, 20, 20);
 
-        // create collision map for each tileset in map
         this.data.tilesets.forEach(function (ts) {
             var cols = Math.floor(ts.imagewidth / ts.tilewidth);
             var rows = Math.floor(ts.imageheight / ts.tileheight);
             var ss = new ex.SpriteSheet(ts.texture, cols, rows, ts.tilewidth, ts.tileheight);
 
-            // nighty night!
             ss.sprites.forEach(function (s) {
                 return s.addEffect(new Fx.Multiply(Palette.ColorNightTime));
             });
@@ -243,7 +215,6 @@ var BaseLevel = (function (_super) {
         for (i = 0; i < this.data.layers.length; i++) {
             layer = this.data.layers[i];
 
-            // terrain layer?
             if (layer.type === "tilelayer") {
                 for (j = 0; j < layer.data.length; j++) {
                     gid = layer.data[j];
@@ -258,7 +229,6 @@ var BaseLevel = (function (_super) {
                 }
             }
 
-            // object layer
             if (layer.type === "objectgroup") {
                 layer.objects.forEach(function (obj) {
                     if (obj.type && _this._objectFactories[obj.type]) {
@@ -268,24 +238,20 @@ var BaseLevel = (function (_super) {
             }
         }
 
-        // resolve the associations between enemies and paths
         this.resolveEnemyPaths();
 
-        // Add collision maps to scene
         this.addTileMap(this.map);
     };
 
     BaseLevel.prototype.onDeactivate = function () {
         _super.prototype.onDeactivate.call(this);
 
-        // stop sounds
         Resources.SoundWaves.stop();
     };
 
     BaseLevel.prototype.update = function (engine, delta) {
         _super.prototype.update.call(this, engine, delta);
 
-        // kill enemies
         this.enemies = this.enemies.filter(function (enemy) {
             return !enemy._isKilled;
         });
@@ -299,11 +265,9 @@ var BaseLevel = (function (_super) {
         }
     };
 
-    //TODO overload draw: draw HUD, UI, etc.
     BaseLevel.prototype.draw = function (ctx, delta) {
         _super.prototype.draw.call(this, ctx, delta);
 
-        // draw HUD, UI, etc.
         ctx.restore();
         var krakenHealth = game.currentScene.kraken.health;
         var numHearts = Math.floor(krakenHealth / 10);
@@ -328,7 +292,6 @@ var BaseLevel = (function (_super) {
 
             var promises = [];
 
-            // retrieve images from tilesets and create textures
             _this.data.tilesets.forEach(function (ts) {
                 ts.texture = new ex.Texture(ts.image);
                 ts.texture.oncomplete = ts.texture.onerror = function () {
@@ -384,7 +347,6 @@ var BaseLevel = (function (_super) {
 
         if (tileset.terrains) {
             for (i = 0; i < tileset.terrains.length; i++) {
-                // check for solid terrains
                 terrain = tileset.terrains[i];
                 if (terrain.properties && terrain.properties.solid === "false") {
                     continue;
@@ -394,19 +356,15 @@ var BaseLevel = (function (_super) {
             }
         }
 
-        // todo individual tile overrides layer
-        // layers > terrain
         if (layer.properties && layer.properties["solid"] === "true") {
             return true;
         }
 
-        // loop through tiles
         if (tileset.tiles) {
             var tile = tileset.tiles[(gid - 1).toString()];
 
             if (tile && tile.terrain) {
                 for (i = 0; i < tile.terrain.length; i++) {
-                    // for each corner of terrain, it is not solid if all corners are not solid
                     if (solidTerrains.indexOf(tile.terrain[i]) > -1) {
                         return true;
                     }
@@ -419,7 +377,6 @@ var BaseLevel = (function (_super) {
     return BaseLevel;
 })(ex.Scene);
 
-//#endregion
 var Sonar = (function (_super) {
     __extends(Sonar, _super);
     function Sonar(x, y, width, height, color) {
@@ -433,22 +390,10 @@ var Sonar = (function (_super) {
         _super.prototype.update.call(this, engine, delta);
         this.x = (this.parent.getWidth() / 2) - (this.getWidth() / 2);
         this.y = (this.parent.getHeight() / 2) - (this.getHeight() / 2);
-        //if (this._isOn) {
-        //   var timer = new ex.Timer(() => {
-        //      if (this.getWidth() > Config.defaultMaxAttackDistance) {
-        //         this._isOn = false;
-        //         this.setHeight(1);
-        //         this.setWidth(1);
-        //         this.clearActions();
-        //      }
-        //   }, 600, false);
-        //   game.currentScene.addTimer(timer);
-        //}
     };
 
     Sonar.prototype.draw = function (ctx, delta) {
         if (this._isOn) {
-            //super.draw(ctx, delta);
             ctx.strokeStyle = ex.Color.Red.toString();
             ctx.beginPath();
             var parentShiftX = this.parent.getWidth() / 2;
@@ -461,8 +406,6 @@ var Sonar = (function (_super) {
     };
     return Sonar;
 })(ex.Actor);
-/// <reference path="Level.ts" />
-/// <reference path="Sonar.ts" />
 var Enemy = (function (_super) {
     __extends(Enemy, _super);
     function Enemy(key, x, y, width, height, color, health) {
@@ -499,13 +442,13 @@ var Enemy = (function (_super) {
     Enemy.prototype.onInitialize = function (game) {
         this._kraken = game.currentScene.kraken;
 
-        //TODO assumes all enemies are initially facing right
+        this.rotation = Math.PI / 2;
+
         this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
 
         var yValues = new Array(-0.62, -0.25, 0, 0.25, 0.62);
 
         for (var i = 0; i < 5; i++) {
-            //var rayPoint = new ex.Point(0, this.getHeight() / 2);
             var rayPoint = this._lightStartPoint;
             var rayVector = new ex.Vector(1, yValues[i]);
             var ray = new ex.Ray(rayPoint, rayVector);
@@ -515,10 +458,6 @@ var Enemy = (function (_super) {
         }
 
         this.on('DistressEvent', function (ev) {
-            //if (this.within(ev.enemy, Config.defaultAssistDistance)) {
-            //this._alertStatus = AlertStatus.Warn;
-            //this.assistShip(ev.enemy);
-            //}
         });
 
         this.on('AttackEvent', function (ev) {
@@ -551,31 +490,25 @@ var Enemy = (function (_super) {
                 _this.kill();
                 game.currentScene.kraken.health += Config.krakenHealthRegen;
 
-                //record health gained
                 game.currentScene.stats.healthGained += Config.krakenHealthRegen;
             }, 600, false);
             game.currentScene.addTimer(timer);
 
-            //record ship destroyed
             game.currentScene.stats.numBoatsDestroyed++;
         }
         for (var i = 0; i < this.rays.length; i++) {
             this.rays[i].pos = this._lightStartPoint;
 
-            // updating for potential rotation
             this.rays[i].dir = this.rotateVector(this.originalRays[i].dir, this.rotation);
 
-            //this.rays[i].pos = this.rotatePoint(this.originalRays[i].pos, this.rotation, this.getCenter());
             this._travelVector = this.rotateVector(this._originalTravelVector, this.rotation);
         }
 
         if (this.detectKraken() == 1 /* Warn */) {
-            //this._alertStatus = AlertStatus.Warn;
         } else if (this.detectKraken() == 2 /* Attack */) {
             this.alertStatus = 2 /* Attack */;
-            //this.sonar.ping();
+            game.currentScene.stats.numBoatsAlerted = 1;
         } else {
-            //this._alertStatus = AlertStatus.Calm;
         }
 
         if (this.alertStatus == 1 /* Warn */) {
@@ -646,11 +579,9 @@ var Enemy = (function (_super) {
     };
 
     Enemy.prototype.createSpotlight = function (startPoint, sightDistance) {
-        //TODO
     };
 
     Enemy.prototype.createRadar = function (startPoint, sightDistance) {
-        //TODO
     };
 
     Enemy.prototype.rotatePoint = function (p, rotationAngle, anchor) {
@@ -676,12 +607,9 @@ var Enemy = (function (_super) {
     };
 
     Enemy.prototype.attack = function (delta) {
-        // if the ship can still see the kraken (or the kraken is in the ship's attack proximity), attack the kraken
         if (this._bulletTimer <= 0) {
             ex.Logger.getInstance().info("Shot bullet");
 
-            // shoot
-            // todo lead them a bit based on kraken's travel vector? bonus!
             var fireLocation = this.rotatePoint(new ex.Point(this.getCenter().x + Config.enemyGunOffset, this.getCenter().y), this.rotation, this.getCenter());
 
             game.addChild(new Bullet(fireLocation.x, fireLocation.y, this._kraken.getCenter().x, this._kraken.getCenter().y));
@@ -698,7 +626,6 @@ var Enemy = (function (_super) {
     };
 
     Enemy.prototype.drawFOV = function (point, ctx, delta) {
-        // create radial gradient
         var fovRay = new ex.Ray(point, this._travelVector);
         var fovEndPoint = fovRay.getPoint(this._fovLength);
 
@@ -714,7 +641,6 @@ var Enemy = (function (_super) {
         ctx.fillStyle = grd;
         ctx.beginPath();
 
-        // x, y, radius, start, end, [anti-clockwise]
         ctx.arc(this.getCenter().x, this.getCenter().y, this._fovLength - 200, 0, Math.PI * 2);
         ctx.closePath();
         ctx.fill();
@@ -734,13 +660,11 @@ var Enemy = (function (_super) {
             ctx.closePath();
         }
 
-        // draw path if any
         if (this.movePath) {
             ctx.beginPath();
             this.movePath.forEach(function (point, i) {
                 ctx.moveTo(point.x, point.y);
 
-                // not at the end yet
                 if (i < (_this.movePath.length - 1)) {
                     ctx.lineTo(_this.movePath[i + 1].x, _this.movePath[i + 1].y);
                 }
@@ -759,48 +683,34 @@ var AlertStatus;
     AlertStatus[AlertStatus["Warn"] = 1] = "Warn";
     AlertStatus[AlertStatus["Attack"] = 2] = "Attack";
 })(AlertStatus || (AlertStatus = {}));
-/**
-* Only put ILoadables into this resource hash
-*/
 var Resources = {
-    // Soundtrack
     SoundTrack: new ex.Sound("/sounds/KrakenMusic.mp3", "/sounds/KrakenMusic.wav"),
-    // Levels
     Level0: new BaseLevel("/maps/Level-0.json"),
-    // Textures
     SplashTexture: new ex.Texture("/images/splash.jpg"),
     DeathTexture: new ex.Texture("/images/death.jpg"),
     VictoryTexture: new ex.Texture("/images/victory.jpg"),
     KrakenTexture: new ex.Texture("/images/kraken/KrakenSpriteSheet.png"),
     StartButtonTexture: new ex.Texture("/images/start.png"),
-    // Enemies
     Ship1Texture: new ex.Texture("/images/ship-1.png"),
     BulletTexture: new ex.Texture("/images/bullet.png"),
     AlertTexture: new ex.Texture("/images/alert.png"),
     BulletSound: new ex.Sound("/sounds/shoot.mp3", "/sounds/shoot.wav"),
     SinkSound: new ex.Sound("/sounds/shipsink.mp3", "/sounds/shipsink.wav"),
-    // Tilesets
     TerrainTexture: new ex.Texture("/images/tilesets/terrain.png"),
-    // Kraken
     SoundSwim: new ex.Sound("/sounds/swim.mp3", "/sounds/swim.wav"),
     SoundHurt: new ex.Sound("/sounds/hurt.mp3", "/sounds/hurt.wav"),
     SoundWaves: new ex.Sound("/sounds/waves.mp3", "/sounds/waves.wav"),
     SoundDeath: new ex.Sound("/sounds/death.mp3", "/sounds/death.wav"),
     HitSound: new ex.Sound("/sounds/hit.mp3", "/sounds/hit.wav"),
-    // HUD
     Heart: new ex.Texture("/images/heart.png")
 };
 
 var Palette = {
-    // Night time
     ColorNightTime: new ex.Color(51, 27, 96),
-    // Kraken
     ColorKrakenBlend: new ex.Color(80, 48, 140),
     ColorKrakenGlowStart: new ex.Color(65, 102, 197, 0.5),
     ColorKrakenGlowEnd: new ex.Color(14, 26, 55, 0)
 };
-/// <reference path="Config.ts" />
-/// <reference path="Enemy.ts" />
 var KrakenMode;
 (function (KrakenMode) {
     KrakenMode[KrakenMode["Idle"] = 0] = "Idle";
@@ -873,7 +783,6 @@ var Kraken = (function (_super) {
     Kraken.prototype.checkForShipProximity = function () {
         var targetInRange = this.getClosestEnemy();
 
-        // Attack the ship if in range
         if (targetInRange) {
             this._canAttack = true;
         } else {
@@ -891,7 +800,6 @@ var Kraken = (function (_super) {
 
         Resources.SoundSwim.setVolume(.3);
 
-        // Build swim sound timer
         var swimTimer = new ex.Timer(function () {
             if (_this._currentMode === 2 /* Swim */) {
                 Resources.SoundSwim.play();
@@ -901,8 +809,6 @@ var Kraken = (function (_super) {
         game.currentScene.addTimer(swimTimer);
 
         game.on('mousemove', function (ev) {
-            // todo play sound in interval
-            //Resources.SoundSwim.play();
             _this.moveKraken(ev.x, ev.y);
         });
 
@@ -918,22 +824,15 @@ var Kraken = (function (_super) {
                 _this.dy = 0;
             }
 
-            // todo workaround race condition in Excalibur collisions
-            // when two collision events are queued for this actor
-            // don't process if other was killed in previous handler
             if (ev.other instanceof Bullet && !ev.other._isKilled) {
                 ex.Logger.getInstance().info("Kraken got shot, yo!");
 
-                // subtract health
                 _this.health -= Config.enemyDps;
 
-                // record damage taken
                 game.currentScene.stats.damageTaken += Config.enemyDps;
 
-                // cue
                 Resources.SoundHurt.play();
 
-                // kill
                 ev.other.kill();
             }
         });
@@ -942,13 +841,11 @@ var Kraken = (function (_super) {
     Kraken.prototype.update = function (engine, delta) {
         _super.prototype.update.call(this, engine, delta);
 
-        // if killed?
         if (this.health <= 0) {
             game.goToScene("death");
             return;
         }
 
-        // check for enemy proximity
         this.checkForShipProximity();
 
         var dampeningVector = this._travelVector.normalize().scale(Config.krakenInertiaDampen).scale(-1);
@@ -992,8 +889,6 @@ var Kraken = (function (_super) {
         travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
         this._travelVector = travelVector;
 
-        //this._travelVector = new ex.Vector(ex.Util.clamp(travelVector.x, -Config.defaultKrakenMaxSpeed, Config.defaultKrakenMaxSpeed),
-        //   ex.Util.clamp(travelVector.y, -Config.defaultKrakenMaxSpeed, Config.defaultKrakenMaxSpeed));
         this.move(travelVector.x, travelVector.y);
 
         travelVector.normalize();
@@ -1007,7 +902,6 @@ var Kraken = (function (_super) {
     };
 
     Kraken.prototype.setAnimationState = function (delta) {
-        // Moving
         if (this.dx === 0 && this.dy === 0 && this._animationTimer <= 0) {
             if (this._currentMode !== 1 /* Attack */ && this._currentMode !== 0 /* Idle */) {
                 ex.Logger.getInstance().info("Setting animation state to Idle", this.dx, this.dy);
@@ -1018,7 +912,6 @@ var Kraken = (function (_super) {
             }
         }
 
-        // Moving
         if (this.dx !== 0 && this.dy !== 0 && this._animationTimer <= 0) {
             if (this._currentMode !== 1 /* Attack */ && this._currentMode !== 2 /* Swim */) {
                 ex.Logger.getInstance().info("Setting animation state to Swim", this.dx, this.dy);
@@ -1071,14 +964,12 @@ var Kraken = (function (_super) {
                 });
             }
 
-            //todo do damage here
             if (enemy) {
                 Resources.HitSound.play();
                 game.camera.shake(10, 10, 200);
                 enemy.health -= Config.krakenDps;
                 enemy.alertStatus = 2 /* Attack */;
 
-                //record damage dealt
                 game.currentScene.stats.damageDealt += Config.krakenDps;
             }
             this._lastAttackTime = Date.now();
@@ -1092,22 +983,14 @@ var Kraken = (function (_super) {
         var endPoint1 = new ex.Point(this.x + this.getWidth(), this.y);
         var newLine1 = new ex.Line(beginPoint1, endPoint1);
 
-        // beginPoint2 is endPoint1
         var endPoint2 = new ex.Point(endPoint1.x, endPoint1.y + this.getHeight());
         var newLine2 = new ex.Line(endPoint1, endPoint2);
 
-        // beginPoint3 is endPoint2
         var endPoint3 = new ex.Point(this.x, this.y + this.getHeight());
         var newLine3 = new ex.Line(endPoint2, endPoint3);
 
-        // beginPoint4 is endPoint3
-        // endPoint4 is beginPoint1
         var newLine4 = new ex.Line(endPoint3, beginPoint1);
 
-        //console.log("line1: (" + Math.round(newLine1.begin.x) + ", " + Math.round(newLine1.begin.y) + ") to (" + Math.round(newLine1.end.x) + ", " + Math.round(newLine1.end.y) + ")");
-        //console.log("line2: (" + Math.round(newLine2.begin.x) + ", " + Math.round(newLine2.begin.y) + ") to (" + Math.round(newLine2.end.x) + ", " + Math.round(newLine2.end.y) + ")");
-        //console.log("line3: (" + Math.round(newLine3.begin.x) + ", " + Math.round(newLine3.begin.y) + ") to (" + Math.round(newLine3.end.x) + ", " + Math.round(newLine3.end.y) + ")");
-        //console.log("line4: (" + Math.round(newLine4.begin.x) + ", " + Math.round(newLine4.begin.y) + ") to (" + Math.round(newLine4.end.x) + ", " + Math.round(newLine4.end.y) + ")");
         lines.push(newLine1);
         lines.push(newLine2);
         lines.push(newLine3);
@@ -1122,7 +1005,6 @@ var Kraken = (function (_super) {
     };
 
     Kraken.prototype.drawGlow = function (ctx, delta) {
-        // create radial gradient
         var grd = ctx.createRadialGradient(this.getCenter().x, this.getCenter().y, 10, this.getCenter().x, this.getCenter().y, 150);
 
         grd.addColorStop(0, Palette.ColorKrakenGlowStart.toString());
@@ -1131,21 +1013,60 @@ var Kraken = (function (_super) {
         ctx.fillStyle = grd;
         ctx.beginPath();
 
-        // x, y, radius, start, end, [anti-clockwise]
         ctx.arc(this.getCenter().x, this.getCenter().y, 150, 0, Math.PI * 2);
         ctx.closePath();
         ctx.fill();
     };
     return Kraken;
 })(ex.Actor);
-/// <reference path="../scripts/Excalibur.d.ts" />
-/// <reference path="Level.ts" />
-/// <reference path="Resources.ts" />
-/// <reference path="Kraken.ts" />
-/// <reference path="Enemy.ts" />
+function hasClass(element, cls) {
+    return element.classList.contains(cls);
+}
+
+function replaceClass(element, search, replace) {
+    if (hasClass(element, search)) {
+        this.removeClass(element, search);
+        this.addClass(element, replace);
+    }
+}
+
+function addClass(element, cls) {
+    element.classList.add(cls);
+}
+
+function removeClass(element, cls) {
+    element.classList.remove(cls);
+}
+
+function setVolume(val) {
+    for (var resource in Resources) {
+        if (Resources.hasOwnProperty(resource)) {
+            if (Resources[resource] instanceof ex.Sound) {
+                Resources[resource].setVolume(val);
+
+                if (resource === "SoundWaves" && val > 0) {
+                    Resources[resource].setVolume(0.1);
+                }
+
+                if (resource === "SoundTrack" && val > 0) {
+                    Resources[resource].setVolume(.2);
+                }
+            }
+        }
+    }
+}
+document.getElementById("sound").addEventListener('click', function () {
+    if (hasClass(this, 'fa-volume-up')) {
+        replaceClass(this, 'fa-volume-up', 'fa-volume-off');
+        setVolume(0);
+    } else {
+        replaceClass(this, 'fa-volume-off', 'fa-volume-up');
+        setVolume(.5);
+    }
+});
+
 var game = new ex.Engine(920, 580, "game");
 
-//ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 game.backgroundColor = ex.Color.fromHex("#030d18");
 game.setAntialiasing(false);
 game.on('keydown', function (ev) {
@@ -1178,7 +1099,7 @@ var beginGame = function () {
 game.start(loader).then(function () {
     var splash = new ex.Actor(0, 0, game.width, game.height);
     splash.addDrawing("bg", new ex.Sprite(Resources.SplashTexture, 0, 0, game.width, game.height));
-    Resources.SoundTrack.setVolume(.5);
+    Resources.SoundTrack.setVolume(.2);
     Resources.SoundTrack.setLoop(true);
     Resources.SoundTrack.play();
 
@@ -1219,6 +1140,8 @@ var Stats = (function () {
         this.damageDealt = 0;
         this.healthGained = 0;
         this.timeToFinishLevel = 0;
+        this.numBoats = 0;
+        this.krakenHealth = Config.defaultKrakenHealth;
     }
     return Stats;
 })();
@@ -1230,11 +1153,8 @@ var VictoryScene = (function (_super) {
     VictoryScene.prototype.onInitialize = function (engine) {
         _super.prototype.onInitialize.call(this, engine);
 
-        //var victoryKraken = new Kraken();
-        //this.addChild(victoryKraken);
         game.camera = new ex.BaseCamera(engine);
 
-        //game.camera.setActorToFollow(victoryKraken);
         var w = game.getWidth();
         var h = game.getHeight();
 
@@ -1245,14 +1165,30 @@ var VictoryScene = (function (_super) {
         var damageTaken = stats.damageTaken;
         var healthGained = stats.healthGained;
 
+        var grade = "C";
+
+        var enemiesDestroyedPercentage = 1 - ((stats.numBoats - boatsDestroyed) / stats.numBoats);
+
+        var originalHealth = Config.defaultKrakenHealth;
+        var finalHealth = Config.defaultKrakenHealth + healthGained - damageTaken;
+        var healthPercentage = 1 - ((originalHealth - finalHealth) / originalHealth);
+
+        var aggregateScore = (enemiesDestroyedPercentage + healthPercentage) / 2;
+
+        if (aggregateScore > 0.5) {
+            grade = "B";
+        } else if (aggregateScore > 0.8) {
+            grade = "A";
+        } else if (aggregateScore > 1) {
+            grade = "S";
+        } else if (aggregateScore > 1.5) {
+            grade = "S+";
+        }
+
         var splash = new ex.Actor(0, 0, game.width, game.height);
         splash.addDrawing("bg", new ex.Sprite(Resources.VictoryTexture, 0, 0, game.width, game.height));
         this.addChild(splash);
 
-        //var labelVictory = new ex.Label("Game Complete!", w / 2, 150, '90px Iceland');
-        //labelVictory.color = ex.Color.Red;
-        //labelVictory.textAlign = ex.TextAlign.Center;
-        //this.addChild(labelVictory);
         var labelBoatsDestroyed = new ex.Label("boats destroyed     " + boatsDestroyed, w / 2, 350, '50px Iceland');
         labelBoatsDestroyed.color = ex.Color.White;
         labelBoatsDestroyed.textAlign = 2 /* Center */;
@@ -1267,11 +1203,11 @@ var VictoryScene = (function (_super) {
         labelHealthGained.color = ex.Color.White;
         labelHealthGained.textAlign = 2 /* Center */;
         this.addChild(labelHealthGained);
-        //var damageDealt = new ex.Label("damage dealt", w/2, 450, '50px Iceland');
-        //boatsDestroyed.color = ex.Color.White;
-        //boatsDestroyed.textAlign = ex.TextAlign.Center;
-        //this.addChild(boatsDestroyed);
+
+        var labelGrade = new ex.Label("grade     " + grade, w / 2, 550, '75px Iceland');
+        labelGrade.color = ex.Color.White;
+        labelGrade.textAlign = 2 /* Center */;
+        this.addChild(labelGrade);
     };
     return VictoryScene;
 })(ex.Scene);
-//# sourceMappingURL=app.js.map
