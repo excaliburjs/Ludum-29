@@ -14,6 +14,7 @@ class Kraken extends ex.Actor {
    private _lastTarget: Enemy;
    private _lastAttackTime: number = Date.now();
    private _canAttack: boolean;
+   private _spinning: boolean = false;
 
    constructor(x?: number, y?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultKrakenWidth, Config.defaultKrakenHeight, color);
@@ -205,7 +206,10 @@ class Kraken extends ex.Actor {
 
       travelVector.normalize();
       var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
-      this.rotation = rotationAngle;
+
+      if (!this._spinning) {
+         this.rotation = rotationAngle;
+      }
    }
 
    public move(x: number, y: number) {
@@ -253,11 +257,13 @@ class Kraken extends ex.Actor {
             var oldRotation = this.rotation;
 
             this.clearActions();
+            this._spinning = true;
             this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
                this.setDrawing('swim');
                this.rotation = oldRotation;
                this._currentMode = KrakenMode.Swim;
                ex.Logger.getInstance().info("Kraken.returnToSwim: Setting mode to Swim after rotate");
+               this._spinning = false;
             });
          }
       } else {
@@ -279,9 +285,11 @@ class Kraken extends ex.Actor {
 
             var oldRotation = this.rotation;
             this.clearActions();
+            this._spinning = true;
             this.rotateBy(this.rotation + Math.PI, 200).callMethod(() => {
                this.setDrawing('attack');
                this.rotation = oldRotation;
+               this._spinning = false;
             });
          }
 

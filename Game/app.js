@@ -78,7 +78,7 @@ var Config = (function () {
     Config.defaultEnemyWidth = 73;
     Config.defaultEnemyHeight = 73;
     Config.defaultEnemyBulletWait = 2000;
-    Config.defaultEnemyBulletSpeed = 150;
+    Config.defaultEnemyBulletSpeed = 300;
     Config.defaultEnemyAlertDistance = 500;
     Config.defaultEnemyBulletLife = 20000;
 
@@ -192,6 +192,7 @@ var BaseLevel = (function (_super) {
 
                 _this.enemies.push(enemy);
                 _this.addChild(enemy);
+                _this.stats.numBoats++;
             },
             /*
             * Spawns a path for an actor to follow
@@ -499,6 +500,8 @@ var Enemy = (function (_super) {
     Enemy.prototype.onInitialize = function (game) {
         this._kraken = game.currentScene.kraken;
 
+        this.rotation = Math.PI / 2;
+
         //TODO assumes all enemies are initially facing right
         this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
 
@@ -573,6 +576,7 @@ var Enemy = (function (_super) {
             //this._alertStatus = AlertStatus.Warn;
         } else if (this.detectKraken() == 2 /* Attack */) {
             this.alertStatus = 2 /* Attack */;
+            game.currentScene.stats.numBoatsAlerted = 1; //TODO have this correctly count
             //this.sonar.ping();
         } else {
             //this._alertStatus = AlertStatus.Calm;
@@ -816,6 +820,7 @@ var Kraken = (function (_super) {
         this._travelVector = new ex.Vector(0, 0);
         this._currentMode = 0 /* Idle */;
         this._lastAttackTime = Date.now();
+        this._spinning = false;
         this._animationTimer = 0;
         this.health = health || this.health;
 
@@ -998,7 +1003,10 @@ var Kraken = (function (_super) {
 
         travelVector.normalize();
         var rotationAngle = Math.atan2(travelVector.y, travelVector.x);
-        this.rotation = rotationAngle;
+
+        if (!this._spinning) {
+            this.rotation = rotationAngle;
+        }
     };
 
     Kraken.prototype.move = function (x, y) {
@@ -1041,11 +1049,13 @@ var Kraken = (function (_super) {
                 var oldRotation = this.rotation;
 
                 this.clearActions();
+                this._spinning = true;
                 this.rotateBy(this.rotation + Math.PI, 200).callMethod(function () {
                     _this.setDrawing('swim');
                     _this.rotation = oldRotation;
                     _this._currentMode = 2 /* Swim */;
                     ex.Logger.getInstance().info("Kraken.returnToSwim: Setting mode to Swim after rotate");
+                    _this._spinning = false;
                 });
             }
         } else {
@@ -1065,9 +1075,11 @@ var Kraken = (function (_super) {
 
                 var oldRotation = this.rotation;
                 this.clearActions();
+                this._spinning = true;
                 this.rotateBy(this.rotation + Math.PI, 200).callMethod(function () {
                     _this.setDrawing('attack');
                     _this.rotation = oldRotation;
+                    _this._spinning = false;
                 });
             }
 
@@ -1138,11 +1150,80 @@ var Kraken = (function (_super) {
     };
     return Kraken;
 })(ex.Actor);
+/**
+* Whether or not an element has a CSS class present
+* @param element The DOM element to check
+* @param cls The CSS class to check for
+* @returns True if the class exists and false if not
+*/
+function hasClass(element, cls) {
+    return element.classList.contains(cls);
+}
+
+/**
+* Replaces a CSS class on an element
+* @param element The DOM element to manipulate
+* @param search The CSS class to find
+* @param replace The CSS class to replace with
+*/
+function replaceClass(element, search, replace) {
+    if (hasClass(element, search)) {
+        this.removeClass(element, search);
+        this.addClass(element, replace);
+    }
+}
+
+/**
+* Adds a CSS class to a DOM element
+* @param element The DOM element to manipulate
+* @param cls The CSS class to add
+*/
+function addClass(element, cls) {
+    element.classList.add(cls);
+}
+
+/**
+* Removes a CSS class to a DOM element
+* @param element The DOM element to manipulate
+* @param cls The CSS class to remove
+*/
+function removeClass(element, cls) {
+    element.classList.remove(cls);
+}
+
+function setVolume(val) {
+    for (var resource in Resources) {
+        if (Resources.hasOwnProperty(resource)) {
+            if (Resources[resource] instanceof ex.Sound) {
+                Resources[resource].setVolume(val);
+
+                if (resource === "SoundWaves" && val > 0) {
+                    Resources[resource].setVolume(0.1);
+                }
+
+                if (resource === "SoundTrack" && val > 0) {
+                    Resources[resource].setVolume(.2);
+                }
+            }
+        }
+    }
+}
 /// <reference path="../scripts/Excalibur.d.ts" />
 /// <reference path="Level.ts" />
 /// <reference path="Resources.ts" />
 /// <reference path="Kraken.ts" />
 /// <reference path="Enemy.ts" />
+/// <reference path="util.ts" />
+document.getElementById("sound").addEventListener('click', function () {
+    if (hasClass(this, 'fa-volume-up')) {
+        replaceClass(this, 'fa-volume-up', 'fa-volume-off');
+        setVolume(0);
+    } else {
+        replaceClass(this, 'fa-volume-off', 'fa-volume-up');
+        setVolume(.5);
+    }
+});
+
 var game = new ex.Engine(920, 580, "game");
 
 //ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
@@ -1178,7 +1259,7 @@ var beginGame = function () {
 game.start(loader).then(function () {
     var splash = new ex.Actor(0, 0, game.width, game.height);
     splash.addDrawing("bg", new ex.Sprite(Resources.SplashTexture, 0, 0, game.width, game.height));
-    Resources.SoundTrack.setVolume(.5);
+    Resources.SoundTrack.setVolume(.2);
     Resources.SoundTrack.setLoop(true);
     Resources.SoundTrack.play();
 
@@ -1219,6 +1300,9 @@ var Stats = (function () {
         this.damageDealt = 0;
         this.healthGained = 0;
         this.timeToFinishLevel = 0;
+        // original stats for the level
+        this.numBoats = 0;
+        this.krakenHealth = Config.defaultKrakenHealth;
     }
     return Stats;
 })();
@@ -1245,6 +1329,28 @@ var VictoryScene = (function (_super) {
         var damageTaken = stats.damageTaken;
         var healthGained = stats.healthGained;
 
+        var grade = "C";
+
+        var enemiesDestroyedPercentage = 1 - ((stats.numBoats - boatsDestroyed) / stats.numBoats);
+
+        //var damageTakenState =
+        //var healthGainedStat =
+        var originalHealth = Config.defaultKrakenHealth;
+        var finalHealth = Config.defaultKrakenHealth + healthGained - damageTaken;
+        var healthPercentage = 1 - ((originalHealth - finalHealth) / originalHealth);
+
+        var aggregateScore = (enemiesDestroyedPercentage + healthPercentage) / 2;
+
+        if (aggregateScore > 0.5) {
+            grade = "B";
+        } else if (aggregateScore > 0.8) {
+            grade = "A";
+        } else if (aggregateScore > 1) {
+            grade = "S";
+        } else if (aggregateScore > 1.5) {
+            grade = "S+";
+        }
+
         var splash = new ex.Actor(0, 0, game.width, game.height);
         splash.addDrawing("bg", new ex.Sprite(Resources.VictoryTexture, 0, 0, game.width, game.height));
         this.addChild(splash);
@@ -1267,6 +1373,15 @@ var VictoryScene = (function (_super) {
         labelHealthGained.color = ex.Color.White;
         labelHealthGained.textAlign = 2 /* Center */;
         this.addChild(labelHealthGained);
+
+        var labelGrade = new ex.Label("grade     " + grade, w / 2, 550, '75px Iceland');
+        labelGrade.color = ex.Color.White;
+        labelGrade.textAlign = 2 /* Center */;
+        this.addChild(labelGrade);
+        //var labelDetected = new ex.Label("avoided detection     " , w / 2, 300, '50px Iceland');
+        //labelDetected.color = ex.Color.White;
+        //labelDetected.textAlign = ex.TextAlign.Center;
+        //this.addChild(labelDetected);
         //var damageDealt = new ex.Label("damage dealt", w/2, 450, '50px Iceland');
         //boatsDestroyed.color = ex.Color.White;
         //boatsDestroyed.textAlign = ex.TextAlign.Center;
