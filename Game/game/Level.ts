@@ -98,7 +98,7 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       var levelHeight = this.data.height * this.data.tileheight;
 
       if ((this.kraken.x < 0) || (this.kraken.x > levelWidth) || (this.kraken.y < 0) || (this.kraken.y > levelHeight)) {
-         console.log("victory!");
+         //console.log("victory!");
          game.goToScene("victory");
       }
    }
