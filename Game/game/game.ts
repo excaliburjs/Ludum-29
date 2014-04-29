@@ -17,14 +17,9 @@ document.getElementById("sound").addEventListener('click', function () {
 });
 
 var game = new ex.Engine(920, 580, "game");
-//ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
+ex.Logger.getInstance().defaultLevel = ex.LogLevel.Error;
 game.backgroundColor = ex.Color.fromHex("#030d18");
 game.setAntialiasing(false);
-game.on('keydown', function(ev: ex.KeyDown) {
-    if (ev.key === ex.InputKey.D) {
-        game.isDebug = !game.isDebug;
-    }
-});
 
 game.camera = new ex.TopCamera(game);
 
