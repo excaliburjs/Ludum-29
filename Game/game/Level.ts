@@ -123,12 +123,12 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       var complete = new ex.Promise<IMap>();
       var request = new XMLHttpRequest();
       request.open("GET", this.jsonPath, true);
-      request.responseType = "json";
+      
       request.onprogress = this.onprogress;
       request.onerror = this.onerror;
       request.onload = (e) => {
 
-         this.data = request.response;
+         this.data = JSON.parse(request.response);
 
          var promises = [];
 
