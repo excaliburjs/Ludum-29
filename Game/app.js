@@ -1193,11 +1193,14 @@ var VictoryScene = (function (_super) {
 
         if (aggregateScore > 0.5) {
             grade = "B";
-        } else if (aggregateScore > 0.8) {
+        }
+        if (aggregateScore > 0.8) {
             grade = "A";
-        } else if (aggregateScore > 1) {
+        }
+        if (aggregateScore > 1) {
             grade = "S";
-        } else if (aggregateScore > 1.5) {
+        }
+        if (aggregateScore > 1.5) {
             grade = "S+";
         }
 
