@@ -18,8 +18,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.js" />
+    <Content Include="app.min.js">
+      <DependentUpon>app.js</DependentUpon>
+    </Content>
     <Content Include="credits.html" />
     <Content Include="css\app.css" />
+    <Content Include="css\app.min.css">
+      <DependentUpon>app.css</DependentUpon>
+    </Content>
     <Content Include="css\font-awesome.css" />
     <Content Include="css\font-awesome.min.css" />
     <Content Include="fonts\fontawesome-webfont.svg" />
@@ -37,6 +43,9 @@
     <Content Include="images\victory.jpg" />
     <Content Include="index.html" />
     <Content Include="scripts\Excalibur.js" />
+    <Content Include="scripts\Excalibur.min.js">
+      <DependentUpon>Excalibur.js</DependentUpon>
+    </Content>
     <Content Include="sounds\Death.mp3" />
     <Content Include="sounds\Hit.mp3" />
     <Content Include="sounds\Hit.wav" />
@@ -80,7 +89,13 @@
     <Content Include="fonts\fontawesome-webfont.ttf" />
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="app.min.js.map">
+      <DependentUpon>app.min.js</DependentUpon>
+    </Content>
     <None Include="krakenunchained.pubxml" />
+    <Content Include="scripts\Excalibur.min.js.map">
+      <DependentUpon>Excalibur.min.js</DependentUpon>
+    </Content>
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
