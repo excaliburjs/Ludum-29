@@ -52,7 +52,7 @@ class VictoryScene extends ex.Scene {
       var analytics = (<any>window).ga;
       if (analytics) {
          analytics('send', 'event', 'Gameover', 'level0', 'Win', { 'nonInteraction': 1 });
-         analytics('send', 'event', 'WinStats', 'level0', 'Aggregate Score', { 'eventValue': aggregateScore, 'nonInteraction': 1 });
+         analytics('send', 'event', 'WinStats', 'level0', 'Aggregate Score', { 'eventValue': Math.round(aggregateScore * 100), 'nonInteraction': 1 });
          analytics('send', 'event', 'WinStats', 'level0', 'Boats Destroyed', { 'eventValue': boatsDestroyed, 'nonInteraction': 1 });
          analytics('send', 'event', 'WinStats', 'level0', 'Damage Taken', { 'eventValue': damageTaken, 'nonInteraction': 1 });
          analytics('send', 'event', 'WinStats', 'level0', 'Health Gained', { 'eventValue': healthGained, 'nonInteraction': 1 });
