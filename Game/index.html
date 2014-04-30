@@ -8,27 +8,27 @@
     <link rel="stylesheet" href="css/app.css?v=1" type="text/css" />
     <link href="css/font-awesome.min.css" rel="stylesheet" />
 </head>
-<body>    
-    <canvas id="game"></canvas>        
-    <i id="sound" class="fa fa-fw fa-2x fa-volume-up"></i>
-    <p class="instruct">Use the <span class="mouse"><i class="fa fa-location-arrow"></i> mouse</span> to move, and smash <span class="space">spacebar</span> to attack when near ships.</p>
-    <p class="instruct-2">Avoid the spotlights, attack boats, and make it to the end! Good luck!</p>
-    <p>Made with all the &hearts; in the world by <a href="http://erikonarheim.com">Erik Onarheim</a>, <a href="http://twitter.com/joshedeen">Josh Edeen</a>, and <a href="http://kamranicus.com">Kamran Ayub</a> for LD#29. No ocean wildlife was harmed in the making of this game. Kraken background <a href="https://flic.kr/p/kfhXrX">CC BY 2.0</a>. Musical soundtrack "Airwave/Mit Mitch Kelli" 2010 by visan.Ambient <a href="https://soundcloud.com/visan-ambient/airwave-mit-mitch-kelli">CC BY 3.0</a>. Powered by <a href="http://excaliburjs.com">Excalibur.js</a></p>    
-    <p>View source code on <a href="https://github.com/excaliburjs/Ludum-29"><i class="fa fa-github"></i> GitHub</a></p>
+    <body>
+        <div id="wrapper">
+            <canvas id="game"></canvas>
+            <i id="sound" class="fa fa-fw fa-2x fa-volume-up"></i>
+        </div>
+        <p class="instruct">Use the <span class="mouse"><i class="fa fa-location-arrow"></i> mouse</span> to move, and smash <span class="space">spacebar</span> to attack when near ships.</p>
+        <p class="instruct-2">Works best in Chrome, FF, and IE10/11. Avoid the spotlights, attack boats, and make it to the end! Good luck! <a href="credits.html">Credits &amp; About</a></p>
+    
+        <script src="scripts/Excalibur.js"></script>
+        <script src="app.js"></script>
+        <script>
+           (function (i, s, o, g, r, a, m) {
+              i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                 (i[r].q = i[r].q || []).push(arguments)
+              }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                 m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+           })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-    <script src="scripts/Excalibur.js"></script>
-    <script src="app.js"></script>
-    <script>
-    (function (i, s, o, g, r, a, m) {
-        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
-            (i[r].q = i[r].q || []).push(arguments)
-        }, i[r].l = 1 * new Date(); a = s.createElement(o),
-        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
-    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+           ga('create', 'UA-46390208-2', 'krakenunchained.azurewebsites.net');
+           ga('send', 'pageview');
 
-    ga('create', 'UA-46390208-2', 'krakenunchained.azurewebsites.net');
-    ga('send', 'pageview');
-
-    </script>
-</body>
+        </script>
+    </body>
 </html>

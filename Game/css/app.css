@@ -4,8 +4,14 @@
     background: #030d18;
     color: #6380a2;
     font-size: 20px;
+    margin: 0;
+    padding: 0;
 }
 
+canvas {
+    -ms-touch-action: none;
+    touch-action: none;
+}
 
 a {
     color: #6380a2;
@@ -43,8 +49,11 @@ span.space {
     color: #da5b0e;
 }
 
-#sound {
-    left: -60px;
-    top: -10px;
+#wrapper {
     position: relative;
+}
+#sound {
+    right: 10px;
+    bottom: 10px;
+    position: absolute;
 }
