@@ -16,8 +16,8 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
    public onInitialize(engine: ex.Engine) {
 
-      // play waves
-      Resources.SoundWaves.setVolume(0.1);
+      // play waves      
+      Resources.SoundWaves.setVolume(0.3);
       Resources.SoundWaves.setLoop(true);
       Resources.SoundWaves.play();
 

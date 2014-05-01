@@ -18,9 +18,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.js" />
-    <Content Include="app.min.js">
-      <DependentUpon>app.js</DependentUpon>
-    </Content>
     <Content Include="credits.html" />
     <Content Include="css\app.css" />
     <Content Include="css\app.min.css">
@@ -41,7 +38,12 @@
     <Content Include="images\tilesets\Terrain.png" />
     <Content Include="images\tilesets\world-48x48.png" />
     <Content Include="images\victory.jpg" />
+    <Content Include="post-dare.html" />
     <Content Include="index.html" />
+    <Content Include="original.js" />
+    <Content Include="original.min.js">
+      <DependentUpon>original.js</DependentUpon>
+    </Content>
     <Content Include="scripts\Excalibur.js" />
     <Content Include="scripts\Excalibur.min.js">
       <DependentUpon>Excalibur.js</DependentUpon>
@@ -70,7 +72,7 @@
     <TypeScriptCompile Include="game\DeathScene.ts" />
     <TypeScriptCompile Include="game\Effects.ts" />
     <TypeScriptCompile Include="game\Enemy.ts" />
-    <TypeScriptCompile Include="game\game.ts" />
+    <TypeScriptCompile Include="game\Game.ts" />
     <TypeScriptCompile Include="game\Kraken.ts" />
     <TypeScriptCompile Include="game\Level.ts" />
     <TypeScriptCompile Include="game\Resources.ts" />

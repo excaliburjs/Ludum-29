@@ -12,7 +12,7 @@ document.getElementById("sound").addEventListener('click', function () {
         
     } else {
         replaceClass(this, 'fa-volume-off', 'fa-volume-up');
-        setVolume(.5);
+        setVolume(1);
     }
 });
 
@@ -34,8 +34,7 @@ for (var resource in Resources) {
 
 var beginGame = () => {
    if (game.currentScene !== Resources.Level0) {
-      game.off("keyup", beginGame);
-      game.off("mouseup", beginGame);
+      game.off("mouseup,keyup,touchend", beginGame);
       game.addScene("level0", Resources.Level0);
       game.addScene("death", new DeathScene());
       game.addScene("victory", new VictoryScene());
@@ -46,8 +45,7 @@ var beginGame = () => {
 game.start(loader).then(() => {
 
    var splash = new ex.Actor(0, 0, game.width, game.height);
-   splash.addDrawing("bg", new ex.Sprite(Resources.SplashTexture, 0, 0, game.width, game.height));
-   Resources.SoundTrack.setVolume(.2);
+   splash.addDrawing("bg", new ex.Sprite(Resources.SplashTexture, 0, 0, game.width, game.height));   
    Resources.SoundTrack.setLoop(true);
    Resources.SoundTrack.play();
 
@@ -60,6 +58,5 @@ game.start(loader).then(() => {
 
    game.addChild(startButton);
 
-   game.on("keyup", beginGame);
-   game.on("mouseup", beginGame);
+   game.on("keyup,mouseup,touchend", beginGame);
 });

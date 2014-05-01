@@ -8,6 +8,13 @@
     padding: 0;
 }
 
+#wrapper {
+    position: relative;
+    width: 920px;
+    height: 580px;
+    margin: 0 auto;
+}
+
 canvas {
     -ms-touch-action: none;
     touch-action: none;
@@ -49,9 +56,7 @@ span.space {
     color: #da5b0e;
 }
 
-#wrapper {
-    position: relative;
-}
+
 #sound {
     right: 10px;
     bottom: 10px;

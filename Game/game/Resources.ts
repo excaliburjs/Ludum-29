@@ -3,9 +3,6 @@
  */
 var Resources = {
 
-   // Soundtrack
-   SoundTrack: new ex.Sound("/sounds/KrakenMusic.mp3", "/sounds/KrakenMusic.wav"),
-
    // Levels
    Level0: new BaseLevel("/maps/Level-0.json"),
 
@@ -18,13 +15,13 @@ var Resources = {
 
    // Enemies
    Ship1Texture: new ex.Texture("/images/ship-1.png"),
-
    BulletTexture: new ex.Texture("/images/bullet.png"),
-
    AlertTexture: new ex.Texture("/images/alert.png"),
 
    BulletSound: new ex.Sound("/sounds/shoot.mp3", "/sounds/shoot.wav"),
    SinkSound: new ex.Sound("/sounds/shipsink.mp3", "/sounds/shipsink.wav"),
+   // Soundtrack
+   SoundTrack: new ex.Sound("/sounds/KrakenMusic.mp3", "/sounds/KrakenMusic.wav"),
 
    // Tilesets
    TerrainTexture: new ex.Texture("/images/tilesets/terrain.png"),

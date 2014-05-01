@@ -232,7 +232,7 @@ var BaseLevel = (function (_super) {
     BaseLevel.prototype.onInitialize = function (engine) {
         var _this = this;
         // play waves
-        Resources.SoundWaves.setVolume(0.1);
+        Resources.SoundWaves.setVolume(0.3);
         Resources.SoundWaves.setLoop(true);
         Resources.SoundWaves.play();
 
@@ -782,8 +782,6 @@ var AlertStatus;
 * Only put ILoadables into this resource hash
 */
 var Resources = {
-    // Soundtrack
-    SoundTrack: new ex.Sound("/sounds/KrakenMusic.mp3", "/sounds/KrakenMusic.wav"),
     // Levels
     Level0: new BaseLevel("/maps/Level-0.json"),
     // Textures
@@ -798,6 +796,8 @@ var Resources = {
     AlertTexture: new ex.Texture("/images/alert.png"),
     BulletSound: new ex.Sound("/sounds/shoot.mp3", "/sounds/shoot.wav"),
     SinkSound: new ex.Sound("/sounds/shipsink.mp3", "/sounds/shipsink.wav"),
+    // Soundtrack
+    SoundTrack: new ex.Sound("/sounds/KrakenMusic.mp3", "/sounds/KrakenMusic.wav"),
     // Tilesets
     TerrainTexture: new ex.Texture("/images/tilesets/terrain.png"),
     // Kraken
@@ -909,8 +909,7 @@ var Kraken = (function (_super) {
         var _this = this;
         ex.Logger.getInstance().info("Kraken initialized");
 
-        Resources.SoundSwim.setVolume(.3);
-
+        //Resources.SoundSwim.setVolume(.3);
         // Build swim sound timer
         var swimTimer = new ex.Timer(function () {
             if (_this._currentMode === 2 /* Swim */) {
@@ -920,13 +919,11 @@ var Kraken = (function (_super) {
 
         game.currentScene.addTimer(swimTimer);
 
-        game.on('mousemove', function (ev) {
-            // todo play sound in interval
-            //Resources.SoundSwim.play();
+        game.on('mousemove,touchmove', function (ev) {
             _this.moveKraken(ev.x, ev.y);
         });
 
-        game.on('keyup', function (ev) {
+        game.on('keyup,touchend', function (ev) {
             if (ev.key === 32 /* Space */) {
                 _this.handleAttackPress();
             }
@@ -1211,14 +1208,6 @@ function setVolume(val) {
         if (Resources.hasOwnProperty(resource)) {
             if (Resources[resource] instanceof ex.Sound) {
                 Resources[resource].setVolume(val);
-
-                if (resource === "SoundWaves" && val > 0) {
-                    Resources[resource].setVolume(0.1);
-                }
-
-                if (resource === "SoundTrack" && val > 0) {
-                    Resources[resource].setVolume(.2);
-                }
             }
         }
     }
@@ -1235,7 +1224,7 @@ document.getElementById("sound").addEventListener('click', function () {
         setVolume(0);
     } else {
         replaceClass(this, 'fa-volume-off', 'fa-volume-up');
-        setVolume(.5);
+        setVolume(1);
     }
 });
 
@@ -1256,8 +1245,7 @@ for (var resource in Resources) {
 
 var beginGame = function () {
     if (game.currentScene !== Resources.Level0) {
-        game.off("keyup", beginGame);
-        game.off("mouseup", beginGame);
+        game.off("mouseup,keyup,touchend", beginGame);
         game.addScene("level0", Resources.Level0);
         game.addScene("death", new DeathScene());
         game.addScene("victory", new VictoryScene());
@@ -1268,7 +1256,6 @@ var beginGame = function () {
 game.start(loader).then(function () {
     var splash = new ex.Actor(0, 0, game.width, game.height);
     splash.addDrawing("bg", new ex.Sprite(Resources.SplashTexture, 0, 0, game.width, game.height));
-    Resources.SoundTrack.setVolume(.2);
     Resources.SoundTrack.setLoop(true);
     Resources.SoundTrack.play();
 
@@ -1281,8 +1268,7 @@ game.start(loader).then(function () {
 
     game.addChild(startButton);
 
-    game.on("keyup", beginGame);
-    game.on("mouseup", beginGame);
+    game.on("keyup,mouseup,touchend", beginGame);
 });
 var DistressEvent = (function (_super) {
     __extends(DistressEvent, _super);

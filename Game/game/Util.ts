@@ -44,17 +44,8 @@ function removeClass(element: HTMLElement, cls: string): void {
 function setVolume(val: number) {
    for (var resource in Resources) {
       if (Resources.hasOwnProperty(resource)) {
-         if (Resources[resource] instanceof ex.Sound) {
-            
-            Resources[resource].setVolume(val);
-
-            if (resource === "SoundWaves" && val > 0) {
-               Resources[resource].setVolume(0.1);
-            }
-
-            if (resource === "SoundTrack" && val > 0) {
-               Resources[resource].setVolume(.2);
-            }
+         if (Resources[resource] instanceof ex.Sound) {            
+            Resources[resource].setVolume(val);           
          }
       }
    }
