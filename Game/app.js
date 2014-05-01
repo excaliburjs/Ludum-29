@@ -61,7 +61,7 @@ var Config = (function () {
     Config.defaultKrakenMoveRadius = 150;
     Config.defaultKrakenWidth = 50;
     Config.defaultKrakenHeight = 50;
-    Config.defaultKrakenSpeedScale = 2.2;
+    Config.defaultKrakenSpeedScale = 2.1;
     Config.defaultKrakenMaxSpeed = 300;
     Config.defaultKrakenIdleThreshold = 20;
     Config.defaultKrakenAnimationChangeThreshold = 400;
@@ -77,13 +77,14 @@ var Config = (function () {
 
     Config.defaultEnemyWidth = 73;
     Config.defaultEnemyHeight = 73;
-    Config.defaultEnemyBulletWait = 2000;
+    Config.defaultEnemyBulletMinWait = 500;
+    Config.defaultEnemyBulletMaxWait = 2500;
     Config.defaultEnemyBulletSpeed = 300;
-    Config.defaultEnemyAlertDistance = 500;
+    Config.defaultEnemyAlertDistance = 550;
     Config.defaultEnemyBulletLife = 20000;
 
-    Config.defaultEnemyHealth = 9;
-    Config.defaultEnemySpeed = 90;
+    Config.defaultEnemyHealth = 10;
+    Config.defaultEnemySpeed = 100;
     Config.defaultAssistDistance = 300;
     Config.defaultEnemyWaitTime = 2000;
     Config.enemyRotationSpeed = Math.PI / 1.5;
@@ -707,7 +708,7 @@ var Enemy = (function (_super) {
             game.addChild(new Bullet(fireLocation.x, fireLocation.y, this._kraken.getCenter().x, this._kraken.getCenter().y));
             Resources.BulletSound.play();
 
-            this._bulletTimer = Config.defaultEnemyBulletWait;
+            this._bulletTimer = ex.Util.randomInRange(Config.defaultEnemyBulletMinWait, Config.defaultEnemyBulletMaxWait);
         }
         this._bulletTimer -= delta;
     };

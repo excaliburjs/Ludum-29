@@ -242,7 +242,7 @@ class Enemy extends ex.Actor {
          game.addChild(new Bullet(fireLocation.x, fireLocation.y, this._kraken.getCenter().x, this._kraken.getCenter().y));
          Resources.BulletSound.play();
 
-         this._bulletTimer = Config.defaultEnemyBulletWait;
+         this._bulletTimer = ex.Util.randomInRange(Config.defaultEnemyBulletMinWait, Config.defaultEnemyBulletMaxWait);
       }
       this._bulletTimer -= delta;
    }

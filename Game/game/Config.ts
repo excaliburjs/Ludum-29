@@ -7,7 +7,7 @@
    static defaultKrakenMoveRadius: number = 150;
    static defaultKrakenWidth: number = 50;
    static defaultKrakenHeight: number = 50;
-   static defaultKrakenSpeedScale: number = 2.2;
+   static defaultKrakenSpeedScale: number = 2.1;
    static defaultKrakenMaxSpeed: number = 300;
    static defaultKrakenIdleThreshold: number = 20;
    static defaultKrakenAnimationChangeThreshold: number = 400; // todo hack to get around collision dx/dy and fast animation changes
@@ -25,13 +25,14 @@
    // Enemies
    static defaultEnemyWidth: number = 73;
    static defaultEnemyHeight: number = 73;
-   static defaultEnemyBulletWait: number = 2000; // in ms
+   static defaultEnemyBulletMinWait: number = 500; // in ms
+   static defaultEnemyBulletMaxWait: number = 2500; // in ms
    static defaultEnemyBulletSpeed: number = 300;
-   static defaultEnemyAlertDistance = 500;
+   static defaultEnemyAlertDistance = 550;
    static defaultEnemyBulletLife = 20000; // in ms
 
-   static defaultEnemyHealth: number = 9;
-   static defaultEnemySpeed: number = 90;
+   static defaultEnemyHealth: number = 10;
+   static defaultEnemySpeed: number = 100;
    static defaultAssistDistance: number = 300;
    static defaultEnemyWaitTime: number = 2000;
    static enemyRotationSpeed: number = Math.PI / 1.5;
