@@ -74,7 +74,7 @@ class Kraken extends ex.Actor {
       var targetInRange = this.getClosestEnemy();
 
       // Attack the ship if in range
-      if (targetInRange) {         
+      if (targetInRange) {
          this._canAttack = true;
       } else {
          this._canAttack = false;
@@ -97,19 +97,17 @@ class Kraken extends ex.Actor {
          if (this._currentMode === KrakenMode.Swim) {
             Resources.SoundSwim.play();
          }
-         
+
       }, 800, true);
-      
+
       game.currentScene.addTimer(swimTimer);
 
-      game.on('mousemove,touchmove', (ev: ex.MouseMove) => {      
+      game.on('mousemove,touchmove', (ev: ex.MouseMove) => {
          this.moveKraken(ev.x, ev.y);
       });
-      
-      game.on('keyup,touchend', (ev: ex.KeyUp) => {
-         if (ev.key === ex.InputKey.Space) {
-            this.handleAttackPress();
-         }
+
+      game.on('mouseup,touchend', (ev) => {
+         this.handleAttackPress();
       });
 
       this.on('collision', (ev: ex.CollisionEvent) => {
@@ -226,7 +224,7 @@ class Kraken extends ex.Actor {
             this._currentMode = KrakenMode.Idle;
             this._animationTimer = Config.defaultKrakenAnimationChangeThreshold;
             return;
-         }         
+         }
       }
 
       // Moving
@@ -270,9 +268,9 @@ class Kraken extends ex.Actor {
       }
    }
 
-   
 
-   public attack(enemy?: Enemy) {       
+
+   public attack(enemy?: Enemy) {
 
       if ((Date.now() - this._lastAttackTime) > Config.krakenAttackTime) {
          if (this._currentMode !== KrakenMode.Attack) {
