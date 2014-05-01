@@ -15,6 +15,7 @@ class Kraken extends ex.Actor {
    private _lastAttackTime: number = Date.now();
    private _canAttack: boolean;
    private _spinning: boolean = false;
+   private static _glowCanvas: HTMLCanvasElement;
 
    constructor(x?: number, y?: number, color?: ex.Color, health?: number) {
       super(x, y, Config.defaultKrakenWidth, Config.defaultKrakenHeight, color);
@@ -49,48 +50,14 @@ class Kraken extends ex.Actor {
 
    }
 
-   public handleAttackPress() {
-      var target = this.getClosestEnemy();
-
-      if (this._canAttack && target) {
-         this.attack(target);
-      }
-   }
-
-   private getClosestEnemy(): Enemy {
-      var ships: Enemy[] = (<any>game.currentScene).enemies;
-      var target: Enemy = ships.sort((a, b) => {
-         return a.getCenter().distance(this.getCenter()) - b.getCenter().distance(this.getCenter());
-      })[0];
-
-      if (target && target.getCenter().distance(this.getCenter()) <= Config.krakenAttackRange) {
-         return target;
-      }
-
-      return null;
-   }
-
-   public checkForShipProximity() {
-      var targetInRange = this.getClosestEnemy();
-
-      // Attack the ship if in range
-      if (targetInRange) {
-         this._canAttack = true;
-      } else {
-         this._canAttack = false;
-
-         if (this._currentMode === KrakenMode.Attack) {
-            this.returnToSwim();
-         }
-      }
-
-   }
-
    public onInitialize(game: ex.Engine) {
 
       ex.Logger.getInstance().info("Kraken initialized");
 
       //Resources.SoundSwim.setVolume(.3);
+
+      // Build glow canvas
+      this._initializeGlowCanvas();
 
       // Build swim sound timer
       var swimTimer = new ex.Timer(() => {
@@ -141,6 +108,42 @@ class Kraken extends ex.Actor {
 
    }
 
+   public handleAttackPress() {
+      var target = this.getClosestEnemy();
+
+      if (this._canAttack && target) {
+         this.attack(target);
+      }
+   }
+
+   private getClosestEnemy(): Enemy {
+      var ships: Enemy[] = (<any>game.currentScene).enemies;
+      var target: Enemy = ships.sort((a, b) => {
+         return a.getCenter().distance(this.getCenter()) - b.getCenter().distance(this.getCenter());
+      })[0];
+
+      if (target && target.getCenter().distance(this.getCenter()) <= Config.krakenAttackRange) {
+         return target;
+      }
+
+      return null;
+   }
+
+   public checkForShipProximity() {
+      var targetInRange = this.getClosestEnemy();
+
+      // Attack the ship if in range
+      if (targetInRange) {
+         this._canAttack = true;
+      } else {
+         this._canAttack = false;
+
+         if (this._currentMode === KrakenMode.Attack) {
+            this.returnToSwim();
+         }
+      }
+
+   }   
 
    public update(engine: ex.Engine, delta: number) {
       super.update(engine, delta);
@@ -270,8 +273,6 @@ class Kraken extends ex.Actor {
       }
    }
 
-
-
    public attack(enemy?: Enemy) {
 
       if ((Date.now() - this._lastAttackTime) > Config.krakenAttackTime) {
@@ -302,8 +303,6 @@ class Kraken extends ex.Actor {
          this._lastAttackTime = Date.now();
 
       }
-
-
    }
 
    public getLines() {
@@ -345,9 +344,15 @@ class Kraken extends ex.Actor {
       super.draw(ctx, delta);
    }
 
-   private drawGlow(ctx: CanvasRenderingContext2D, delta: number): void {
-      // create radial gradient
-      var grd = ctx.createRadialGradient(this.getCenter().x, this.getCenter().y, 10, this.getCenter().x, this.getCenter().y, 150);
+   private _initializeGlowCanvas() {
+
+      if (Kraken._glowCanvas) return;
+
+      Kraken._glowCanvas = document.createElement("canvas");
+      Kraken._glowCanvas.width = 300;
+      Kraken._glowCanvas.height = 300;
+      var ctx = Kraken._glowCanvas.getContext('2d');
+      var grd = ctx.createRadialGradient(150, 150, 10, 150, 150, 150);
 
       grd.addColorStop(0, Palette.ColorKrakenGlowStart.toString());
       grd.addColorStop(1, Palette.ColorKrakenGlowEnd.toString());
@@ -355,8 +360,15 @@ class Kraken extends ex.Actor {
       ctx.fillStyle = grd;
       ctx.beginPath();
       // x, y, radius, start, end, [anti-clockwise]
-      ctx.arc(this.getCenter().x, this.getCenter().y, 150, 0, Math.PI * 2);
+      ctx.arc(150, 150, 150, 0, Math.PI * 2);
       ctx.closePath();
       ctx.fill();
+   }
+
+   private drawGlow(ctx: CanvasRenderingContext2D, delta: number): void {
+      ctx.save();
+      ctx.translate(this.getWidth() / 2 - 150, this.getHeight() / 2 - 150);
+      ctx.drawImage(Kraken._glowCanvas, this.x, this.y);
+      ctx.restore();
    }
 }

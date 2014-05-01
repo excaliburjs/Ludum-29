@@ -221,6 +221,10 @@ class Enemy extends ex.Actor {
 
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
+
+      // todo remove when Excalibur does this for us
+      if (this.isOffScreen) return;
+
       this.drawFOV(ctx, delta);
 
       if (this.alertStatus === AlertStatus.Attack) {
