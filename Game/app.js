@@ -58,18 +58,18 @@ var Config = (function () {
     }
     Config.deathTimer = 5000;
 
-    Config.defaultKrakenMoveRadius = 300;
+    Config.defaultKrakenMoveRadius = 150;
     Config.defaultKrakenWidth = 50;
     Config.defaultKrakenHeight = 50;
-    Config.defaultKrakenSpeedScale = 10;
-    Config.defaultKrakenMaxSpeed = 200;
-    Config.defaultKrakenIdleThreshold = 10;
+    Config.defaultKrakenSpeedScale = 2.2;
+    Config.defaultKrakenMaxSpeed = 300;
+    Config.defaultKrakenIdleThreshold = 20;
     Config.defaultKrakenAnimationChangeThreshold = 400;
     Config.defaultKrakenHealth = 100;
 
     Config.defaultKrakenSpecial = 5;
 
-    Config.krakenDps = 1;
+    Config.krakenDps = 1.2;
     Config.krakenAttackTime = 300;
     Config.krakenAttackRange = 150;
     Config.krakenInertiaDampen = 1;
@@ -82,8 +82,8 @@ var Config = (function () {
     Config.defaultEnemyAlertDistance = 500;
     Config.defaultEnemyBulletLife = 20000;
 
-    Config.defaultEnemyHealth = 10;
-    Config.defaultEnemySpeed = 100;
+    Config.defaultEnemyHealth = 9;
+    Config.defaultEnemySpeed = 90;
     Config.defaultAssistDistance = 300;
     Config.defaultEnemyWaitTime = 2000;
     Config.enemyRotationSpeed = Math.PI / 1.5;
@@ -970,6 +970,8 @@ var Kraken = (function (_super) {
 
         game.on('mouseup,touchend', function (ev) {
             _this.handleAttackPress();
+
+            return false;
         });
 
         this.on('collision', function (ev) {
@@ -1049,7 +1051,7 @@ var Kraken = (function (_super) {
         }
 
         var travelVector = potentialTarget.minus(this.getCenter());
-        travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
+        travelVector = travelVector.scale(Config.defaultKrakenSpeedScale);
         this._travelVector = travelVector;
 
         //this._travelVector = new ex.Vector(ex.Util.clamp(travelVector.x, -Config.defaultKrakenMaxSpeed, Config.defaultKrakenMaxSpeed),

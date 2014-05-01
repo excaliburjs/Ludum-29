@@ -108,6 +108,8 @@ class Kraken extends ex.Actor {
 
       game.on('mouseup,touchend', (ev) => {
          this.handleAttackPress();
+
+         return false;
       });
 
       this.on('collision', (ev: ex.CollisionEvent) => {
@@ -163,7 +165,7 @@ class Kraken extends ex.Actor {
       }
 
       this.setAnimationState(delta);
-
+      
       if (this.dx > dampeningVector.x && this.dx !== 0) {
          this.dx += dampeningVector.x;
       }
@@ -191,7 +193,7 @@ class Kraken extends ex.Actor {
       }
 
       var travelVector = potentialTarget.minus(this.getCenter());
-      travelVector.normalize().scale(Config.defaultKrakenSpeedScale);
+      travelVector = travelVector.scale(Config.defaultKrakenSpeedScale);
       this._travelVector = travelVector;
 
       //this._travelVector = new ex.Vector(ex.Util.clamp(travelVector.x, -Config.defaultKrakenMaxSpeed, Config.defaultKrakenMaxSpeed),
