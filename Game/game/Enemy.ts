@@ -49,6 +49,7 @@ class Enemy extends ex.Actor {
 
        //TODO assumes all enemies are initially facing right
       this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
+      this.initializeFOV();
 
       var yValues = new Array<number>(-0.62, -0.25, 0, 0.25, 0.62);
 
@@ -220,7 +221,7 @@ class Enemy extends ex.Actor {
 
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
-      this.drawFOV(this._lightStartPoint, ctx, delta);
+      this.drawFOV(ctx, delta);
 
       if (this.alertStatus === AlertStatus.Attack) {
          this.alertSprite.draw(ctx, this.getCenter().x + Config.enemyAlertOffsetX - this.alertSprite.width/2, this.getCenter().y + Config.enemyAlertOffsetY - this.alertSprite.height/2);
@@ -251,28 +252,72 @@ class Enemy extends ex.Actor {
       this.follow(shipInTrouble, 50);
    }
 
-   private drawFOV(point: ex.Point, ctx: CanvasRenderingContext2D, delta: number): void {
+   // static gradient contexts since they don't need to change
+   private static _fovGradientNormal: CanvasGradient;
+   private static _fovGradientAttack: CanvasGradient;
+   private static _fovNormalCanvas: HTMLCanvasElement;
+   private static _fovAttackCanvas: HTMLCanvasElement;
 
+   private initializeFOV(): void {
       // create radial gradient
-      var fovRay = new ex.Ray(point, this._travelVector);
+      if (!Enemy._fovNormalCanvas || !Enemy._fovAttackCanvas) {
+         Enemy._fovNormalCanvas = document.createElement('canvas');
+         Enemy._fovNormalCanvas.width = this._fovLength * 2;
+         Enemy._fovNormalCanvas.height = this._fovLength * 2;
+         var normalCtx = Enemy._fovNormalCanvas.getContext('2d');
+         Enemy._fovAttackCanvas = document.createElement('canvas');
+         Enemy._fovAttackCanvas.width = this._fovLength * 2;
+         Enemy._fovAttackCanvas.height = this._fovLength * 2;
+         var attackCtx = Enemy._fovAttackCanvas.getContext('2d');
+
+         this.drawOffcanvasFOV(normalCtx, new ex.Color(255, 255, 255, 0.3), new ex.Color(255, 255, 255, 0));
+         this.drawOffcanvasFOV(attackCtx, new ex.Color(255, 150, 150, 0.3), new ex.Color(255, 150, 150, 0));
+      }
+   }
+
+   /**
+    * Only called once on actor initialize
+    */
+   private drawOffcanvasFOV(ctx: CanvasRenderingContext2D, beginColor: ex.Color, endColor: ex.Color) {
+      var fovRay = new ex.Ray(new ex.Point(this._fovLength, this._fovLength), this._travelVector);
       var fovEndPoint = fovRay.getPoint(this._fovLength);
 
-      var grd = ctx.createRadialGradient(point.x, point.y, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
-      if (this.alertStatus !== AlertStatus.Attack) {
-         grd.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-         grd.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      } else {
-         grd.addColorStop(0, 'rgba(255, 150, 150, 0.3)');
-         grd.addColorStop(1, 'rgba(255, 150, 150, 0)');
-      }
+      var grd = ctx.createRadialGradient(this._fovLength, this._fovLength, 10, fovEndPoint.x, fovEndPoint.y, this._fovLength / 2);
+      grd.addColorStop(0, beginColor.toString());
+      grd.addColorStop(1, endColor.toString());
 
       ctx.fillStyle = grd;
       ctx.beginPath();
       // x, y, radius, start, end, [anti-clockwise]
-      ctx.arc(this.getCenter().x, this.getCenter().y, this._fovLength - 200, 0, Math.PI * 2);
+      ctx.arc(this._fovLength, this._fovLength, this._fovLength - 200, 0, Math.PI * 2);
       ctx.closePath();
       ctx.fill();
+   }
 
+   /**
+    * Drawing radial gradients is expensive. IE is especially slow. We try to optimize
+    * by drawing two gradients (only) on initialize to two off-screen canvases, then
+    * render them onto this canvas which provides a significant perf boost.
+    * @todo Surface 2 IE11 has rendering issues with radial gradients
+    */
+   private drawFOV(ctx: CanvasRenderingContext2D, delta: number): void {               
+      var canvas: HTMLCanvasElement;      
+      if (this.alertStatus !== AlertStatus.Attack) {
+         canvas = Enemy._fovNormalCanvas;
+      } else {
+         canvas = Enemy._fovAttackCanvas;
+      }
+
+      ctx.save();
+      // set origin to light source
+      ctx.translate(this._lightStartPoint.x, this._lightStartPoint.y);
+      // rotate about origin
+      ctx.rotate(this.rotation);
+      // offset by FOV
+      ctx.translate(-this._fovLength, -this._fovLength);
+      // draw FOV
+      ctx.drawImage(canvas, 0, 0);
+      ctx.restore();
    }
 
    public debugDraw(ctx: CanvasRenderingContext2D): void {
