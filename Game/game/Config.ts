@@ -25,7 +25,7 @@
    // Enemies
    static defaultEnemyWidth: number = 73;
    static defaultEnemyHeight: number = 73;
-   static defaultEnemyBulletMinWait: number = 500; // in ms
+   static defaultEnemyBulletMinWait: number = 1500; // in ms
    static defaultEnemyBulletMaxWait: number = 2500; // in ms
    static defaultEnemyBulletSpeed: number = 300;
    static defaultEnemyAlertDistance = 550;

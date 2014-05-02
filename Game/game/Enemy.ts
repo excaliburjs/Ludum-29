@@ -14,6 +14,8 @@ class Enemy extends ex.Actor {
    private _lightStartPoint: ex.Point;
    private _shipSheet: ex.SpriteSheet;
    private _bulletTimer: number = 0;
+   private _smokeEmitter: ex.ParticleEmitter;
+
    public alertSprite: ex.Sprite = new ex.Sprite(Resources.AlertTexture, 0, 0, 60, 60);
    public isDead: boolean;
    public sonar: Sonar;
@@ -39,11 +41,35 @@ class Enemy extends ex.Actor {
       this.setCenterDrawing(true);
 
       this.setDrawing("full");
+
+      // fixed collisions
       this.collisionType = ex.CollisionType.Fixed;
+
+      // smoke emitter
+      this._smokeEmitter = new ex.ParticleEmitter(0, 0, 8, 4);
+      this._smokeEmitter.emitterType = ex.EmitterType.Rectangle;
+      this._smokeEmitter.isEmitting = false;      
+      this._smokeEmitter.minVel = 5;
+      this._smokeEmitter.maxVel = 33;
+      this._smokeEmitter.minAngle = 0.8;
+      this._smokeEmitter.maxAngle = 3.5;      
+      this._smokeEmitter.emitRate = 9;
+      this._smokeEmitter.opacity = 0.25;
+      this._smokeEmitter.fadeFlag = true;
+      this._smokeEmitter.particleLife = 1264;
+      this._smokeEmitter.maxSize = 1;
+      this._smokeEmitter.minSize = 1;
+      this._smokeEmitter.startSize = 1;
+      this._smokeEmitter.endSize = 20;
+      this._smokeEmitter.acceleration = new ex.Vector(-90, -180);
+      this._smokeEmitter.beginColor = ex.Color.fromRGB(0, 0, 0, 0.7);
+      this._smokeEmitter.endColor = ex.Color.fromRGB(0, 0, 0, 0);
+      
+      this.addChild(this._smokeEmitter);
    }
 
    public onInitialize(game: ex.Engine) {
-      this._kraken = (<any>game.currentScene).kraken;
+      this._kraken = (<any>game.currentScene).kraken;    
 
       this.rotation = Math.PI / 2;
 
@@ -87,16 +113,21 @@ class Enemy extends ex.Actor {
       if (this.health < Config.defaultEnemyHealth  && this.health >= Config.defaultEnemyHealth * 0.8) {
          this.setDrawing("full");
       }
-
+     
       if (this.health < Config.defaultEnemyHealth * 0.8 && this.health >= Config.defaultEnemyHealth * 0.5) {
          this.setDrawing("half");
+         this._smokeEmitter.isEmitting = true;
       }
        if (this.health < Config.defaultEnemyHealth * 0.5 && this.health >= 0) {
-         this.setDrawing("eighty");
-      }
+          this.setDrawing("eighty");
+          this._smokeEmitter.opacity = 0.6;
+          this._smokeEmitter.emitRate = 44;
+          this._smokeEmitter.particleLife = 1678;
+       }
 
       if (this.health < 0 && !this.isDead) {
-         game.camera.shake(10, 10, 600);
+         game.camera.shake(30, 30, 600);
+         this._smokeEmitter.isEmitting = false;
          this.setDrawing("explode");
          Resources.SinkSound.play();
          this.isDead = true;

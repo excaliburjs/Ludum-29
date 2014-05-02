@@ -77,7 +77,7 @@ var Config = (function () {
 
     Config.defaultEnemyWidth = 73;
     Config.defaultEnemyHeight = 73;
-    Config.defaultEnemyBulletMinWait = 500;
+    Config.defaultEnemyBulletMinWait = 1500;
     Config.defaultEnemyBulletMaxWait = 2500;
     Config.defaultEnemyBulletSpeed = 300;
     Config.defaultEnemyAlertDistance = 550;
@@ -158,6 +158,7 @@ var Fx;
                 pixel[firstPixel + 0] = this.color.r * (pixel[firstPixel + 0]) / 255;
                 pixel[firstPixel + 1] = this.color.g * (pixel[firstPixel + 1]) / 255;
                 pixel[firstPixel + 2] = this.color.b * (pixel[firstPixel + 2]) / 255;
+                pixel[firstPixel + 3] = (this.color.a * 255) * (pixel[firstPixel + 3]) / 255;
             }
         };
         return Multiply;
@@ -511,7 +512,31 @@ var Enemy = (function (_super) {
         this.setCenterDrawing(true);
 
         this.setDrawing("full");
+
+        // fixed collisions
         this.collisionType = 4 /* Fixed */;
+
+        // smoke emitter
+        this._smokeEmitter = new ex.ParticleEmitter(0, 0, 8, 4);
+        this._smokeEmitter.emitterType = 1 /* Rectangle */;
+        this._smokeEmitter.isEmitting = false;
+        this._smokeEmitter.minVel = 5;
+        this._smokeEmitter.maxVel = 33;
+        this._smokeEmitter.minAngle = 0.8;
+        this._smokeEmitter.maxAngle = 3.5;
+        this._smokeEmitter.emitRate = 9;
+        this._smokeEmitter.opacity = 0.25;
+        this._smokeEmitter.fadeFlag = true;
+        this._smokeEmitter.particleLife = 1264;
+        this._smokeEmitter.maxSize = 1;
+        this._smokeEmitter.minSize = 1;
+        this._smokeEmitter.startSize = 1;
+        this._smokeEmitter.endSize = 20;
+        this._smokeEmitter.acceleration = new ex.Vector(-90, -180);
+        this._smokeEmitter.beginColor = ex.Color.fromRGB(0, 0, 0, 0.7);
+        this._smokeEmitter.endColor = ex.Color.fromRGB(0, 0, 0, 0);
+
+        this.addChild(this._smokeEmitter);
     }
     Enemy.prototype.onInitialize = function (game) {
         this._kraken = game.currentScene.kraken;
@@ -557,13 +582,18 @@ var Enemy = (function (_super) {
 
         if (this.health < Config.defaultEnemyHealth * 0.8 && this.health >= Config.defaultEnemyHealth * 0.5) {
             this.setDrawing("half");
+            this._smokeEmitter.isEmitting = true;
         }
         if (this.health < Config.defaultEnemyHealth * 0.5 && this.health >= 0) {
             this.setDrawing("eighty");
+            this._smokeEmitter.opacity = 0.6;
+            this._smokeEmitter.emitRate = 44;
+            this._smokeEmitter.particleLife = 1678;
         }
 
         if (this.health < 0 && !this.isDead) {
-            game.camera.shake(10, 10, 600);
+            game.camera.shake(30, 30, 600);
+            this._smokeEmitter.isEmitting = false;
             this.setDrawing("explode");
             Resources.SinkSound.play();
             this.isDead = true;
@@ -689,6 +719,11 @@ var Enemy = (function (_super) {
 
     Enemy.prototype.draw = function (ctx, delta) {
         _super.prototype.draw.call(this, ctx, delta);
+
+        // todo remove when Excalibur does this for us
+        if (this.isOffScreen)
+            return;
+
         this.drawFOV(ctx, delta);
 
         if (this.alertStatus === 2 /* Attack */) {
@@ -858,7 +893,7 @@ var Resources = {
 
 var Palette = {
     // Night time
-    ColorNightTime: new ex.Color(51, 27, 96),
+    ColorNightTime: new ex.Color(48, 45, 168),
     // Kraken
     ColorKrakenBlend: new ex.Color(80, 48, 140),
     ColorKrakenGlowStart: new ex.Color(65, 102, 197, 0.5),
@@ -1147,7 +1182,7 @@ var Kraken = (function (_super) {
             //todo do damage here
             if (enemy) {
                 Resources.HitSound.play();
-                game.camera.shake(10, 10, 200);
+                game.camera.shake(20, 20, 200);
                 enemy.health -= Config.krakenDps;
                 enemy.alertStatus = 2 /* Attack */;
 

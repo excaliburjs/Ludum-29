@@ -14,6 +14,7 @@
             pixel[firstPixel + 0] = this.color.r * (pixel[firstPixel + 0]) / 255;
             pixel[firstPixel + 1] = this.color.g * (pixel[firstPixel + 1]) / 255;
             pixel[firstPixel + 2] = this.color.b * (pixel[firstPixel + 2]) / 255;
+            pixel[firstPixel + 3] = (this.color.a * 255) * (pixel[firstPixel + 3]) / 255;
          }
 
       }

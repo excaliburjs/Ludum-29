@@ -294,7 +294,7 @@ class Kraken extends ex.Actor {
          //todo do damage here
          if (enemy) {
             Resources.HitSound.play();
-            game.camera.shake(10, 10, 200);
+            game.camera.shake(20, 20, 200);
             enemy.health -= Config.krakenDps;
             enemy.alertStatus = AlertStatus.Attack;
             //record damage dealt

@@ -40,7 +40,7 @@ var Resources = {
 var Palette = {
 
    // Night time
-   ColorNightTime: new ex.Color(51, 27, 96),
+   ColorNightTime: new ex.Color(48, 45, 168),
 
    // Kraken
    ColorKrakenBlend: new ex.Color(80, 48, 140),
