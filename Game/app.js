@@ -948,6 +948,28 @@ var Kraken = (function (_super) {
         this.addDrawing('attack', attackAnim);
         this.addDrawing('swim', swimAnim);
         this.setDrawing('idle');
+
+        this._swimEmitter = new ex.ParticleEmitter(-65, -14, 15, 30);
+        this._swimEmitter.emitterType = 1 /* Rectangle */;
+        this._swimEmitter.radius = 12;
+        this._swimEmitter.minVel = 5;
+        this._swimEmitter.maxVel = 33;
+        this._swimEmitter.minAngle = 2.8;
+        this._swimEmitter.maxAngle = 3;
+        this._swimEmitter.isEmitting = true;
+        this._swimEmitter.emitRate = 1;
+        this._swimEmitter.opacity = 0.05;
+        this._swimEmitter.fadeFlag = true;
+        this._swimEmitter.particleLife = 1140;
+        this._swimEmitter.maxSize = 9;
+        this._swimEmitter.minSize = 3;
+        this._swimEmitter.startSize = 0;
+        this._swimEmitter.endSize = 0;
+        this._swimEmitter.acceleration = new ex.Vector(-166, 0);
+        this._swimEmitter.beginColor = ex.Color.Cyan;
+        this._swimEmitter.endColor = ex.Color.Azure;
+
+        this.addChild(this._swimEmitter);
     }
     Kraken.prototype.onInitialize = function (game) {
         var _this = this;
@@ -1079,6 +1101,14 @@ var Kraken = (function (_super) {
         if (this.dy < dampeningVector.y && this.dy !== 0) {
             this.dy += dampeningVector.y;
         }
+
+        if (this.dx === 0 && this.dy === 0) {
+            this._swimEmitter.acceleration.x = 0;
+            this._swimEmitter.acceleration.y = 0;
+        } else {
+            this._swimEmitter.acceleration.x = -40;
+            this._swimEmitter.acceleration.y = -40;
+        }
     };
 
     Kraken.prototype.moveKraken = function (x, y) {
@@ -1111,7 +1141,7 @@ var Kraken = (function (_super) {
     };
 
     Kraken.prototype.setAnimationState = function (delta) {
-        // Moving
+        // Idle
         if (this.dx === 0 && this.dy === 0 && this._animationTimer <= 0) {
             if (this._currentMode !== 1 /* Attack */ && this._currentMode !== 0 /* Idle */) {
                 ex.Logger.getInstance().info("Setting animation state to Idle", this.dx, this.dy);

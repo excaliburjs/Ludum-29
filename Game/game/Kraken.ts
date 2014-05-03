@@ -15,6 +15,7 @@ class Kraken extends ex.Actor {
    private _lastAttackTime: number = Date.now();
    private _canAttack: boolean;
    private _spinning: boolean = false;
+   private _swimEmitter: ex.ParticleEmitter;
    private static _glowCanvas: HTMLCanvasElement;
 
    constructor(x?: number, y?: number, color?: ex.Color, health?: number) {
@@ -48,6 +49,27 @@ class Kraken extends ex.Actor {
       this.addDrawing('swim', swimAnim);
       this.setDrawing('idle');
 
+      this._swimEmitter = new ex.ParticleEmitter(-65, -14, 15, 30);
+      this._swimEmitter.emitterType = ex.EmitterType.Rectangle;
+      this._swimEmitter.radius = 12;
+      this._swimEmitter.minVel = 5;
+      this._swimEmitter.maxVel = 33;
+      this._swimEmitter.minAngle = 2.8;
+      this._swimEmitter.maxAngle = 3;
+      this._swimEmitter.isEmitting = true;
+      this._swimEmitter.emitRate = 1;
+      this._swimEmitter.opacity = 0.05;
+      this._swimEmitter.fadeFlag = true;
+      this._swimEmitter.particleLife = 1140;
+      this._swimEmitter.maxSize = 9;
+      this._swimEmitter.minSize = 3;
+      this._swimEmitter.startSize = 0;
+      this._swimEmitter.endSize = 0;
+      this._swimEmitter.acceleration = new ex.Vector(-166, 0);
+      this._swimEmitter.beginColor = ex.Color.Cyan;
+      this._swimEmitter.endColor = ex.Color.Azure;
+
+      this.addChild(this._swimEmitter);
    }
 
    public onInitialize(game: ex.Engine) {
@@ -168,7 +190,7 @@ class Kraken extends ex.Actor {
       }
 
       this.setAnimationState(delta);
-      
+
       if (this.dx > dampeningVector.x && this.dx !== 0) {
          this.dx += dampeningVector.x;
       }
@@ -185,6 +207,13 @@ class Kraken extends ex.Actor {
          this.dy += dampeningVector.y;
       }
 
+      if (this.dx === 0 && this.dy === 0) {
+         this._swimEmitter.acceleration.x = 0;
+         this._swimEmitter.acceleration.y = 0;
+      } else {
+         this._swimEmitter.acceleration.x = -40;
+         this._swimEmitter.acceleration.y = -40;
+      }
    }
 
    public moveKraken(x: number, y: number): void {
@@ -220,9 +249,8 @@ class Kraken extends ex.Actor {
    private _animationTimer: number = 0;
    public setAnimationState(delta: number): void {
 
-      // Moving
+      // Idle
       if (this.dx === 0 && this.dy === 0 && this._animationTimer <= 0) {
-
          if (this._currentMode !== KrakenMode.Attack && this._currentMode !== KrakenMode.Idle) {
             ex.Logger.getInstance().info("Setting animation state to Idle", this.dx, this.dy);
             this.setDrawing('idle');
@@ -234,7 +262,6 @@ class Kraken extends ex.Actor {
 
       // Moving
       if (this.dx !== 0 && this.dy !== 0 && this._animationTimer <= 0) {
-
          if (this._currentMode !== KrakenMode.Attack && this._currentMode !== KrakenMode.Swim) {
             ex.Logger.getInstance().info("Setting animation state to Swim", this.dx, this.dy);
             this.setDrawing('swim');
