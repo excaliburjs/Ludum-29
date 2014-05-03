@@ -26,6 +26,8 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       this.map = new ex.TileMap(0, 0, this.data.tilewidth, this.data.tileheight, this.data.height, this.data.width);
       this.heartSprite = new ex.Sprite(Resources.Heart, 0, 0, 20, 20);
 
+      // testing
+
       // create collision map for each tileset in map
       this.data.tilesets.forEach(ts => {
          var cols = Math.floor(ts.imagewidth / ts.tilewidth);
@@ -103,12 +105,13 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
       }
    }
 
-   //TODO overload draw: draw HUD, UI, etc.
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       super.draw(ctx, delta);
       // draw HUD, UI, etc.
       ctx.restore();
-      var krakenHealth = (<BaseLevel>game.currentScene).kraken.health;
+      var krakenHealth = this.kraken.health;
+
+      // todo make hearts into actors so we can apply actions
       var numHearts = Math.floor(krakenHealth / 10);
 
       for (var i = 0; i < numHearts; i++) {
