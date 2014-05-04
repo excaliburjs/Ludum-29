@@ -80,7 +80,8 @@ var Config = (function () {
     Config.defaultEnemyBulletMinWait = 1500;
     Config.defaultEnemyBulletMaxWait = 2500;
     Config.defaultEnemyBulletSpeed = 300;
-    Config.defaultEnemyAlertDistance = 550;
+    Config.defaultEnemyAlertDistance = 500;
+    Config.defaultTurretAlertDistance = 300;
     Config.defaultEnemyBulletLife = 20000;
 
     Config.defaultEnemyHealth = 10;
@@ -256,6 +257,14 @@ var BaseLevel = (function (_super) {
                 _this.enemies.push(enemy);
                 _this.addChild(enemy);
                 _this.stats.numBoats++;
+            },
+            /**
+            * Spawns a turret
+            */
+            Turret: function (obj) {
+                var turret = new Turret(obj.x, obj.y);
+
+                _this.addChild(turret);
             },
             /*
             * Spawns a path for an actor to follow
@@ -687,6 +696,8 @@ var Enemy = (function (_super) {
                 this.alertStatus = 0 /* Calm */;
             }
         }
+
+        this._bulletTimer -= delta;
     };
 
     Enemy.prototype.createMovePath = function (path) {
@@ -802,7 +813,6 @@ var Enemy = (function (_super) {
 
             this._bulletTimer = ex.Util.randomInRange(Config.defaultEnemyBulletMinWait, Config.defaultEnemyBulletMaxWait);
         }
-        this._bulletTimer -= delta;
     };
 
     Enemy.prototype.assistShip = function (shipInTrouble) {
@@ -928,6 +938,7 @@ var Resources = {
     VictoryTexture: new ex.Texture("/images/victory.jpg"),
     KrakenTexture: new ex.Texture("/images/kraken/KrakenSpriteSheet.png"),
     StartButtonTexture: new ex.Texture("/images/start.png"),
+    TurretTexture: new ex.Texture("/images/turret.png"),
     // Enemies
     Ship1Texture: new ex.Texture("/images/ship-1.png"),
     BulletTexture: new ex.Texture("/images/bullet.png"),
@@ -1487,6 +1498,54 @@ var Stats = (function () {
     }
     return Stats;
 })();
+var Turret = (function (_super) {
+    __extends(Turret, _super);
+    function Turret(x, y) {
+        _super.call(this, x, y, 48, 48);
+        this._bulletTimer = 0;
+        this.collisionType = 0 /* PreventCollision */;
+
+        this.addDrawing("inactive", new ex.Sprite(Resources.TurretTexture, 0, 0, 48, 48));
+        this.addDrawing("active", new ex.Sprite(Resources.TurretTexture, 48, 0, 48, 48));
+        this.setDrawing("inactive");
+        this.currentDrawing.addEffect(new Fx.Multiply(Palette.ColorNightTime));
+    }
+    Turret.prototype.onInitialize = function (engine) {
+        _super.prototype.onInitialize.call(this, engine);
+
+        this._kraken = engine.currentScene.kraken;
+    };
+
+    Turret.prototype.update = function (engine, delta) {
+        _super.prototype.update.call(this, engine, delta);
+
+        if (this.within(this._kraken, Config.defaultTurretAlertDistance)) {
+            this.setDrawing("active");
+            this.attack(delta);
+        } else {
+            this.setDrawing("inactive");
+        }
+
+        this._bulletTimer -= delta;
+    };
+
+    Turret.prototype.attack = function (delta) {
+        // if the ship can still see the kraken (or the kraken is in the ship's attack proximity), attack the kraken
+        if (this._bulletTimer <= 0) {
+            ex.Logger.getInstance().info("Shot bullet");
+
+            // shoot
+            // todo lead them a bit based on kraken's travel vector? bonus!
+            var fireLocation = this.getCenter();
+
+            game.addChild(new Bullet(fireLocation.x, fireLocation.y, this._kraken.getCenter().x, this._kraken.getCenter().y));
+            Resources.BulletSound.play();
+
+            this._bulletTimer = ex.Util.randomInRange(Config.defaultEnemyBulletMinWait, Config.defaultEnemyBulletMaxWait);
+        }
+    };
+    return Turret;
+})(ex.Actor);
 var VictoryScene = (function (_super) {
     __extends(VictoryScene, _super);
     function VictoryScene() {

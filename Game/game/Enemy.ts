@@ -172,6 +172,8 @@ class Enemy extends ex.Actor {
             this.alertStatus = AlertStatus.Calm;
          }
       }
+
+      this._bulletTimer -= delta;
    }
 
    private movePath: ex.Point[] = [];
@@ -288,8 +290,7 @@ class Enemy extends ex.Actor {
          Resources.BulletSound.play();
 
          this._bulletTimer = ex.Util.randomInRange(Config.defaultEnemyBulletMinWait, Config.defaultEnemyBulletMaxWait);
-      }
-      this._bulletTimer -= delta;
+      }      
    }
 
    public assistShip(shipInTrouble: Enemy) {

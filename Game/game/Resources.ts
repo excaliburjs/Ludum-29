@@ -12,6 +12,7 @@ var Resources = {
    VictoryTexture: new ex.Texture("/images/victory.jpg"),
    KrakenTexture: new ex.Texture("/images/kraken/KrakenSpriteSheet.png"),
    StartButtonTexture: new ex.Texture("/images/start.png"),
+   TurretTexture: new ex.Texture("/images/turret.png"),
 
    // Enemies
    Ship1Texture: new ex.Texture("/images/ship-1.png"),

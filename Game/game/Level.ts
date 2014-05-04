@@ -204,6 +204,16 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
          this.stats.numBoats++;
       },
 
+      /**
+       * Spawns a turret
+       */
+      Turret: (obj: IObject) => {
+
+         var turret = new Turret(obj.x, obj.y);
+
+         this.addChild(turret);
+      },
+
       /*
        * Spawns a path for an actor to follow
        */

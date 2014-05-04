@@ -28,7 +28,8 @@
    static defaultEnemyBulletMinWait: number = 1500; // in ms
    static defaultEnemyBulletMaxWait: number = 2500; // in ms
    static defaultEnemyBulletSpeed: number = 300;
-   static defaultEnemyAlertDistance = 550;
+   static defaultEnemyAlertDistance = 500;
+   static defaultTurretAlertDistance = 300;
    static defaultEnemyBulletLife = 20000; // in ms
 
    static defaultEnemyHealth: number = 10;

@@ -37,6 +37,7 @@
     <Content Include="images\start.png" />
     <Content Include="images\tilesets\Terrain.png" />
     <Content Include="images\tilesets\world-48x48.png" />
+    <Content Include="images\turret.png" />
     <Content Include="images\victory.jpg" />
     <Content Include="post-dare.html" />
     <Content Include="index.html" />
@@ -79,13 +80,13 @@
     <TypeScriptCompile Include="game\ShipEvents.ts" />
     <TypeScriptCompile Include="game\Sonar.ts" />
     <TypeScriptCompile Include="game\Stats.ts" />
+    <TypeScriptCompile Include="game\Turret.ts" />
     <TypeScriptCompile Include="game\Util.ts" />
     <TypeScriptCompile Include="game\VictoryScene.ts" />
     <TypeScriptCompile Include="scripts\Excalibur.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="scripts\Excalibur.js.map" />
-    <Content Include="maps\TestMap.json" />
     <Content Include="maps\Level-0.json" />
     <Content Include="fonts\fontawesome-webfont.eot" />
     <Content Include="fonts\fontawesome-webfont.ttf" />
