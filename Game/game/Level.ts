@@ -197,6 +197,8 @@ class BaseLevel extends ex.Scene implements ex.ILoadable {
 
          var enemy = new Enemy(obj.name, obj.x, obj.y);
 
+         enemy.rotation = (obj.rotation / 180) * Math.PI;
+
          this.enemies.push(enemy);
          this.addChild(enemy);
          this.stats.numBoats++;

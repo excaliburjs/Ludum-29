@@ -251,6 +251,8 @@ var BaseLevel = (function (_super) {
             EnemySpawn: function (obj) {
                 var enemy = new Enemy(obj.name, obj.x, obj.y);
 
+                enemy.rotation = (obj.rotation / 180) * Math.PI;
+
                 _this.enemies.push(enemy);
                 _this.addChild(enemy);
                 _this.stats.numBoats++;
@@ -587,7 +589,7 @@ var Enemy = (function (_super) {
     Enemy.prototype.onInitialize = function (game) {
         this._kraken = game.currentScene.kraken;
 
-        this.rotation = Math.PI / 2;
+        this.rotation += Math.PI / 2;
 
         //TODO assumes all enemies are initially facing right
         this._lightStartPoint = new ex.Point(this.x + this.getWidth(), this.y + this.getHeight() / 2);
