@@ -6,12 +6,9 @@
       public y: number;/*not needed*/
 
       private _flashTimer: number = 0;
-      private _appliedEffect: boolean = false
-      constructor(private actor: ex.Actor, private color: ex.Color, private duration: number) {
-         
-         if (!actor.currentDrawing) {
-            throw "Cannot flash an actor that has no drawing";
-         }
+      private _appliedEffect: boolean = false;
+
+      constructor(private drawable: ex.IDrawable, private color: ex.Color, private duration: number) {        
 
          this._flashTimer = duration;
       }
@@ -21,7 +18,7 @@
 
          if (this._flashTimer <= 0 && this._appliedEffect) {
             // todo only clear the effect I added
-            this.actor.currentDrawing.clearEffects();
+            this.drawable.clearEffects();
 
             return;
          }
@@ -29,7 +26,7 @@
          if (!this._appliedEffect) {
 
             // todo drawings could change between updates
-            this.actor.currentDrawing.addEffect(new ex.Effects.Fill(this.color));
+            this.drawable.addEffect(new ex.Effects.Fill(this.color));
 
             this._appliedEffect = true;
          }       
@@ -42,7 +39,7 @@
       public reset(): void {
          this._flashTimer = this.duration;
          this._appliedEffect = false;
-         this.actor.currentDrawing.clearEffects();
+         this.drawable.clearEffects();
       }
 
       public stop(): void {

@@ -123,6 +123,9 @@ class Kraken extends ex.Actor {
             // cue
             Resources.SoundHurt.play();
 
+            // flash (todo enable when can remove fx)
+            // this.actionQueue.add(new Fx.Flash(this, ex.Color.White, 150));
+
             // kill
             ev.other.kill();
          }

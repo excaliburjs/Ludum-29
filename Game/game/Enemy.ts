@@ -178,6 +178,11 @@ class Enemy extends ex.Actor {
    public createMovePath(path: ex.Point[]): void {
       this.movePath = path;
 
+      var firstPoint = path[0];
+      var lastPoint = path[path.length - 1];
+      var isJoined = firstPoint.x === lastPoint.x &&
+                     firstPoint.y === lastPoint.y;
+
       path.forEach((point, i) => {
          this.moveTo(point.x - this.getWidth() / 2, point.y - this.getHeight() / 2, Config.defaultEnemySpeed);
          if (path[i + 1]) {
@@ -186,14 +191,19 @@ class Enemy extends ex.Actor {
             this.rotateTo(angle, Config.enemyRotationSpeed);
          }
       });
-      this.delay(Config.defaultEnemyWaitTime);
-      for (var i = path.length - 1; i >= 0; i--) {
-         this.moveTo(path[i].x - this.getWidth() / 2, path[i].y - this.getHeight() / 2, Config.defaultEnemySpeed);
-         if (path[i - 1]) {
-            var direction = new ex.Vector(path[i - 1].x, path[i - 1].y).minus(path[i].toVector()).normalize();
-            var angle = Math.atan2(direction.y, direction.x);
-            this.rotateTo(angle, Config.enemyRotationSpeed);
+
+      // Reverse on path if not joined
+      if (!isJoined) {
+         this.delay(Config.defaultEnemyWaitTime);
+         for (var i = path.length - 1; i >= 0; i--) {
+            this.moveTo(path[i].x - this.getWidth() / 2, path[i].y - this.getHeight() / 2, Config.defaultEnemySpeed);
+            if (path[i - 1]) {
+               var direction = new ex.Vector(path[i - 1].x, path[i - 1].y).minus(path[i].toVector()).normalize();
+               var angle = Math.atan2(direction.y, direction.x);
+               this.rotateTo(angle, Config.enemyRotationSpeed);
+            }
          }
+         this.delay(Config.defaultEnemyWaitTime);
       }
 
       this.repeatForever();
