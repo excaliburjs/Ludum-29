@@ -1,4 +1,4 @@
-# WARNING: Important Note for future explorers
+# :warning: Important Note for future explorers
 
 If you’re looking for good examples of how to build games in Excalibur, please visit the [official sample gallery](https://excaliburjs.com/samples/).
 
